@@ -1,29 +1,33 @@
-import { io, Socket } from 'socket.io-client';
-
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3000';
 
-let socket: Socket | null = null;
+let socket: any = null;
 
-export const getSocket = (token?: string): Socket => {
+export const getSocket = (token?: string): any => {
   if (!socket) {
-    socket = io(`${WS_URL}/ws`, {
-      auth: {
-        token,
-      },
-      withCredentials: true,
-      transports: ['websocket', 'polling'],
-    });
+    // Only create socket on the client. Use a dynamic import so the
+    // bundler doesn't include `socket.io-client` in the server build.
+    if (typeof window === 'undefined') return null;
 
-    socket.on('connect', () => {
-      console.log('WebSocket connected:', socket?.id);
-    });
+    import('socket.io-client').then(({ io }) => {
+      socket = io(`${WS_URL}/ws`, {
+        auth: { token },
+        withCredentials: true,
+        transports: ['websocket', 'polling'],
+      });
 
-    socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
-    });
+      socket.on('connect', () => {
+        console.log('WebSocket connected:', socket?.id);
+      });
 
-    socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
+      socket.on('disconnect', () => {
+        console.log('WebSocket disconnected');
+      });
+
+      socket.on('connect_error', (error: any) => {
+        console.error('WebSocket connection error:', error);
+      });
+    }).catch((err) => {
+      console.error('Failed to load socket.io-client:', err);
     });
   }
 
