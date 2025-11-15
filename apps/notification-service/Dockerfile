@@ -21,7 +21,7 @@ COPY proto ./proto
 COPY apps/notification-service ./apps/notification-service
 
 # Build the service
-RUN npm run build notification-service
+RUN npm run build -- notification-service
 
 # =============================================================================
 # Production stage

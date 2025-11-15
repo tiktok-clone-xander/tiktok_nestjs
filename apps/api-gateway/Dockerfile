@@ -21,7 +21,7 @@ COPY proto ./proto
 COPY apps/api-gateway ./apps/api-gateway
 
 # Build the service
-RUN npm run build api-gateway
+RUN npm run build -- api-gateway
 
 # =============================================================================
 # Production stage

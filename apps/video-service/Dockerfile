@@ -21,7 +21,7 @@ COPY proto ./proto
 COPY apps/video-service ./apps/video-service
 
 # Build the service
-RUN npm run build video-service
+RUN npm run build -- video-service
 
 # =============================================================================
 # Production stage

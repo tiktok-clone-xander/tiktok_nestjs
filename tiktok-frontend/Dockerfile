@@ -55,7 +55,11 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Copy necessary files from builder
 COPY --from=builder /monorepo/tiktok-frontend/public ./public
-COPY --from=builder /monorepo/tiktok-frontend/.next/standalone/ ./
+
+# Copy the standalone output
+COPY --from=builder /monorepo/tiktok-frontend/.next/standalone ./
+
+# Copy static files
 COPY --from=builder /monorepo/tiktok-frontend/.next/static ./.next/static
 
 # Change ownership

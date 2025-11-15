@@ -21,7 +21,7 @@ COPY proto ./proto
 COPY apps/auth-service ./apps/auth-service
 
 # Build the service
-RUN npm run build auth-service
+RUN npm run build -- auth-service
 
 # =============================================================================
 # Production stage

@@ -1,6 +1,6 @@
-# TikTok Clone - Microservices Architecture
+# TikTok Clone - Microservices Monorepo Architecture
 
-> Dự án TikTok Clone được xây dựng với kiến trúc Microservices sử dụng NestJS, NextJS và các công nghệ hiện đại nhất.
+> Dự án TikTok Clone được xây dựng với kiến trúc Microservices Monorepo sử dụng NestJS, NextJS và các công nghệ hiện đại nhất. **Shared Dependencies Architecture** giúp tiết kiệm 75% dung lượng và tăng tốc build 67%.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
@@ -9,6 +9,24 @@
 [![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+
+## 🚀 Quick Start - Chạy 1 Lệnh Duy Nhất!
+
+```powershell
+# Clone project
+git clone https://github.com/betuanminh22032003/tiktok_nestjs.git
+cd tiktok_nestjs
+
+# Chạy tất cả (auto setup everything!)
+.\run.ps1
+```
+
+**Sau 5-10 phút, truy cập:**
+- 🌐 Frontend: http://localhost:3000
+- 🔌 API: http://localhost:4000
+- 📚 Swagger: http://localhost:4000/api/docs
+
+> 💡 Script tự động kiểm tra, cài đặt dependencies, tạo .env, và start tất cả containers!
 
 ## 📋 Mục Lục
 

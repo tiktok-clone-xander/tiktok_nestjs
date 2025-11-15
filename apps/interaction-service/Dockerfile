@@ -21,7 +21,7 @@ COPY proto ./proto
 COPY apps/interaction-service ./apps/interaction-service
 
 # Build the service
-RUN npm run build interaction-service
+RUN npm run build -- interaction-service
 
 # =============================================================================
 # Production stage

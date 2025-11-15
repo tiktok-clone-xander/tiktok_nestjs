@@ -279,7 +279,20 @@ function Test-API {
 
 function Start-Docker {
     Write-Host "🐳 Starting ALL services with Docker (Monorepo)..." -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Ensure .env exists
+    if (-not (Test-Path ".env")) {
+        Write-Host "📝 Creating .env file..." -ForegroundColor Yellow
+        & .\ensure-env.ps1
+    } else {
+        Write-Host "✅ .env file exists" -ForegroundColor Green
+    }
+    
+    Write-Host ""
+    Write-Host "🔨 Building and starting containers..." -ForegroundColor Cyan
     docker compose up --build -d
+    
     Write-Host ""
     Write-Host "✅ All services started!" -ForegroundColor Green
     Write-Host ""
@@ -289,7 +302,8 @@ function Start-Docker {
     Write-Host "Access:" -ForegroundColor Cyan
     Write-Host "  Frontend:         http://localhost:3000" -ForegroundColor Green
     Write-Host "  API Gateway:      http://localhost:4000" -ForegroundColor Green
-    Write-Host "  RabbitMQ Manager: http://localhost:15672" -ForegroundColor Gray
+    Write-Host "  Swagger Docs:     http://localhost:4000/api/docs" -ForegroundColor Green
+    Write-Host "  RabbitMQ Manager: http://localhost:15672 (guest/guest)" -ForegroundColor Gray
     Write-Host "  Prometheus:       http://localhost:9090" -ForegroundColor Gray
     Write-Host "  Grafana:          http://localhost:3005 (admin/admin)" -ForegroundColor Gray
 }
