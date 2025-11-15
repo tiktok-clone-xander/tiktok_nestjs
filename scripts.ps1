@@ -1,5 +1,6 @@
 # TikTok Clone - Development Helper Scripts (Windows)
 # Run with: .\scripts.ps1 [command]
+# Monorepo Architecture with Shared node_modules
 
 param(
     [Parameter(Position=0)]
@@ -276,40 +277,108 @@ function Test-API {
     }
 }
 
+function Start-Docker {
+    Write-Host "🐳 Starting ALL services with Docker (Monorepo)..." -ForegroundColor Cyan
+    docker compose up --build -d
+    Write-Host ""
+    Write-Host "✅ All services started!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Services running:" -ForegroundColor Yellow
+    docker compose ps
+    Write-Host ""
+    Write-Host "Access:" -ForegroundColor Cyan
+    Write-Host "  Frontend:         http://localhost:3000" -ForegroundColor Green
+    Write-Host "  API Gateway:      http://localhost:4000" -ForegroundColor Green
+    Write-Host "  RabbitMQ Manager: http://localhost:15672" -ForegroundColor Gray
+    Write-Host "  Prometheus:       http://localhost:9090" -ForegroundColor Gray
+    Write-Host "  Grafana:          http://localhost:3005 (admin/admin)" -ForegroundColor Gray
+}
+
+function Stop-Docker {
+    Write-Host "🛑 Stopping all Docker services..." -ForegroundColor Yellow
+    docker compose down
+    Write-Host "✅ All services stopped!" -ForegroundColor Green
+}
+
+function Rebuild-Docker {
+    param([string]$ServiceName = "")
+    
+    if ($ServiceName) {
+        Write-Host "🔨 Rebuilding $ServiceName..." -ForegroundColor Cyan
+        docker compose up --build -d $ServiceName
+    } else {
+        Write-Host "🔨 Rebuilding ALL services..." -ForegroundColor Cyan
+        docker compose down
+        docker compose up --build -d
+    }
+    Write-Host "✅ Rebuild complete!" -ForegroundColor Green
+}
+
+function Clean-Docker {
+    Write-Host "🧹 Cleaning Docker resources..." -ForegroundColor Yellow
+    Write-Host "Stopping containers..." -ForegroundColor Gray
+    docker compose down -v
+    Write-Host "Removing unused images..." -ForegroundColor Gray
+    docker system prune -f
+    Write-Host "✅ Docker cleanup complete!" -ForegroundColor Green
+}
+
 function Show-Help {
-    Write-Host "TikTok Clone - Development Helper" -ForegroundColor Cyan
+    Write-Host "TikTok Clone - Development Helper (Monorepo)" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Usage: .\scripts.ps1 [command] [service]" -ForegroundColor White
     Write-Host ""
-    Write-Host "Commands:" -ForegroundColor Yellow
-    Write-Host "  start-infra    Start infrastructure services" -ForegroundColor White
+    Write-Host "🐳 Docker Commands (Production-like):" -ForegroundColor Yellow
+    Write-Host "  docker-up       Start ALL services with Docker Compose" -ForegroundColor White
+    Write-Host "  docker-down     Stop all Docker services" -ForegroundColor White
+    Write-Host "  docker-rebuild [service]  Rebuild and restart (all or specific)" -ForegroundColor White
+    Write-Host "  docker-clean    Clean Docker resources (volumes, images)" -ForegroundColor White
+    Write-Host ""
+    Write-Host "💻 Development Commands (Local):" -ForegroundColor Yellow
+    Write-Host "  start-infra    Start infrastructure only (DB, Redis, RabbitMQ)" -ForegroundColor White
     Write-Host "  stop-infra     Stop infrastructure services" -ForegroundColor White
-    Write-Host "  clean          Clean build artifacts" -ForegroundColor White
+    Write-Host "  clean          Clean build artifacts (dist, node_modules)" -ForegroundColor White
     Write-Host "  reset-db       Reset database (WARNING: deletes all data)" -ForegroundColor White
+    Write-Host ""
+    Write-Host "📊 Monitoring & Testing:" -ForegroundColor Yellow
     Write-Host "  logs [service] Show logs (all or specific service)" -ForegroundColor White
-    Write-Host "  health         Check service health" -ForegroundColor White
+    Write-Host "  health         Check all services health" -ForegroundColor White
     Write-Host "  test-api       Test API endpoints" -ForegroundColor White
+    Write-Host ""
+    Write-Host "🚀 Quick Start:" -ForegroundColor Yellow
     Write-Host "  run-all [flags] Start backend (docker-compose) and optional frontend" -ForegroundColor White
     Write-Host "                 Flags: frontend,skip-pull,force-env  (comma separated)" -ForegroundColor White
-    Write-Host "  help           Show this help message" -ForegroundColor White
     Write-Host ""
-    Write-Host "Examples:" -ForegroundColor Yellow
-    Write-Host "  .\scripts.ps1 start-infra" -ForegroundColor Gray
-    Write-Host "  .\scripts.ps1 logs api-gateway" -ForegroundColor Gray
-    Write-Host "  .\scripts.ps1 health" -ForegroundColor Gray
-    Write-Host "  .\scripts.ps1 run-all frontend" -ForegroundColor Gray
-    Write-Host "  .\scripts.ps1 run-all skip-pull" -ForegroundColor Gray
+    Write-Host "Examples:" -ForegroundColor Cyan
+    Write-Host "  .\scripts.ps1 docker-up              # Start everything with Docker" -ForegroundColor Gray
+    Write-Host "  .\scripts.ps1 docker-rebuild frontend # Rebuild only frontend" -ForegroundColor Gray
+    Write-Host "  .\scripts.ps1 logs api-gateway       # Show API Gateway logs" -ForegroundColor Gray
+    Write-Host "  .\scripts.ps1 health                 # Check all services" -ForegroundColor Gray
+    Write-Host "  .\scripts.ps1 docker-clean           # Clean up Docker" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "📚 More info: See WORKSPACE_SETUP.md" -ForegroundColor Cyan
 }
 
 # Main switch
 switch ($Command.ToLower()) {
+    # Docker commands
+    "docker-up" { Start-Docker }
+    "docker-down" { Stop-Docker }
+    "docker-rebuild" { Rebuild-Docker -ServiceName $Service }
+    "docker-clean" { Clean-Docker }
+    
+    # Development commands
     "start-infra" { Start-Infrastructure }
     "stop-infra" { Stop-Infrastructure }
     "clean" { Clean-Project }
     "reset-db" { Reset-Database }
+    
+    # Monitoring & Testing
     "logs" { Show-Logs -ServiceName $Service }
     "health" { Test-Health }
     "test-api" { Test-API }
+    
+    # Legacy command
     "run-all" {
         # Service parameter can be comma-separated flags: frontend,skip-pull,force-env
         $startFrontend = $false
@@ -326,5 +395,6 @@ switch ($Command.ToLower()) {
         }
         Start-All -StartFrontend:$startFrontend -SkipPull:$skipPull -ForceEnv:$forceEnv
     }
+    
     default { Show-Help }
 }

@@ -1,55 +1,54 @@
-# Build stage
+# =============================================================================
+# Build stage - Shared dependencies
+# =============================================================================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy root workspace files
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY nest-cli.json ./
 
-# Install dependencies
-RUN npm ci
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci && npm cache clean --force
 
-# Copy source code
+# Copy shared libs and proto files
 COPY libs ./libs
 COPY proto ./proto
+
+# Copy specific service
 COPY apps/video-service ./apps/video-service
 
-# Build the application
+# Build the service
 RUN npm run build video-service
 
+# =============================================================================
 # Production stage
+# =============================================================================
 FROM node:20-alpine
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001
 
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup -g 1001 -S nestjs && \
-    adduser -S nestjs -u 1001
-
-# Copy package files
-COPY package*.json ./
-
-# Install production dependencies only
-RUN npm ci --only=production && npm cache clean --force
-
-# Copy built application
-COPY --from=builder /app/dist/apps/video-service ./dist
-COPY --from=builder /app/proto ./proto
-
-# Change ownership
-RUN chown -R nestjs:nestjs /app
+# Copy built app and shared node_modules from builder
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nestjs:nodejs /app/proto ./proto
 
 # Switch to non-root user
 USER nestjs
 
-# Expose ports
+# Expose gRPC and HTTP ports
 EXPOSE 3002 50052
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3002/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the application
-CMD ["node", "dist/main.js"]
+# Start the service
+CMD ["node", "dist/apps/video-service/main.js"]

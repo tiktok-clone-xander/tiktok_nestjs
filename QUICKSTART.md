@@ -1,51 +1,57 @@
-# Quick Start Guide
+# Quick Start Guide - Monorepo Architecture
 
 ## 🚀 Cách Nhanh Nhất để Chạy Project
 
-### Option 1: Chạy với Docker (Khuyến nghị) ⭐
+> **✨ New**: Project đã được optimize với Monorepo + Shared node_modules
 
-```bash
-# 1. Clone và setup
+### Option 1: Docker - Chạy TẤT CẢ (Khuyến nghị) ⭐
+
+```powershell
+# 1. Clone và install dependencies
 git clone https://github.com/betuanminh22032003/tiktok_nestjs.git
 cd tiktok_nestjs
-.\setup.ps1  # Windows
-# hoặc
-./setup.sh   # Linux/Mac
+npm install  # Chỉ cần 1 lần, shared cho tất cả
 
-# 2. Chạy tất cả services
-docker-compose up -d
+# 2. Start TẤT CẢ services (Backend + Frontend)
+.\scripts.ps1 docker-up
 
-# 3. Kiểm tra logs
-docker-compose logs -f
-
-# 4. Truy cập
-# - API Gateway: http://localhost:3000
-# - Swagger Docs: http://localhost:3000/api/docs
-# - RabbitMQ UI: http://localhost:15672 (guest/guest)
+# 3. Truy cập:
+# - Frontend:       http://localhost:3000
+# - API Gateway:    http://localhost:4000
+# - Swagger Docs:   http://localhost:4000/api/docs
+# - RabbitMQ UI:    http://localhost:15672 (guest/guest)
+# - Grafana:        http://localhost:3005 (admin/admin)
 ```
 
-### Option 2: Chạy Local Development
+**Chỉ vậy thôi! Tất cả đã chạy. 🎉**
 
-```bash
-# 1. Setup
-.\setup.ps1  # Windows
+---
 
-# 2. Chạy infrastructure
-docker-compose up -d postgres redis rabbitmq
+### Option 2: Local Development (Linh hoạt hơn)
 
-# 3. Mở 4 terminal và chạy:
+```powershell
+# 1. Cài dependencies (shared monorepo)
+npm install  # Chỉ 1 node_modules cho tất cả
 
-# Terminal 1 - Auth Service
+# 2. Start infrastructure
+.\scripts.ps1 start-infra  # Postgres, Redis, RabbitMQ
+
+# 3. Mở terminal riêng cho mỗi service:
+
+# Terminal 1 - API Gateway
+npm run start:gateway
+
+# Terminal 2 - Auth Service
 npm run start:auth
 
-# Terminal 2 - Video Service
+# Terminal 3 - Video Service
 npm run start:video
 
-# Terminal 3 - Interaction Service
+# Terminal 4 - Interaction Service
 npm run start:interaction
 
-# Terminal 4 - API Gateway
-npm run start:gateway
+# Terminal 5 - Frontend
+npm run dev:frontend
 ```
 
 ## 📝 Test API

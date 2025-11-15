@@ -1,26 +1,26 @@
 # =============================================================================
-# Build stage
+# Build stage - Shared dependencies
 # =============================================================================
 FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy root workspace files
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY nest-cli.json ./
 
-# Install dependencies
-RUN npm ci --only=production && \
-    npm cache clean --force
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci && npm cache clean --force
 
-# Copy source code
+# Copy shared libs and proto files
 COPY libs ./libs
-COPY apps/auth-service ./apps/auth-service
 COPY proto ./proto
 
-# Build the application
+# Copy specific service
+COPY apps/auth-service ./apps/auth-service
+
+# Build the service
 RUN npm run build auth-service
 
 # =============================================================================
@@ -32,10 +32,9 @@ FROM node:20-alpine
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
 
-# Set working directory
 WORKDIR /app
 
-# Copy built application from builder
+# Copy built app and shared node_modules from builder
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./

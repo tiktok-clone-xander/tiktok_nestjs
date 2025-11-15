@@ -5,7 +5,15 @@
   "author": "Senior Developer",
   "private": true,
   "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "libs/*",
+    "tiktok-frontend"
+  ],
   "scripts": {
+    "install:all": "npm install",
+    "dev:frontend": "npm run dev --workspace=tiktok-frontend",
+    "build:frontend": "npm run build --workspace=tiktok-frontend",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
