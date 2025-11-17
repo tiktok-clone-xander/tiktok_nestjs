@@ -16,7 +16,7 @@ import { RabbitMQService } from '@app/rabbitmq';
       envFilePath: '.env',
     }),
     DatabaseModule,
-    RabbitMQModule,
+    RabbitMQModule.register({ name: 'notification-service' }),
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [NotificationController, HealthController],

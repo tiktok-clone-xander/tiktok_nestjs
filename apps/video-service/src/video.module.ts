@@ -20,7 +20,7 @@ import { HealthController } from './health.controller';
     }),
     DatabaseModule,
     RedisModule,
-    RabbitMQModule,
+    RabbitMQModule.register({ name: 'video-service' }),
     TypeOrmModule.forFeature([Video, User, Like, Comment]),
   ],
   controllers: [VideoController, HealthController],

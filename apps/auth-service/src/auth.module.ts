@@ -9,6 +9,7 @@ import { RabbitMQModule } from '@app/rabbitmq';
 import { User } from '@app/database/entities/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { HealthController } from './health.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
@@ -25,7 +26,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     PassportModule,
     JwtModule.register({}),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, HealthController],
   providers: [AuthService, JwtStrategy, LocalStrategy],
 })
 export class AuthModule {}
