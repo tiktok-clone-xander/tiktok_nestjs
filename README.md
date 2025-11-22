@@ -41,6 +41,7 @@ cd tiktok_nestjs
 - [CI/CD](#-cicd)
 - [Deployment](#-deployment)
 - [Monitoring](#-monitoring)
+- [AI Development Guide](#-ai-development-guide)
 
 ## ✨ Tính năng
 
@@ -579,13 +580,45 @@ tiktok_nestjs/
 - ✅ Environment variables cho secrets
 - ✅ Regular security audits
 
+## 🤖 AI Development Guide
+
+This project includes comprehensive guides for working with AI assistants (GitHub Copilot, ChatGPT, etc.):
+
+- **[AI_PROMPT_GUIDE.md](AI_PROMPT_GUIDE.md)** - Complete guide with patterns, examples, and best practices
+- **[PROMPT_CHEATSHEET.md](PROMPT_CHEATSHEET.md)** - Quick reference for common prompts
+- **[.copilot-instructions.md](.copilot-instructions.md)** - Auto-loaded by GitHub Copilot
+
+### Quick Tips for AI-Assisted Development
+
+✅ **Good Prompts:**
+```
+"Add email verification to auth-service following our JWT patterns"
+"Refactor video.service.ts to use @app/redis for caching"
+"Create DTO for user profile with class-validator decorators"
+```
+
+❌ **Bad Prompts:**
+```
+"Add login" (too vague)
+"Fix the bug" (no context)
+"Make it better" (unclear)
+```
+
+**Always include:**
+- Which service/module you're working in
+- What patterns to follow (reference existing files)
+- Specific requirements (validation, error handling, etc.)
+- What conventions to follow (see CONTRIBUTING.md)
+
 ## 🤝 Contributing
 
 1. Fork the project
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+3. Commit your changes following [COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 📝 License
 
