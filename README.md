@@ -582,33 +582,12 @@ tiktok_nestjs/
 
 ## 🤖 AI Development Guide
 
-This project includes comprehensive guides for working with AI assistants (GitHub Copilot, ChatGPT, etc.):
+**Files:**
+- **[AI_PROMPT_GUIDE.md](AI_PROMPT_GUIDE.md)** - Patterns and conventions
+- **[.copilot-instructions.md](.copilot-instructions.md)** - Auto-loaded by Copilot
 
-- **[AI_PROMPT_GUIDE.md](AI_PROMPT_GUIDE.md)** - Complete guide with patterns, examples, and best practices
-- **[PROMPT_CHEATSHEET.md](PROMPT_CHEATSHEET.md)** - Quick reference for common prompts
-- **[.copilot-instructions.md](.copilot-instructions.md)** - Auto-loaded by GitHub Copilot
-
-### Quick Tips for AI-Assisted Development
-
-✅ **Good Prompts:**
-```
-"Add email verification to auth-service following our JWT patterns"
-"Refactor video.service.ts to use @app/redis for caching"
-"Create DTO for user profile with class-validator decorators"
-```
-
-❌ **Bad Prompts:**
-```
-"Add login" (too vague)
-"Fix the bug" (no context)
-"Make it better" (unclear)
-```
-
-**Always include:**
-- Which service/module you're working in
-- What patterns to follow (reference existing files)
-- Specific requirements (validation, error handling, etc.)
-- What conventions to follow (see CONTRIBUTING.md)
+**Good Prompt**: `"Add POST /auth/verify to auth-service. Use VerifyEmailDto, store in Redis (@app/redis) 24h. Follow auth.service.ts pattern."`
+**Bad Prompt**: `"Add login"` (too vague)
 
 ## 🤝 Contributing
 
