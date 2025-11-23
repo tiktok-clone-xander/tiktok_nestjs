@@ -1,0 +1,19 @@
+{
+  "debug.console.fontSize": 14,
+  "debug.console.lineHeight": 20,
+  "debug.internalConsoleOptions": "neverOpen",
+  "debug.openDebug": "openOnDebugBreak",
+  "debug.showInStatusBar": "always",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true
+  }
+}
