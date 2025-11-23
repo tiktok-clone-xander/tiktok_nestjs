@@ -15,9 +15,18 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "env": {
         "NODE_ENV": "development"
-      }
+      },
+      "internalConsoleOptions": "neverOpen",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -33,9 +42,18 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "env": {
         "NODE_ENV": "development"
-      }
+      },
+      "internalConsoleOptions": "neverOpen",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -51,9 +69,18 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "env": {
         "NODE_ENV": "development"
-      }
+      },
+      "internalConsoleOptions": "neverOpen",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -69,9 +96,18 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "env": {
         "NODE_ENV": "development"
-      }
+      },
+      "internalConsoleOptions": "neverOpen",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -87,9 +123,18 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "env": {
         "NODE_ENV": "development"
-      }
+      },
+      "internalConsoleOptions": "neverOpen",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -137,6 +182,70 @@
       "name": "Attach to API Gateway",
       "port": 9233,
       "restart": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Current File",
+      "program": "${file}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "preLaunchTask": "Build All",
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Tests",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "--watchAll=false"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Current File",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "${fileBasenameNoExtension}",
+        "--runInBand",
+        "--no-cache",
+        "--watchAll=false"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug E2E Tests",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "test:e2e"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
       "skipFiles": [
         "<node_internals>/**"
       ]

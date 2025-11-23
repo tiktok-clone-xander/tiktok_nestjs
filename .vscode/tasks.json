@@ -1,0 +1,266 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build All",
+      "type": "shell",
+      "command": "npm run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": [
+        "$tsc"
+      ]
+    },
+    {
+      "label": "Watch Auth Service",
+      "type": "shell",
+      "command": "npm run start:auth",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "watch"
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting compilation.*$",
+          "endsPattern": "^.*Compilation complete.*$"
+        }
+      }
+    },
+    {
+      "label": "Watch Video Service",
+      "type": "shell",
+      "command": "npm run start:video",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "watch"
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting compilation.*$",
+          "endsPattern": "^.*Compilation complete.*$"
+        }
+      }
+    },
+    {
+      "label": "Watch Interaction Service",
+      "type": "shell",
+      "command": "npm run start:interaction",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "watch"
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting compilation.*$",
+          "endsPattern": "^.*Compilation complete.*$"
+        }
+      }
+    },
+    {
+      "label": "Watch Notification Service",
+      "type": "shell",
+      "command": "npm run start:notification",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "watch"
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting compilation.*$",
+          "endsPattern": "^.*Compilation complete.*$"
+        }
+      }
+    },
+    {
+      "label": "Watch API Gateway",
+      "type": "shell",
+      "command": "npm run start:gateway",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "watch"
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting compilation.*$",
+          "endsPattern": "^.*Compilation complete.*$"
+        }
+      }
+    },
+    {
+      "label": "Watch All Services",
+      "dependsOn": [
+        "Watch Auth Service",
+        "Watch Video Service",
+        "Watch Interaction Service",
+        "Watch Notification Service",
+        "Watch API Gateway"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "rimraf dist",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Clean and Build",
+      "dependsOn": [
+        "Clean",
+        "Build All"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "npm test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run E2E Tests",
+      "type": "shell",
+      "command": "npm run test:e2e",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        "$eslint-stylish"
+      ]
+    },
+    {
+      "label": "Format Code",
+      "type": "shell",
+      "command": "npm run format",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Docker: Start Infrastructure",
+      "type": "shell",
+      "command": "docker-compose -f docker-compose.infra.yml up -d",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Stop Infrastructure",
+      "type": "shell",
+      "command": "docker-compose -f docker-compose.infra.yml down",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Start All Services",
+      "type": "shell",
+      "command": "docker-compose up -d",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Stop All Services",
+      "type": "shell",
+      "command": "docker-compose down",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Database: Run Migrations",
+      "type": "shell",
+      "command": "npm run migration:run",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Database: Seed Data",
+      "type": "shell",
+      "command": "npm run seed:run",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Database: Reset",
+      "type": "shell",
+      "command": "npm run db:reset",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

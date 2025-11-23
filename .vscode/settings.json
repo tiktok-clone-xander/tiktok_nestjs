@@ -34,7 +34,16 @@
   "debug.internalConsoleOptions": "neverOpen",
   "debug.openDebug": "openOnDebugBreak",
   "debug.showInStatusBar": "always",
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.javascript.autoAttachFilter": "smart",
+  "debug.javascript.terminalOptions": {
+    "skipFiles": [
+      "<node_internals>/**"
+    ]
+  },
   "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
