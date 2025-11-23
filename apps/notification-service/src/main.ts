@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { NotificationModule } from './notification.module';
 import { AllExceptionsFilter } from '@app/common/filters';
@@ -9,6 +10,7 @@ import { logger } from '@app/common/utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(NotificationModule);
+  const configService = app.get(ConfigService);
 
   // Setup gRPC microservice
   app.connectMicroservice<MicroserviceOptions>({
@@ -16,7 +18,7 @@ async function bootstrap() {
     options: {
       package: 'notification',
       protoPath: join(__dirname, '../../../proto/notification.proto'),
-      url: `0.0.0.0:${process.env.NOTIFICATION_GRPC_PORT || 50054}`,
+      url: `0.0.0.0:${configService.get('NOTIFICATION_GRPC_PORT', 50054)}`,
     },
   });
 
@@ -33,7 +35,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
   logger.info('Notification gRPC service is listening on port 50054');
 
-  const port = process.env.NOTIFICATION_HTTP_PORT || 3004;
+  const port = configService.get('NOTIFICATION_HTTP_PORT', 3004);
   await app.listen(port);
   logger.info(`Notification HTTP server is running on port ${port}`);
 }

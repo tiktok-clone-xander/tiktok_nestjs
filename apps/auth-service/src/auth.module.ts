@@ -21,7 +21,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
     DatabaseModule,
     RedisModule,
-    KafkaModule,
+    KafkaModule.register({ name: 'auth-service' }),
     TypeOrmModule.forFeature([User]),
     PassportModule,
     JwtModule.register({}),
