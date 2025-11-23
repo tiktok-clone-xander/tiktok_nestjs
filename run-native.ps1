@@ -124,8 +124,6 @@ if (-not $SkipInfra) {
     Write-Info "Creating infrastructure-only Docker Compose file..."
     
     $infraDockerCompose = @"
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:

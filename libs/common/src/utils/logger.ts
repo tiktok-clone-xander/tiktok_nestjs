@@ -22,11 +22,11 @@ if (process.env.ENABLE_FILE_LOGGING === 'true') {
   let dirOk = true;
   try {
     fs.mkdirSync(path.resolve(logDir), { recursive: true });
-  } catch (err: unknown) {n) {
+  } catch (err: unknown) {
     dirOk = false;
     // eslint-disable-next-line no-console
     console.warn(
-      `File logging disabled - cannot create log directory "${logDir}":`,
+      `File logging disabled - cannot create log directory "${logDir}"`,
       err instanceof Error ? err.message : String(err),
     );
   }

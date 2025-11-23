@@ -31,15 +31,15 @@ export class NotificationModule implements OnModuleInit {
   async onModuleInit() {
     // Subscribe to Kafka topics
     await this.kafkaService.subscribe('video.liked', async (data) => {
-      await this.notificationService.handleVideoLiked(data);
+      await this.notificationService.handleVideoLiked(data as any);
     });
 
     await this.kafkaService.subscribe('comment.created', async (data) => {
-      await this.notificationService.handleCommentCreated(data);
+      await this.notificationService.handleCommentCreated(data as any);
     });
 
     await this.kafkaService.subscribe('video.created', async (data) => {
-      await this.notificationService.handleVideoCreated(data);
+      await this.notificationService.handleVideoCreated(data as any);
     });
   }
 }

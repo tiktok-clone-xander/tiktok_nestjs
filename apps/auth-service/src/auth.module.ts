@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { DatabaseModule } from '@app/database';
 import { RedisModule } from '@app/redis';
-import { RabbitMQModule } from '@app/rabbitmq';
+import { KafkaModule } from '@app/kafka';
 import { User } from '@app/database/entities/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -21,7 +21,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
     DatabaseModule,
     RedisModule,
-    RabbitMQModule.register({ name: 'AUTH_SERVICE' }),
+    KafkaModule,
     TypeOrmModule.forFeature([User]),
     PassportModule,
     JwtModule.register({}),

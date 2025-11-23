@@ -33,7 +33,7 @@ export default function VideoCard({ video, isActive = false }: VideoCardProps) {
   const [likesCount, setLikesCount] = useState(video.likesCount);
   const [commentsCount, setCommentsCount] = useState(video.commentsCount);
   const { isAuthenticated } = useAuthStore();
-  const playerRef = useRef<ReactPlayer | null>(null);
+  const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

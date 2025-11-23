@@ -10,7 +10,7 @@ import { RpcException } from '@nestjs/microservices';
 import { Video } from '@app/database/entities/video.entity';
 import { User } from '@app/database/entities/user.entity';
 import { RedisService } from '@app/redis';
-import { RabbitMQService } from '@app/rabbitmq';
+import { KafkaService } from '@app/kafka';
 import { CreateVideoDto, UpdateVideoStatsDto } from '@app/common/dto/video.dto';
 import { logger } from '@app/common/utils';
 
@@ -151,7 +151,7 @@ export class VideoService {
       // Try cache first
       const cachedFeed = await this.redisService.getCachedFeed(userId || 'global', page, limit);
       if (cachedFeed) {
-        return { videos: cachedFeed, page, limit, hasMore: cachedFeed.length === limit };
+        return { videos: cachedFeed, page, limit, hasMore: (cachedFeed as any[]).length === limit };
       }
 
       // Get from database with pagination
@@ -274,7 +274,7 @@ export class VideoService {
       await this.redisService.invalidateFeedCache(userId);
 
       // Publish event
-      await this.rabbitMQService.publish('video.deleted', {
+      await this.kafkaService.publish('video.deleted', {
         videoId,
         userId,
       });
