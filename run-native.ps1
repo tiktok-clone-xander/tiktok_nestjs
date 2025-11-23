@@ -64,17 +64,17 @@ function Test-DockerRunning {
 # Stop all services
 function Stop-AllServices {
     Write-Header "Stopping All Services"
-    
+
     # Stop infrastructure Docker containers
     Write-Info "Stopping infrastructure containers..."
     docker-compose down
-    
+
     # Kill Node.js processes for microservices
     Write-Info "Stopping Node.js microservices..."
     Get-Process -Name node -ErrorAction SilentlyContinue | Where-Object {
         $_.MainWindowTitle -match "nest|api-gateway|auth-service|video-service|interaction-service|notification-service"
     } | Stop-Process -Force
-    
+
     Write-Success "All services stopped"
 }
 
@@ -119,10 +119,10 @@ Write-Success "Dependencies installed"
 # Start infrastructure services
 if (-not $SkipInfra) {
     Write-Header "Starting Infrastructure Services"
-    
+
     # Create docker-compose.infra.yml for infrastructure only
     Write-Info "Creating infrastructure-only Docker Compose file..."
-    
+
     $infraDockerCompose = @"
 version: '3.8'
 
@@ -227,41 +227,41 @@ volumes:
 
     Set-Content -Path "docker-compose.infra.yml" -Value $infraDockerCompose
     Write-Success "Infrastructure Docker Compose file created"
-    
+
     Write-Info "Starting infrastructure containers..."
     docker-compose -f docker-compose.infra.yml up -d
-    
+
     if ($LASTEXITCODE -ne 0) {
         Write-Error-Custom "Failed to start infrastructure containers"
         exit 1
     }
-    
+
     Write-Success "Infrastructure containers started"
-    
+
     # Wait for services to be healthy
     Write-Info "Waiting for infrastructure services to be ready..."
     $maxAttempts = 30
     $attempt = 0
-    
+
     while ($attempt -lt $maxAttempts) {
         $attempt++
         Write-Host "." -NoNewline
-        
+
         $postgresHealthy = docker inspect --format='{{.State.Health.Status}}' tiktok_postgres 2>$null
         $redisHealthy = docker inspect --format='{{.State.Health.Status}}' tiktok_redis 2>$null
         $kafkaHealthy = docker inspect --format='{{.State.Health.Status}}' tiktok_kafka 2>$null
-        
+
         if ($postgresHealthy -eq "healthy" -and $redisHealthy -eq "healthy" -and $kafkaHealthy -eq "healthy") {
             Write-Host ""
             Write-Success "All infrastructure services are healthy"
             break
         }
-        
+
         if ($attempt -eq $maxAttempts) {
             Write-Host ""
             Write-Warning "Timeout waiting for services to be healthy, but continuing anyway..."
         }
-        
+
         Start-Sleep -Seconds 2
     }
 } else {
@@ -274,7 +274,7 @@ Write-Header "Setting Up Environment Variables"
 # Check if .env file exists
 if (-not (Test-Path ".env")) {
     Write-Warning ".env file not found. Creating from .env.example or defaults..."
-    
+
     $envContent = @"
 # Database
 DB_HOST=localhost
@@ -306,16 +306,17 @@ GRPC_INTERACTION_URL=localhost:50053
 GRPC_NOTIFICATION_URL=localhost:50054
 
 # Ports
-AUTH_SERVICE_PORT=3001
-VIDEO_SERVICE_PORT=3002
-INTERACTION_SERVICE_PORT=3003
-NOTIFICATION_SERVICE_PORT=3004
-API_GATEWAY_PORT=3000
+AUTH_SERVICE_PORT=4001
+VIDEO_SERVICE_PORT=4002
+INTERACTION_SERVICE_PORT=4003
+NOTIFICATION_SERVICE_PORT=4004
+API_GATEWAY_PORT=4000
+FRONTEND_PORT=3000
 
 # Node Environment
 NODE_ENV=development
 "@
-    
+
     Set-Content -Path ".env" -Value $envContent
     Write-Success ".env file created"
 }
@@ -344,7 +345,7 @@ $services = @(
 
 foreach ($service in $services) {
     Write-Info "Starting $($service.Name)..."
-    
+
     # Start each service in a new PowerShell window
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = "powershell.exe"
@@ -352,11 +353,11 @@ foreach ($service in $services) {
     $startInfo.WorkingDirectory = $PWD
     $startInfo.UseShellExecute = $true
     $startInfo.CreateNoWindow = $false
-    
+
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $startInfo
     $null = $process.Start()
-    
+
     Write-Success "$($service.Name) started in new window"
     Start-Sleep -Seconds 2
 }
@@ -364,21 +365,21 @@ foreach ($service in $services) {
 # Start frontend if not skipped
 if (-not $SkipFrontend) {
     Write-Header "Starting Frontend"
-    
+
     if (Test-Path "tiktok-frontend") {
         Write-Info "Starting Next.js frontend..."
-        
+
         $startInfo = New-Object System.Diagnostics.ProcessStartInfo
         $startInfo.FileName = "powershell.exe"
         $startInfo.Arguments = "-NoExit -Command `"cd '$PWD\tiktok-frontend'; npm run dev`""
         $startInfo.WorkingDirectory = "$PWD\tiktok-frontend"
         $startInfo.UseShellExecute = $true
         $startInfo.CreateNoWindow = $false
-        
+
         $process = New-Object System.Diagnostics.Process
         $process.StartInfo = $startInfo
         $null = $process.Start()
-        
+
         Write-Success "Frontend started in new window"
     } else {
         Write-Warning "Frontend directory not found, skipping..."
@@ -394,16 +395,16 @@ Write-Host "  - Kafka: localhost:9092" -ForegroundColor White
 Write-Host "  - Zookeeper: localhost:2181" -ForegroundColor White
 Write-Host "  - RabbitMQ: localhost:5672 (Management: http://localhost:15672)" -ForegroundColor White
 
-Write-Info "`nMicroservices (Native):"
-Write-Host "  - Auth Service: http://localhost:3001 (gRPC: localhost:50051)" -ForegroundColor White
-Write-Host "  - Video Service: http://localhost:3002 (gRPC: localhost:50052)" -ForegroundColor White
-Write-Host "  - Interaction Service: http://localhost:3003 (gRPC: localhost:50053)" -ForegroundColor White
-Write-Host "  - Notification Service: http://localhost:3004 (gRPC: localhost:50054)" -ForegroundColor White
-Write-Host "  - API Gateway: http://localhost:3000" -ForegroundColor White
+Write-Info "\nMicroservices (Native):"
+Write-Host "  - Auth Service: http://localhost:4001 (gRPC: localhost:50051)" -ForegroundColor White
+Write-Host "  - Video Service: http://localhost:4002 (gRPC: localhost:50052)" -ForegroundColor White
+Write-Host "  - Interaction Service: http://localhost:4003 (gRPC: localhost:50053)" -ForegroundColor White
+Write-Host "  - Notification Service: http://localhost:4004 (gRPC: localhost:50054)" -ForegroundColor White
+Write-Host "  - API Gateway: http://localhost:4000" -ForegroundColor White
 
 if (-not $SkipFrontend) {
-    Write-Info "`nFrontend:"
-    Write-Host "  - Next.js App: http://localhost:3001" -ForegroundColor White
+    Write-Info "\nFrontend:"
+    Write-Host "  - Next.js App: http://localhost:3000" -ForegroundColor White
 }
 
 Write-Info "`nTo stop all services, run: .\run-native.ps1 -StopOnly"

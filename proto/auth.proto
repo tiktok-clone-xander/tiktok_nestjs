@@ -19,7 +19,7 @@ message RegisterRequest {
 }
 
 message LoginRequest {
-  string emailOrUsername = 1;
+  string username = 1;
   string password = 2;
 }
 
