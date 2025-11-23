@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Home, Search, PlusSquare, User, LogOut } from 'lucide-react';
-import { useAuthStore } from '@/lib/store';
 import { authAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store';
+import { Home, LogOut, PlusSquare, Search, User } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {

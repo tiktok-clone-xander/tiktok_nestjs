@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { videoAPI } from '@/lib/api';
 import VideoCard from '@/components/VideoCard';
+import { videoAPI } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Home() {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
@@ -17,13 +17,7 @@ export default function Home() {
   }, []);
 
   // Fetch video feed with infinite scroll
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['video-feed'],
     queryFn: ({ pageParam = 1 }) => videoAPI.getFeed(pageParam, 10),
     getNextPageParam: (lastPage) => {
@@ -94,11 +88,7 @@ export default function Home() {
       style={{ scrollBehavior: 'smooth' }}
     >
       {videos.map((video, index) => (
-        <VideoCard
-          key={video.id}
-          video={video}
-          isActive={index === activeVideoIndex}
-        />
+        <VideoCard key={index} video={video} isActive={index === activeVideoIndex} />
       ))}
 
       {isFetchingNextPage && (

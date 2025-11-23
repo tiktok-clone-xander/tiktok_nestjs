@@ -54,5 +54,19 @@
     "**/node_modules": true,
     "**/dist": true,
     "**/.git": true
-  }
+  },
+  // Copilot Settings - Fix Tab acceptance
+  "editor.inlineSuggest.enabled": true,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "typescript": true,
+    "typescriptreact": true,
+    "javascript": true
+  },
+  // Disable Emmet Tab expansion to allow Copilot Tab acceptance
+  "emmet.triggerExpansionOnTab": false,
+  // Disable tab completion in favor of Copilot inline suggestions
+  "editor.tabCompletion": "off"
 }
