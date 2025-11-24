@@ -25,14 +25,14 @@ const variantClasses = {
 
 const sizeClasses = {
   sm: 'p-1.5',
-  md: 'p-2.5',
-  lg: 'p-3.5',
+  md: 'p-2',
+  lg: 'p-2.5',
 };
 
 const iconSizeClasses = {
   sm: 'w-4 h-4',
   md: 'w-5 h-5',
-  lg: 'w-6 h-6',
+  lg: 'w-7 h-7',
 };
 
 export const IconButton: React.FC<IconButtonProps> = ({

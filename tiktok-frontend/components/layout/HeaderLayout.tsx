@@ -57,7 +57,7 @@ export const HeaderLayout: React.FC<HeaderLayoutProps> = ({
         ${className}
       `}
     >
-      <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-screen-2xl mx-auto px-3 h-14 flex items-center justify-between gap-3">
         {/* Left Section */}
         <div className="flex items-center gap-4">
           {/* Mobile Menu */}
@@ -71,10 +71,10 @@ export const HeaderLayout: React.FC<HeaderLayoutProps> = ({
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">T</span>
+            <div className="w-7 h-7 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-base">T</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:block">
+            <span className="text-lg font-bold text-gray-900 dark:text-white hidden sm:block">
               TikTok
             </span>
           </Link>

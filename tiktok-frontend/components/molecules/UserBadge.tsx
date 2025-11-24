@@ -50,7 +50,7 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
 
   return (
     <div
-      className={`flex items-center gap-3 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`flex items-center gap-2 ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
     >
       <Avatar
@@ -61,13 +61,13 @@ export const UserBadge: React.FC<UserBadgeProps> = ({
       />
 
       <div className="flex flex-col min-w-0">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <span
             className={`font-semibold text-gray-900 dark:text-gray-100 truncate ${config.nameText}`}
           >
             {displayName || username}
           </span>
-          {verified && <BadgeCheck className="w-4 h-4 text-blue-500 flex-shrink-0" />}
+          {verified && <BadgeCheck className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />}
         </div>
 
         {showSubtitle && (subtitle || username) && (

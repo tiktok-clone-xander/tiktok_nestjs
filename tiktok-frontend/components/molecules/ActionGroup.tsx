@@ -42,7 +42,7 @@ const ActionItem: React.FC<ActionItemProps> = ({
   showLabels = true,
 }) => {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-0.5">
       <div className={`relative ${animate ? 'animate-bounce' : ''}`}>
         <IconButton
           icon={Icon}
@@ -87,7 +87,7 @@ export const ActionGroup: React.FC<ActionGroupProps> = ({
   };
 
   const containerClasses =
-    orientation === 'vertical' ? 'flex flex-col gap-4' : 'flex flex-row gap-6 items-center';
+    orientation === 'vertical' ? 'flex flex-col gap-3' : 'flex flex-row gap-4 items-center';
 
   return (
     <div className={`${containerClasses} ${className}`}>

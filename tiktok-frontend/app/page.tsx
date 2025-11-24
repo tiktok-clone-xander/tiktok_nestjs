@@ -1,7 +1,6 @@
 'use client';
 
 import { BottomNav } from '@/components/layout/BottomNav';
-import { HeaderLayout } from '@/components/layout/HeaderLayout';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import type { Comment } from '@/components/organisms/CommentDrawer';
 import { CommentDrawer } from '@/components/organisms/CommentDrawer';
@@ -58,7 +57,6 @@ const mockComments: Comment[] = [
 export default function HomePage() {
   const [videos, setVideos] = React.useState<Video[]>(mockVideos);
   const [commentDrawerOpen, setCommentDrawerOpen] = React.useState(false);
-  const [selectedVideoId, setSelectedVideoId] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
 
   const user = {
@@ -84,8 +82,7 @@ export default function HomePage() {
     );
   };
 
-  const handleComment = (videoId: string) => {
-    setSelectedVideoId(videoId);
+  const handleComment = () => {
     setCommentDrawerOpen(true);
   };
 
@@ -96,14 +93,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-900">
-      <HeaderLayout
-        user={user}
-        notificationCount={5}
-        messageCount={2}
-        onSearch={(query) => console.log('Search:', query)}
-      />
-
+    <div className="min-h-screen bg-black">
       <div className="flex">
         <SidebarLayout
           user={user}
@@ -113,18 +103,20 @@ export default function HomePage() {
           onLogout={() => console.log('Logout')}
         />
 
-        <main className="flex-1">
-          <FeedScroller
-            videos={videos}
-            onLike={handleLike}
-            onComment={handleComment}
-            onShare={(videoId) => console.log('Share:', videoId)}
-            onSave={handleSave}
-            onUserClick={(userId) => console.log('User click:', userId)}
-            onLoadMore={() => setLoading(true)}
-            loading={loading}
-            hasMore={true}
-          />
+        <main className="flex-1 flex justify-center bg-black">
+          <div className="w-full max-w-[690px]">
+            <FeedScroller
+              videos={videos}
+              onLike={handleLike}
+              onComment={handleComment}
+              onShare={(videoId) => console.log('Share:', videoId)}
+              onSave={handleSave}
+              onUserClick={(userId) => console.log('User click:', userId)}
+              onLoadMore={() => setLoading(true)}
+              loading={loading}
+              hasMore={false}
+            />
+          </div>
         </main>
       </div>
 

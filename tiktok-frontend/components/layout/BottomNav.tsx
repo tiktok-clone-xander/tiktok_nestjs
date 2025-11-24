@@ -40,9 +40,9 @@ export const BottomNav: React.FC<BottomNavProps> = ({ user, className = '' }) =>
       className={`
         fixed bottom-0 left-0 right-0 z-30
         lg:hidden
-        bg-white/95 dark:bg-dark-900/95
+        bg-black/95
         backdrop-blur-lg
-        border-t border-gray-200 dark:border-dark-800
+        border-t border-gray-900
         ${className}
       `}
     >
@@ -70,13 +70,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({ user, className = '' }) =>
               ) : (
                 <>
                   <Icon
-                    className={`w-6 h-6 ${
-                      active ? 'text-primary-500 stroke-[2.5]' : 'text-gray-600 dark:text-gray-400'
-                    }`}
+                    className={`w-6 h-6 ${active ? 'text-white stroke-[2.5]' : 'text-gray-400'}`}
                   />
                   <span
                     className={`text-xs mt-1 ${
-                      active ? 'text-primary-500 font-semibold' : 'text-gray-600 dark:text-gray-400'
+                      active ? 'text-white font-semibold' : 'text-gray-400'
                     }`}
                   >
                     {item.label}
@@ -92,7 +90,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ user, className = '' }) =>
       </div>
 
       {/* Safe area for iOS devices */}
-      <div className="h-safe-area-inset-bottom bg-white dark:bg-dark-900" />
+      <div className="h-safe-area-inset-bottom bg-black" />
     </nav>
   );
 };

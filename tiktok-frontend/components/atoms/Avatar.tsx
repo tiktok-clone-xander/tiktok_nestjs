@@ -15,12 +15,12 @@ export interface AvatarProps {
 }
 
 const sizeClasses = {
-  xs: 'w-6 h-6 text-xs',
-  sm: 'w-8 h-8 text-sm',
-  md: 'w-10 h-10 text-base',
-  lg: 'w-12 h-12 text-lg',
-  xl: 'w-16 h-16 text-xl',
-  '2xl': 'w-24 h-24 text-2xl',
+  xs: 'w-5 h-5 text-xs',
+  sm: 'w-7 h-7 text-xs',
+  md: 'w-9 h-9 text-sm',
+  lg: 'w-11 h-11 text-base',
+  xl: 'w-14 h-14 text-lg',
+  '2xl': 'w-20 h-20 text-xl',
 };
 
 const onlineIndicatorSizes = {
@@ -35,7 +35,7 @@ const onlineIndicatorSizes = {
 export const Avatar: React.FC<AvatarProps> = ({
   src,
   alt = 'User avatar',
-  size = 'md',
+  size = 'xs',
   fallback,
   className = '',
   online = false,

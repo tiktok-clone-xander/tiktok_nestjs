@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Bookmark,
-  Compass,
-  Home,
-  LogOut,
-  LucideIcon,
-  Settings,
-  TrendingUp,
-  Users,
-} from 'lucide-react';
+import { Bell, Compass, Home, LogOut, LucideIcon, MessageCircle, Plus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
@@ -43,12 +34,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'For You', icon: Home, href: '/' },
-  { label: 'Explore', icon: Compass, href: '/explore' },
-  { label: 'Following', icon: Users, href: '/following', requireAuth: true },
-  { label: 'Trending', icon: TrendingUp, href: '/trending' },
-  { label: 'Saved', icon: Bookmark, href: '/saved', requireAuth: true },
-  { label: 'Settings', icon: Settings, href: '/settings', requireAuth: true },
+  { label: 'Dành cho bạn', icon: Home, href: '/' },
+  { label: 'Khám phá', icon: Compass, href: '/explore' },
+  { label: 'Đang Follow', icon: Users, href: '/following', requireAuth: true },
+  { label: 'Bạn bè', icon: Users, href: '/friends' },
+  { label: 'Tin nhắn', icon: MessageCircle, href: '/messages', requireAuth: true },
+  { label: 'Hoạt động', icon: Bell, href: '/activity', requireAuth: true },
+  { label: 'Tải lên', icon: Plus, href: '/upload', requireAuth: true },
 ];
 
 export const SidebarLayout: React.FC<SidebarLayoutProps> = ({
@@ -68,132 +60,146 @@ export const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   return (
     <aside
       className={`
-        hidden lg:flex flex-col w-64 xl:w-72
-        h-[calc(100vh-4rem)] sticky top-16
-        bg-white dark:bg-dark-900
-        border-r border-gray-200 dark:border-dark-800
+        hidden lg:flex flex-col w-60 xl:w-64
+        h-screen sticky top-0
+        bg-black text-white
         overflow-y-auto custom-scrollbar
         ${className}
       `}
     >
-      <div className="flex flex-col gap-6 p-4">
-        {/* Navigation Menu */}
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            // Hide auth-required items if user is not logged in
-            if (item.requireAuth && !user) return null;
+      <div className="flex flex-col h-full">
+        {/* Logo */}
+        <div className="p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">T</span>
+            </div>
+            <span className="text-xl font-bold text-white">TikTok</span>
+          </Link>
+        </div>
 
-            const Icon = item.icon;
-            const active = isActive(item.href);
+        {/* Search */}
+        <div className="px-4 pb-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Tìm kiếm"
+              className="w-full bg-gray-900 text-white placeholder-gray-500 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700"
+            />
+          </div>
+        </div>
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`
+        <div className="flex-1 flex flex-col gap-1 px-2">
+          {/* Navigation Menu */}
+          <nav className="space-y-1">
+            {navItems.map((item) => {
+              // Hide auth-required items if user is not logged in
+              if (item.requireAuth && !user) return null;
+
+              const Icon = item.icon;
+              const active = isActive(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`
                   flex items-center gap-3 px-4 py-3 rounded-lg
                   transition-colors duration-200
                   ${
                     active
-                      ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-semibold'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-800'
+                      ? 'bg-gray-900 text-primary-500 font-semibold'
+                      : 'text-white hover:bg-gray-900'
                   }
                 `}
-              >
-                <Icon className={`w-5 h-5 ${active ? 'stroke-[2.5]' : ''}`} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Divider */}
-        {user && <div className="border-t border-gray-200 dark:border-dark-800" />}
-
-        {/* Suggested Users */}
-        {user && suggestedUsers.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 px-2">
-              Suggested Accounts
-            </h3>
-            <div className="space-y-3">
-              {suggestedUsers.slice(0, 5).map((suggestedUser) => (
-                <div
-                  key={suggestedUser.id}
-                  className="flex items-center justify-between gap-2 px-2"
                 >
-                  <Link
-                    href={`/user/${suggestedUser.id}`}
-                    className="flex items-center gap-2 flex-1 min-w-0"
+                  <Icon className={`w-6 h-6 ${active ? 'stroke-[2.5]' : ''}`} />
+                  <span className="text-base font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Divider */}
+          {user && <div className="border-t border-gray-800 my-2" />}
+
+          {/* Suggested Users */}
+          {user && suggestedUsers.length > 0 && (
+            <div className="space-y-2 mt-4">
+              <h3 className="text-xs font-semibold text-gray-500 px-4">Các tài khoản Đã follow</h3>
+              <div className="space-y-2">
+                {suggestedUsers.slice(0, 5).map((suggestedUser) => (
+                  <div
+                    key={suggestedUser.id}
+                    className="flex items-center justify-between gap-2 px-4 py-2 hover:bg-gray-900 rounded-lg"
                   >
-                    <Avatar
-                      src={suggestedUser.avatarUrl}
-                      alt={suggestedUser.displayName || suggestedUser.username}
+                    <Link
+                      href={`/user/${suggestedUser.id}`}
+                      className="flex items-center gap-2 flex-1 min-w-0"
+                    >
+                      <Avatar
+                        src={suggestedUser.avatarUrl}
+                        alt={suggestedUser.displayName || suggestedUser.username}
+                        size="sm"
+                      />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-white truncate">
+                          {suggestedUser.displayName || suggestedUser.username}
+                        </span>
+                        <span className="text-xs text-gray-400 truncate">
+                          @{suggestedUser.username}
+                        </span>
+                      </div>
+                    </Link>
+                    <FollowButton
+                      userId={suggestedUser.id}
+                      isFollowing={suggestedUser.isFollowing}
+                      onFollow={() => onFollow?.(suggestedUser.id)}
+                      onUnfollow={() => onUnfollow?.(suggestedUser.id)}
                       size="sm"
+                      variant="outline"
                     />
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                        {suggestedUser.displayName || suggestedUser.username}
-                      </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        @{suggestedUser.username}
-                      </span>
-                    </div>
-                  </Link>
-                  <FollowButton
-                    userId={suggestedUser.id}
-                    isFollowing={suggestedUser.isFollowing}
-                    onFollow={() => onFollow?.(suggestedUser.id)}
-                    onUnfollow={() => onUnfollow?.(suggestedUser.id)}
-                    size="sm"
-                    variant="outline"
-                  />
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/explore/users"
+                className="text-sm text-primary-500 hover:text-primary-600 font-semibold px-2"
+              >
+                See more
+              </Link>
             </div>
-            <Link
-              href="/explore/users"
-              className="text-sm text-primary-500 hover:text-primary-600 font-semibold px-2"
-            >
-              See more
-            </Link>
-          </div>
-        )}
+          )}
 
-        {/* Logout */}
-        {user && (
-          <>
-            <div className="border-t border-gray-200 dark:border-dark-800" />
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Log out</span>
-            </button>
-          </>
-        )}
+          {/* Logout */}
+          {user && (
+            <>
+              <div className="border-t border-gray-200 dark:border-dark-800" />
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-gray-900 transition-colors"
+              >
+                <LogOut className="w-6 h-6" />
+                <span className="text-base font-medium">Đăng xuất</span>
+              </button>
+            </>
+          )}
 
-        {/* Footer Links */}
-        <div className="pt-4 space-y-2 text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex flex-wrap gap-2">
-            <Link href="/about" className="hover:underline">
-              About
-            </Link>
-            <span>·</span>
-            <Link href="/help" className="hover:underline">
-              Help
-            </Link>
-            <span>·</span>
-            <Link href="/terms" className="hover:underline">
-              Terms
-            </Link>
-            <span>·</span>
-            <Link href="/privacy" className="hover:underline">
-              Privacy
-            </Link>
-          </div>
-          <p>© 2025 TikTok Clone</p>
+          {/* Profile Section */}
+          {user && (
+            <div className="mt-auto p-4 border-t border-gray-800">
+              <Link
+                href={`/user/${user.id}`}
+                className="flex items-center gap-3 hover:bg-gray-900 rounded-lg p-2 transition-colors"
+              >
+                <Avatar src={user.avatarUrl} alt={user.username} size="md" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-semibold text-white truncate">Hồ sơ</span>
+                  <span className="text-xs text-gray-400 truncate">@{user.username}</span>
+                </div>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </aside>

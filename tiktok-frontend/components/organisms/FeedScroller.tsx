@@ -66,7 +66,7 @@ export const FeedScroller: React.FC<FeedScrollerProps> = ({
         ${className}
       `}
     >
-      {videos.map((video, index) => (
+      {videos.map((video) => (
         <VideoCard
           key={video.id}
           video={video}
@@ -92,7 +92,7 @@ export const FeedScroller: React.FC<FeedScrollerProps> = ({
       {!hasMore && videos.length > 0 && (
         <div className="h-screen flex items-center justify-center bg-gray-100 dark:bg-dark-900">
           <div className="text-center space-y-2">
-            <p className="text-gray-600 dark:text-gray-400 text-lg">You've reached the end!</p>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">You&apos;ve reached the end!</p>
             <p className="text-gray-500 dark:text-gray-500 text-sm">
               Check back later for more videos
             </p>
