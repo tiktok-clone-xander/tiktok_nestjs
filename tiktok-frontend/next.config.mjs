@@ -24,13 +24,25 @@ const config = {
       },
     ],
   },
-  transpilePackages: ['image-js'],
-  webpack: (config, { isServer }) => {
+  transpilePackages: ['image-js', 'bresenham-zingl'],
+  serverExternalPackages: ['image-js', 'canvas'],
+  webpack: (config) => {
     // Fix for image-js and bresenham-zingl module resolution
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
+      canvas: false,
     };
+
+    // Handle image-js dependencies
+    config.module = config.module || {};
+    config.module.rules = config.module.rules || [];
+    config.module.rules.push({
+      test: /\.m?js$/,
+      resolve: {
+        fullySpecified: false,
+      },
+    });
 
     return config;
   },

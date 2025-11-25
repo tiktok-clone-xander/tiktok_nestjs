@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { debounce } from "debounce";
+import debounce from "debounce";
 import { useRouter, usePathname } from "next/navigation"
 import { BiSearch, BiUser } from "react-icons/bi"
 import { AiOutlinePlus } from "react-icons/ai"
