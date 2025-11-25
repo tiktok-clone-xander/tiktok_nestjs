@@ -1,13 +1,9 @@
-import Navbar from '@/components/Navbar';
-import { Providers } from '@/components/Providers';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'TikTok Clone - Senior Exercise',
-  description: 'A TikTok clone built with NestJS microservices and Next.js',
+  title: 'TikTok Clone',
+  description: 'TikTok clone',
 };
 
 export default function RootLayout({
@@ -17,12 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className} suppressHydrationWarning>
-        <Providers>
-          <Navbar />
-          <main className="pt-16">{children}</main>
-        </Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
