@@ -1,85 +1,35 @@
-import { storage } from '@/libs/AppWriteClient';
+import { storage } from "@/libs/AppWriteClient"
+import Image from "image-js";
 
-const useChangeUserImage = async (
-  file: File,
-  cropper: { left: number; top: number; width: number; height: number },
-  currentImage: string,
-) => {
-  const videoId = Math.random().toString(36).slice(2, 22);
+const useChangeUserImage = async (file: File, cropper: any, currentImage: string) => {
+    let videoId = Math.random().toString(36).slice(2, 22)
 
-  const x = cropper.left;
-  const y = cropper.top;
-  const width = cropper.width;
-  const height = cropper.height;
+    const x = cropper.left;
+    const y = cropper.top;
+    const width = cropper.width;
+    const height = cropper.height;
 
-  try {
-    // Create an image element to load the file
-    const img = new Image();
-    const imageUrl = URL.createObjectURL(file);
+    try {
+        const response = await fetch(URL.createObjectURL(file));
+        const imageBuffer = await response.arrayBuffer();
 
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = imageUrl;
-    });
+        const image = await Image.load(imageBuffer)
+        const croppedImage = image.crop({ x, y, width, height });
+        const resizedImage = croppedImage.resize({ width: 200, height: 200 });
+        const blob = await resizedImage.toBlob();
+        const arrayBuffer = await blob.arrayBuffer();
+        const finalFile = new File([arrayBuffer], file.name, { type: blob.type });
+        const result = await storage.createFile(String(process.env.NEXT_PUBLIC_BUCKET_ID), videoId, finalFile);
 
-    // Create canvas for cropping and resizing
-    const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
+        // if current image is not default image delete
+        if (currentImage != String(process.env.NEXT_PUBLIC_PLACEHOLDER_DEAFULT_IMAGE_ID)) {
+            await storage.deleteFile(String(process.env.NEXT_PUBLIC_BUCKET_ID), currentImage);
+        }
 
-    if (!ctx) {
-      throw new Error('Failed to get canvas context');
+        return result?.$id
+    } catch (error) {
+        throw error
     }
+}
 
-    // Draw the cropped and resized image
-    ctx.drawImage(
-      img,
-      x,
-      y,
-      width,
-      height, // Source rectangle
-      0,
-      0,
-      200,
-      200, // Destination rectangle
-    );
-
-    // Clean up object URL
-    URL.revokeObjectURL(imageUrl);
-
-    // Convert canvas to blob
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error('Failed to create blob'));
-          }
-        },
-        'image/jpeg',
-        0.9,
-      );
-    });
-
-    const finalFile = new File([blob], file.name, { type: 'image/jpeg' });
-    const result = await storage.createFile(
-      String(process.env.NEXT_PUBLIC_BUCKET_ID),
-      videoId,
-      finalFile,
-    );
-
-    // if current image is not default image delete
-    if (currentImage != String(process.env.NEXT_PUBLIC_PLACEHOLDER_DEAFULT_IMAGE_ID)) {
-      await storage.deleteFile(String(process.env.NEXT_PUBLIC_BUCKET_ID), currentImage);
-    }
-
-    return result?.$id;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export default useChangeUserImage;
+export default useChangeUserImage
