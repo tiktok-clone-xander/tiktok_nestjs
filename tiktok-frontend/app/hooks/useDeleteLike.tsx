@@ -1,15 +1,12 @@
-import { database } from "@/libs/AppWriteClient"
+import { apiClient } from '@/libs/ApiClient';
 
-const useDeleteLike = async (id: string) => {
-    try {
-        await database.deleteDocument(
-            String(process.env.NEXT_PUBLIC_DATABASE_ID), 
-            String(process.env.NEXT_PUBLIC_COLLECTION_ID_LIKE), 
-            id
-        );
-    } catch (error) {
-        throw error
-    }
-}
+const useDeleteLike = async (userId: string, postId: string) => {
+  try {
+    await apiClient.deleteLike(postId);
+  } catch (error) {
+    console.error('Error deleting like:', error);
+    throw error;
+  }
+};
 
-export default useDeleteLike
+export default useDeleteLike;

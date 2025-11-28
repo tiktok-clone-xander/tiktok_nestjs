@@ -1,20 +1,14 @@
-import { database, ID } from "@/libs/AppWriteClient"
+import { apiClient } from '@/libs/ApiClient';
 
-const useCreateProfile = async (userId: string, name: string, image: string, bio: string) => {
-    try {
-        await database.createDocument(
-            String(process.env.NEXT_PUBLIC_DATABASE_ID), 
-            String(process.env.NEXT_PUBLIC_COLLECTION_ID_PROFILE),
-            ID.unique(), 
-        {
-            user_id: userId,
-            name: name,
-            image: image,
-            bio: bio,
-        });
-    } catch (error) {
-        throw error
-    }
-}
+const useCreateProfile = async (userId: string, name: string, bio: string, image: string) => {
+  try {
+    // This will depend on your authentication system
+    // For now, this is a placeholder
+    await apiClient.updateProfile(userId, { name, bio, image });
+  } catch (error) {
+    console.error('Error creating profile:', error);
+    throw error;
+  }
+};
 
-export default useCreateProfile
+export default useCreateProfile;

@@ -1,17 +1,14 @@
-import { database } from "@/libs/AppWriteClient"
+import { apiClient } from '@/libs/ApiClient';
 
-const useUpdateProfileImage = async (id: string, image: string) => {
-    try {
-        await database.updateDocument(
-            String(process.env.NEXT_PUBLIC_DATABASE_ID), 
-            String(process.env.NEXT_PUBLIC_COLLECTION_ID_PROFILE), 
-            id, 
-        { 
-            image: image 
-        })
-    } catch (error) {
-        throw error
-    }
-}
+const useUpdateProfileImage = async (id: string, file: File) => {
+  try {
+    const uploadedFile = await apiClient.uploadFile(file, 'image');
+    // Update profile with new image URL
+    await apiClient.updateProfile(id, { image: uploadedFile.url });
+  } catch (error) {
+    console.error('Error updating profile image:', error);
+    throw error;
+  }
+};
 
-export default useUpdateProfileImage
+export default useUpdateProfileImage;

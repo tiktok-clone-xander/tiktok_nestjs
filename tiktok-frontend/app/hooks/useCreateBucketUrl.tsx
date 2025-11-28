@@ -1,12 +1,8 @@
+import { apiClient } from '@/libs/ApiClient';
+
 const useCreateBucketUrl = (fileId: string) => {
+  if (!fileId) return '';
+  return `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000'}/files/image/${fileId}`;
+};
 
-    const url = process.env.NEXT_PUBLIC_APPWRITE_URL
-    const id = process.env.NEXT_PUBLIC_BUCKET_ID
-    const endpoint = process.env.NEXT_PUBLIC_ENDPOINT
-
-    if (!url || !id || !endpoint || !fileId) return ''
-
-    return `${url}/storage/buckets/${id}/files/${fileId}/view?project=${endpoint}`
-}
-
-export default useCreateBucketUrl
+export default useCreateBucketUrl;

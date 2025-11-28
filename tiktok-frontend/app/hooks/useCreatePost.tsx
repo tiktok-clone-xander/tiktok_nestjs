@@ -1,23 +1,17 @@
-import { database, storage, ID } from "@/libs/AppWriteClient"
+import { apiClient } from '@/libs/ApiClient';
 
 const useCreatePost = async (file: File, userId: string, caption: string) => {
-    let videoId = Math.random().toString(36).slice(2, 22)
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userId', userId);
+    formData.append('text', caption);
 
-    try {
-        await database.createDocument(
-            String(process.env.NEXT_PUBLIC_DATABASE_ID), 
-            String(process.env.NEXT_PUBLIC_COLLECTION_ID_POST), 
-            ID.unique(), 
-        {
-            user_id: userId,
-            text: caption,
-            video_url: videoId,
-            created_at: new Date().toISOString(),
-        });
-        await storage.createFile(String(process.env.NEXT_PUBLIC_BUCKET_ID), videoId, file)
-    } catch (error) {
-        throw error
-    }
-}
+    await apiClient.createPost(formData);
+  } catch (error) {
+    console.error('Error creating post:', error);
+    throw error;
+  }
+};
 
-export default useCreatePost
+export default useCreatePost;

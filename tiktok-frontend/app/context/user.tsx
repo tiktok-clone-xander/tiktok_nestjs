@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { account, ID } from "@/libs/AppWriteClient"
+import { apiClient } from '@/libs/ApiClient';
 import { User, UserContextTypes } from '../types';
 import { useRouter } from 'next/navigation';
 import useGetProfileByUserId from '../hooks/useGetProfileByUserId';
@@ -10,34 +10,46 @@ import useCreateProfile from '../hooks/useCreateProfile';
 const UserContext = createContext<UserContextTypes | null>(null);
 
 const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const router = useRouter()
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
 
   const checkUser = async () => {
     try {
-      const currentSession = await account.getSession("current");
-      if (!currentSession) return
+      // This should be implemented to check if user is authenticated
+      // For now, we'll check if there's a stored user token
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setUser(null);
+        return;
+      }
 
-      const promise = await account.get() as any
-      const profile = await useGetProfileByUserId(promise?.$id)
+      // You'll need to implement a "me" endpoint in your backend
+      // const currentUser = await apiClient.getCurrentUser()
+      // const profile = await useGetProfileByUserId(currentUser.id)
+      // setUser({ id: currentUser.id, name: currentUser.name, bio: profile?.bio, image: profile?.image });
 
-      setUser({ id: promise?.$id, name: promise?.name,  bio: profile?.bio, image: profile?.image });
+      setUser(null); // Placeholder until you implement authentication
     } catch (error) {
       setUser(null);
     }
   };
 
-  useEffect(() => { checkUser() }, []);
+  useEffect(() => {
+    checkUser();
+  }, []);
 
   const register = async (name: string, email: string, password: string) => {
-
     try {
-      const promise = await account.create(ID.unique(), email, password, name)
-      await account.createEmailSession(email, password);
+      const response = await apiClient.register({ username: name, email, password });
 
-      await useCreateProfile(promise?.$id, name, String(process.env.NEXT_PUBLIC_PLACEHOLDER_DEAFULT_IMAGE_ID), '')
-      await checkUser() 
+      // Store the auth token
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+      }
 
+      // Create profile
+      await useCreateProfile(response.user.id, name, '', '');
+      await checkUser();
     } catch (error) {
       console.error(error);
       throw error;
@@ -46,7 +58,13 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      await account.createEmailSession(email, password);
+      const response = await apiClient.login({ email, password });
+
+      // Store the auth token
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+      }
+
       checkUser();
     } catch (error) {
       console.error(error);
@@ -55,21 +73,22 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await account.deleteSession('current');
+      await apiClient.logout();
+      localStorage.removeItem('authToken');
       setUser(null);
-      router.refresh()
+      router.refresh();
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-      <UserContext.Provider value={{ user, register, login, logout, checkUser }}>
-          {children}
-      </UserContext.Provider>
+    <UserContext.Provider value={{ user, register, login, logout, checkUser }}>
+      {children}
+    </UserContext.Provider>
   );
 };
 
 export default UserProvider;
 
-export const useUser = () => useContext(UserContext)
+export const useUser = () => useContext(UserContext);
