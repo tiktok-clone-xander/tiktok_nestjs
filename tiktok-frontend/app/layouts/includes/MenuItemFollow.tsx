@@ -1,36 +1,31 @@
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
-import { MenuItemFollowCompTypes } from "@/app/types"
-import Link from "next/link"
-import { AiOutlineCheck } from "react-icons/ai"
+import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import { MenuItemFollowCompTypes } from '@/app/types'
+import Link from 'next/link'
+import { AiOutlineCheck } from 'react-icons/ai'
 
 export default function MenuItemFollow({ user }: MenuItemFollowCompTypes) {
-    
-    return (
-        <>
-            <Link 
-                href={`/profile/${user?.id}`}
-                className="flex items-center hover:bg-gray-100 rounded-md w-full py-1.5 px-2"
-            >
-                <img 
-                    className="rounded-full lg:mx-0 mx-auto" 
-                    width="35" 
-                    src={useCreateBucketUrl(user?.image)}
-                />
-                <div className="lg:pl-2.5 lg:block hidden">
-                    <div className="flex items-center">
-                        <p className="font-bold text-[14px] truncate">
-                            {user?.name}
-                        </p>
-                        <p className="ml-1 rounded-full bg-[#58D5EC] h-[14px] relative">
-                            <AiOutlineCheck className="relative p-[3px]" color="#FFFFFF" size="15"/>
-                        </p>
-                    </div>
+  return (
+    <>
+      <Link
+        href={`/profile/${user?.id}`}
+        className="flex w-full items-center rounded-md px-2 py-1.5 hover:bg-gray-100"
+      >
+        <img
+          className="mx-auto rounded-full lg:mx-0"
+          width="35"
+          src={useCreateBucketUrl(user?.image)}
+        />
+        <div className="hidden lg:block lg:pl-2.5">
+          <div className="flex items-center">
+            <p className="truncate text-[14px] font-bold">{user?.name}</p>
+            <p className="relative ml-1 h-[14px] rounded-full bg-[#58D5EC]">
+              <AiOutlineCheck className="relative p-[3px]" color="#FFFFFF" size="15" />
+            </p>
+          </div>
 
-                    <p className="font-light text-[12px] text-gray-600">
-                        {user?.name}
-                    </p>
-                </div>
-            </Link>
-        </>
-    )
+          <p className="text-[12px] font-light text-gray-600">{user?.name}</p>
+        </div>
+      </Link>
+    </>
+  )
 }

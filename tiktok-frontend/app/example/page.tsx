@@ -1,30 +1,30 @@
-'use client';
+'use client'
 
-import React, { useState, useEffect } from 'react';
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import { Toaster } from 'react-hot-toast';
-import { SWRConfig } from 'swr';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { store, persistor } from '@/libs/store';
-import { swrConfig } from '@/libs/swr-hooks';
-import { socketManager } from '@/libs/socket-manager';
-import VideoCard from '@/app/components/VideoCard';
-import { PageTransition, LoadingSpinner, FadeIn } from '@/libs/animations';
-import { cn } from '@/libs/utils';
+import React, { useState, useEffect, ReactNode } from 'react'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
+import { Toaster } from 'react-hot-toast'
+import { SWRConfig } from 'swr'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { motion, AnimatePresence } from 'framer-motion'
+import { store, persistor } from '@/libs/store'
+import { swrConfig } from '@/libs/swr-hooks'
+import { socketManager } from '@/libs/socket-manager'
+import VideoCard from '@/app/components/VideoCard'
+import { PageTransition, LoadingSpinner, FadeIn } from '@/libs/animations'
+import { cn } from '@/libs/utils'
 
 // Create React Query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
       retry: 2,
       refetchOnWindowFocus: false,
     },
   },
-});
+})
 
 // Mock video data for demonstration
 const mockVideos = [
@@ -91,10 +91,10 @@ const mockVideos = [
     updatedAt: '2024-11-21T15:45:00Z',
   },
   // Add more mock videos as needed
-];
+]
 
 interface AppProvidersProps {
-  children: React.ReactNode;
+  children: ReactNode
 }
 
 function AppProviders({ children }: AppProvidersProps) {
@@ -102,108 +102,108 @@ function AppProviders({ children }: AppProvidersProps) {
     <Provider store={store}>
       <PersistGate loading={<LoadingSpinner size={48} />} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
-          <SWRConfig value={swrConfig}>{children}</SWRConfig>
+          <SWRConfig value={swrConfig}>{children as any}</SWRConfig>
         </QueryClientProvider>
       </PersistGate>
     </Provider>
-  );
+  )
 }
 
 interface VideoFeedProps {
-  videos: typeof mockVideos;
+  videos: typeof mockVideos
 }
 
 function VideoFeed({ videos }: VideoFeedProps) {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [isConnected, setIsConnected] = useState(false);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
     // Monitor socket connection
-    const status = socketManager.getConnectionStatus();
-    setIsConnected(status.connected);
+    const status = socketManager.getConnectionStatus()
+    setIsConnected(status.connected)
 
     const handleKeyPress = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'ArrowUp':
-          e.preventDefault();
-          setCurrentVideoIndex((prev) => Math.max(0, prev - 1));
-          break;
+          e.preventDefault()
+          setCurrentVideoIndex(prev => Math.max(0, prev - 1))
+          break
         case 'ArrowDown':
-          e.preventDefault();
-          setCurrentVideoIndex((prev) => Math.min(videos.length - 1, prev + 1));
-          break;
+          e.preventDefault()
+          setCurrentVideoIndex(prev => Math.min(videos.length - 1, prev + 1))
+          break
         case ' ':
-          e.preventDefault();
+          e.preventDefault()
           // Space bar to play/pause would be handled by VideoCard
-          break;
+          break
       }
-    };
+    }
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [videos.length]);
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [videos.length])
 
-  const currentVideo = videos[currentVideoIndex];
+  const currentVideo = videos[currentVideoIndex]
 
   if (!currentVideo) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black">
+      <div className="flex h-screen items-center justify-center bg-black">
         <FadeIn>
-          <p className="text-white text-xl">No videos available</p>
+          <p className="text-xl text-white">No videos available</p>
         </FadeIn>
       </div>
-    );
+    )
   }
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {/* Connection Status Indicator */}
-      <div className="absolute top-4 left-4 z-50">
+      <div className="absolute left-4 top-4 z-50">
         <motion.div
           className={cn(
-            'flex items-center gap-2 px-3 py-1 rounded-full text-sm',
-            isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400',
+            'flex items-center gap-2 rounded-full px-3 py-1 text-sm',
+            isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
           )}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div
-            className={cn('w-2 h-2 rounded-full', isConnected ? 'bg-green-400' : 'bg-red-400')}
+            className={cn('h-2 w-2 rounded-full', isConnected ? 'bg-green-400' : 'bg-red-400')}
           />
           {isConnected ? 'Connected' : 'Disconnected'}
         </motion.div>
       </div>
 
       {/* Video Navigation */}
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute right-4 top-4 z-50">
         <motion.div
-          className="flex items-center gap-2 bg-black/50 rounded-full px-4 py-2"
+          className="flex items-center gap-2 rounded-full bg-black/50 px-4 py-2"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <button
-            onClick={() => setCurrentVideoIndex((prev) => Math.max(0, prev - 1))}
+            onClick={() => setCurrentVideoIndex(prev => Math.max(0, prev - 1))}
             disabled={currentVideoIndex === 0}
             className={cn(
-              'p-2 rounded-full transition-colors',
+              'rounded-full p-2 transition-colors',
               currentVideoIndex === 0
-                ? 'text-gray-500 cursor-not-allowed'
-                : 'text-white hover:bg-white/20',
+                ? 'cursor-not-allowed text-gray-500'
+                : 'text-white hover:bg-white/20'
             )}
           >
             ↑
           </button>
-          <span className="text-white text-sm min-w-[60px] text-center">
+          <span className="min-w-[60px] text-center text-sm text-white">
             {currentVideoIndex + 1} / {videos.length}
           </span>
           <button
-            onClick={() => setCurrentVideoIndex((prev) => Math.min(videos.length - 1, prev + 1))}
+            onClick={() => setCurrentVideoIndex(prev => Math.min(videos.length - 1, prev + 1))}
             disabled={currentVideoIndex === videos.length - 1}
             className={cn(
-              'p-2 rounded-full transition-colors',
+              'rounded-full p-2 transition-colors',
               currentVideoIndex === videos.length - 1
-                ? 'text-gray-500 cursor-not-allowed'
-                : 'text-white hover:bg-white/20',
+                ? 'cursor-not-allowed text-gray-500'
+                : 'text-white hover:bg-white/20'
             )}
           >
             ↓
@@ -221,28 +221,28 @@ function VideoFeed({ videos }: VideoFeedProps) {
         <link rel="prefetch" href={videos[currentVideoIndex + 1].url} />
       )}
     </div>
-  );
+  )
 }
 
 export default function ExamplePage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // Simulate initial loading
     const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+      setIsLoading(false)
+    }, 2000)
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => clearTimeout(timer)
+  }, [])
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black">
+      <div className="flex h-screen items-center justify-center bg-black">
         <motion.div className="text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <LoadingSpinner size={64} className="text-white mb-4" />
+          <LoadingSpinner size={64} className="mb-4 text-white" />
           <motion.p
-            className="text-white text-xl"
+            className="text-xl text-white"
             animate={{ opacity: [1, 0.5, 1] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
@@ -250,7 +250,7 @@ export default function ExamplePage() {
           </motion.p>
         </motion.div>
       </div>
-    );
+    )
   }
 
   return (
@@ -287,5 +287,5 @@ export default function ExamplePage() {
         </div>
       </PageTransition>
     </AppProviders>
-  );
+  )
 }

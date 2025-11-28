@@ -1,14 +1,14 @@
-import { apiClient } from '@/libs/ApiClient';
+import { apiClient } from '@/libs/ApiClient'
 
 const useSearchProfilesByName = async (searchTerm: string) => {
   try {
-    if (!searchTerm.trim()) return [];
-    const profiles = await apiClient.searchUsers(searchTerm);
-    return profiles;
+    if (!searchTerm.trim()) return []
+    const profiles = await apiClient.searchUsers(searchTerm)
+    return profiles
   } catch (error) {
-    console.error('Error searching profiles:', error);
-    return [];
+    console.error('Error searching profiles:', error)
+    return []
   }
-};
+}
 
-export default useSearchProfilesByName;
+export default useSearchProfilesByName

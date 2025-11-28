@@ -1,0 +1,36 @@
+{
+  "extends": [
+    "next/core-web-vitals"
+  ],
+  "root": true,
+  "rules": {
+    "react-hooks/rules-of-hooks": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "prefer-const": "warn",
+    "@next/next/no-img-element": "warn",
+    "jsx-a11y/alt-text": "warn"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
+      ],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    ".next",
+    "out",
+    "dist",
+    "node_modules",
+    "coverage"
+  ]
+}

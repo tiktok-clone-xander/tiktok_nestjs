@@ -1,20 +1,20 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
-import { useInView } from 'react-intersection-observer';
-import { debounce } from 'lodash';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Decimal from 'decimal.js';
-import dayjs from 'dayjs';
-import { HeartIcon, ShareIcon, ChatBubbleLeftIcon, PlayIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
-import { cn, formatUtils } from '@/libs/utils';
-import { useLikeVideo, useUnlikeVideo } from '@/libs/swr-hooks';
-import { useAppDispatch } from '@/libs/store';
-import { FadeIn, StaggeredList, StaggeredItem, AnimatedButton } from '@/libs/animations';
-import type { Video } from '@/libs/store';
+import React, { useState, useCallback, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { toast } from 'react-hot-toast'
+import { useInView } from 'react-intersection-observer'
+import { debounce } from 'lodash'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Decimal from 'decimal.js'
+import dayjs from 'dayjs'
+import { HeartIcon, ShareIcon, ChatBubbleLeftIcon, PlayIcon } from '@heroicons/react/24/outline'
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'
+import { cn, formatUtils } from '@/libs/utils'
+import { useLikeVideo, useUnlikeVideo } from '@/libs/swr-hooks'
+import { useAppDispatch } from '@/libs/store'
+import { FadeIn, StaggeredList, StaggeredItem, AnimatedButton } from '@/libs/animations'
+import type { Video } from '@/libs/store'
 
 // Zod schema for video interaction
 const videoInteractionSchema = z.object({
@@ -23,26 +23,26 @@ const videoInteractionSchema = z.object({
     .min(1, 'Comment cannot be empty')
     .max(500, 'Comment must be 500 characters or less'),
   shareType: z.enum(['link', 'whatsapp', 'twitter', 'facebook']).optional(),
-});
+})
 
-type VideoInteractionData = z.infer<typeof videoInteractionSchema>;
+type VideoInteractionData = z.infer<typeof videoInteractionSchema>
 
 interface VideoCardProps {
-  video: Video;
-  isActive?: boolean;
-  onPlay?: () => void;
-  onPause?: () => void;
+  video: Video
+  isActive?: boolean
+  onPlay?: () => void
+  onPause?: () => void
 }
 
 const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, onPause }) => {
-  const dispatch = useAppDispatch();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-  const [isLiked, setIsLiked] = useState(video.liked || false);
+  const dispatch = useAppDispatch()
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [showComments, setShowComments] = useState(false)
+  const [isLiked, setIsLiked] = useState(video.liked || false)
 
-  const { ref, inView } = useInView({ threshold: 0.5 });
-  const { like } = useLikeVideo(video.id);
-  const { unlike } = useUnlikeVideo(video.id);
+  const { ref, inView } = useInView({ threshold: 0.5 })
+  const { like } = useLikeVideo(video.id)
+  const { unlike } = useUnlikeVideo(video.id)
 
   // Form for comments
   const {
@@ -53,76 +53,76 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
   } = useForm<VideoInteractionData>({
     resolver: zodResolver(videoInteractionSchema),
     mode: 'onChange',
-  });
+  })
 
   // Auto-play when in view
   useEffect(() => {
     if (inView && isActive) {
-      setIsPlaying(true);
-      onPlay?.();
+      setIsPlaying(true)
+      onPlay?.()
     } else {
-      setIsPlaying(false);
-      onPause?.();
+      setIsPlaying(false)
+      onPause?.()
     }
-  }, [inView, isActive, onPlay, onPause]);
+  }, [inView, isActive, onPlay, onPause])
 
   // Debounced like function to prevent spam
   const debouncedLike = useCallback(
     debounce(async () => {
       try {
         if (isLiked) {
-          await unlike();
-          setIsLiked(false);
-          toast.success('Unliked!');
+          await unlike()
+          setIsLiked(false)
+          toast.success('Unliked!')
         } else {
-          await like();
-          setIsLiked(true);
-          toast.success('Liked!');
+          await like()
+          setIsLiked(true)
+          toast.success('Liked!')
         }
       } catch (error) {
-        toast.error('Something went wrong');
+        toast.error('Something went wrong')
         // Revert optimistic update
-        setIsLiked(!isLiked);
+        setIsLiked(!isLiked)
       }
     }, 300),
-    [isLiked, like, unlike],
-  );
+    [isLiked, like, unlike]
+  )
 
   const handleLike = () => {
     // Optimistic update
-    setIsLiked(!isLiked);
-    debouncedLike();
-  };
+    setIsLiked(!isLiked)
+    debouncedLike()
+  }
 
   const handleShare = useCallback(
     async (shareType: string = 'link') => {
       try {
-        const shareUrl = `${window.location.origin}/video/${video.id}`;
+        const shareUrl = `${window.location.origin}/video/${video.id}`
 
         if (navigator.share && shareType === 'native') {
           await navigator.share({
             title: video.title,
             text: video.description || '',
             url: shareUrl,
-          });
+          })
         } else {
-          await navigator.clipboard.writeText(shareUrl);
-          toast.success('Link copied to clipboard!');
+          await navigator.clipboard.writeText(shareUrl)
+          toast.success('Link copied to clipboard!')
         }
       } catch (error) {
-        toast.error('Failed to share video');
+        toast.error('Failed to share video')
       }
     },
-    [video],
-  );
+    [video]
+  )
 
   const onCommentSubmit = (data: VideoInteractionData) => {
     // Here you would typically call an API to submit the comment
-    console.log('Comment submitted:', data.comment);
-    toast.success('Comment posted!');
-    reset();
-    setShowComments(false);
-  };
+    console.log('Comment submitted:', data.comment)
+    toast.success('Comment posted!')
+    reset()
+    setShowComments(false)
+  }
 
   // Calculate engagement metrics using Decimal.js for precision
   const engagementRate = new Decimal(video.likeCount)
@@ -130,12 +130,12 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
     .plus(video.shareCount)
     .div(Math.max(video.viewCount, 1))
     .mul(100)
-    .toFixed(2);
+    .toFixed(2)
 
   return (
     <motion.div
       ref={ref}
-      className="relative w-full h-screen bg-black overflow-hidden"
+      className="relative h-screen w-full overflow-hidden bg-black"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
@@ -143,7 +143,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
       {/* Video Background */}
       <div className="absolute inset-0">
         <video
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           src={video.url}
           poster={video.thumbnailUrl}
           muted
@@ -167,9 +167,9 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="bg-black/50 rounded-full p-4"
+            className="rounded-full bg-black/50 p-4"
           >
-            <PlayIcon className="w-12 h-12 text-white ml-1" />
+            <PlayIcon className="ml-1 h-12 w-12 text-white" />
           </motion.div>
         )}
       </motion.button>
@@ -178,40 +178,40 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
         <FadeIn delay={0.2}>
           <div className="flex items-end justify-between">
-            <div className="flex-1 mr-4">
+            <div className="mr-4 flex-1">
               {/* User Info */}
-              <div className="flex items-center mb-3">
+              <div className="mb-3 flex items-center">
                 <img
                   src={video.user.avatarUrl || '/default-avatar.png'}
                   alt={video.user.displayName}
-                  className="w-10 h-10 rounded-full border-2 border-white"
+                  className="h-10 w-10 rounded-full border-2 border-white"
                 />
                 <div className="ml-3">
-                  <p className="font-semibold text-lg">{video.user.displayName}</p>
+                  <p className="text-lg font-semibold">{video.user.displayName}</p>
                   <p className="text-sm text-gray-300">
                     {formatUtils.formatCount(video.user.followerCount)} followers
                   </p>
                 </div>
                 {video.user.verified && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-2">
-                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">✓</span>
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500">
+                      <span className="text-xs text-white">✓</span>
                     </div>
                   </motion.div>
                 )}
               </div>
 
               {/* Video Title and Description */}
-              <h3 className="text-xl font-bold mb-2 line-clamp-2">{video.title}</h3>
+              <h3 className="mb-2 line-clamp-2 text-xl font-bold">{video.title}</h3>
               {video.description && (
-                <p className="text-sm text-gray-200 line-clamp-3 mb-3">{video.description}</p>
+                <p className="mb-3 line-clamp-3 text-sm text-gray-200">{video.description}</p>
               )}
 
               {/* Tags */}
               {video.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="mb-3 flex flex-wrap gap-2">
                   {video.tags.slice(0, 3).map((tag, index) => (
-                    <span key={index} className="text-sm bg-white/20 rounded-full px-3 py-1">
+                    <span key={index} className="rounded-full bg-white/20 px-3 py-1 text-sm">
                       #{tag}
                     </span>
                   ))}
@@ -232,29 +232,29 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
             <div className="flex flex-col items-center space-y-4">
               <AnimatedButton
                 onClick={handleLike}
-                className={cn('p-3 rounded-full', isLiked ? 'bg-red-500' : 'bg-white/20')}
+                className={cn('rounded-full p-3', isLiked ? 'bg-red-500' : 'bg-white/20')}
               >
                 {isLiked ? (
-                  <HeartIconSolid className="w-6 h-6 text-white" />
+                  <HeartIconSolid className="h-6 w-6 text-white" />
                 ) : (
-                  <HeartIcon className="w-6 h-6 text-white" />
+                  <HeartIcon className="h-6 w-6 text-white" />
                 )}
               </AnimatedButton>
               <span className="text-sm">{formatUtils.formatCount(video.likeCount)}</span>
 
               <AnimatedButton
                 onClick={() => setShowComments(!showComments)}
-                className="p-3 rounded-full bg-white/20"
+                className="rounded-full bg-white/20 p-3"
               >
-                <ChatBubbleLeftIcon className="w-6 h-6 text-white" />
+                <ChatBubbleLeftIcon className="h-6 w-6 text-white" />
               </AnimatedButton>
               <span className="text-sm">{formatUtils.formatCount(video.commentCount)}</span>
 
               <AnimatedButton
                 onClick={() => handleShare()}
-                className="p-3 rounded-full bg-white/20"
+                className="rounded-full bg-white/20 p-3"
               >
-                <ShareIcon className="w-6 h-6 text-white" />
+                <ShareIcon className="h-6 w-6 text-white" />
               </AnimatedButton>
               <span className="text-sm">{formatUtils.formatCount(video.shareCount)}</span>
             </div>
@@ -269,11 +269,11 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25 }}
-          className="absolute top-0 right-0 w-96 h-full bg-black/90 backdrop-blur-lg border-l border-white/20"
+          className="absolute right-0 top-0 h-full w-96 border-l border-white/20 bg-black/90 backdrop-blur-lg"
         >
-          <div className="p-4 h-full flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-bold text-lg">Comments</h3>
+          <div className="flex h-full flex-col p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">Comments</h3>
               <button
                 onClick={() => setShowComments(false)}
                 className="text-white/60 hover:text-white"
@@ -289,26 +289,25 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
                   {...register('comment')}
                   placeholder="Add a comment..."
                   className={cn(
-                    'flex-1 bg-white/10 text-white placeholder-white/50 rounded-lg px-3 py-2 text-sm',
-                    'border border-white/20 focus:border-white/40 outline-none',
-                    errors.comment && 'border-red-500',
+                    'flex-1 rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder-white/50',
+                    'border border-white/20 outline-none focus:border-white/40',
+                    errors.comment && 'border-red-500'
                   )}
                 />
                 <AnimatedButton
-                  type="submit"
                   disabled={!isValid}
                   className={cn(
-                    'px-4 py-2 rounded-lg text-sm font-semibold',
+                    'rounded-lg px-4 py-2 text-sm font-semibold',
                     isValid
                       ? 'bg-blue-500 text-white hover:bg-blue-600'
-                      : 'bg-gray-500 text-gray-300 cursor-not-allowed',
+                      : 'cursor-not-allowed bg-gray-500 text-gray-300'
                   )}
                 >
                   Post
                 </AnimatedButton>
               </div>
               {errors.comment && (
-                <p className="text-red-400 text-xs mt-1">{errors.comment.message}</p>
+                <p className="mt-1 text-xs text-red-400">{errors.comment.message}</p>
               )}
             </form>
 
@@ -318,19 +317,19 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
                 {/* Mock comments for demonstration */}
                 {Array.from({ length: 10 }, (_, i) => (
                   <StaggeredItem key={i}>
-                    <div className="mb-4 p-3 bg-white/5 rounded-lg">
+                    <div className="mb-4 rounded-lg bg-white/5 p-3">
                       <div className="flex items-start gap-3">
                         <img
                           src="/default-avatar.png"
                           alt="Commenter"
-                          className="w-8 h-8 rounded-full"
+                          className="h-8 w-8 rounded-full"
                         />
                         <div>
-                          <p className="text-white font-semibold text-sm">User {i + 1}</p>
-                          <p className="text-white/80 text-sm mt-1">
+                          <p className="text-sm font-semibold text-white">User {i + 1}</p>
+                          <p className="mt-1 text-sm text-white/80">
                             This is a sample comment for demonstration purposes.
                           </p>
-                          <p className="text-white/50 text-xs mt-2">
+                          <p className="mt-2 text-xs text-white/50">
                             {dayjs()
                               .subtract(i * 10, 'minutes')
                               .fromNow()}
@@ -346,7 +345,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
         </motion.div>
       )}
     </motion.div>
-  );
-};
+  )
+}
 
-export default VideoCard;
+export default VideoCard

@@ -1,17 +1,17 @@
-import { apiClient } from '@/libs/ApiClient';
+import { apiClient } from '@/libs/ApiClient'
 
 const useCreatePost = async (file: File, userId: string, caption: string) => {
   try {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('userId', userId);
-    formData.append('text', caption);
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('userId', userId)
+    formData.append('text', caption)
 
-    await apiClient.createPost(formData);
+    await apiClient.createPost(formData)
   } catch (error) {
-    console.error('Error creating post:', error);
-    throw error;
+    console.error('Error creating post:', error)
+    throw error
   }
-};
+}
 
-export default useCreatePost;
+export default useCreatePost

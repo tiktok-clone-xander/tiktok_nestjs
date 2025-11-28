@@ -1,14 +1,14 @@
-import { apiClient } from '@/libs/ApiClient';
+import { apiClient } from '@/libs/ApiClient'
 
 const useCreateProfile = async (userId: string, name: string, bio: string, image: string) => {
   try {
     // This will depend on your authentication system
     // For now, this is a placeholder
-    await apiClient.updateProfile(userId, { name, bio, image });
+    await apiClient.updateProfile(userId, { name, bio, image })
   } catch (error) {
-    console.error('Error creating profile:', error);
-    throw error;
+    console.error('Error creating profile:', error)
+    throw error
   }
-};
+}
 
-export default useCreateProfile;
+export default useCreateProfile

@@ -3,13 +3,13 @@ const nextConfig = {
   serverExternalPackages: ['canvas'],
   webpack: (config, { isServer }) => {
     // Add a rule to handle the canvas.node binary module
-    config.module.rules.push({ test: /\.node$/, use: 'raw-loader' });
+    config.module.rules.push({ test: /\.node$/, use: 'raw-loader' })
 
     // Exclude canvas from being processed by Next.js in the browser
     if (!isServer) {
-      config.externals.push('canvas');
+      config.externals.push('canvas')
     }
-    return config;
+    return config
   },
   images: {
     domains: ['localhost'],
@@ -23,6 +23,6 @@ const nextConfig = {
     ],
   },
   outputFileTracingRoot: __dirname,
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

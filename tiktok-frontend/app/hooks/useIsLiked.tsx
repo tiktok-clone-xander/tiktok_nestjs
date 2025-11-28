@@ -2,14 +2,14 @@
 // This will need to be implemented based on your backend's like system
 
 const useIsLiked = (userId: string, postId: string, likesByPost: any[]) => {
-  if (!likesByPost || !Array.isArray(likesByPost)) return false;
+  if (!likesByPost || !Array.isArray(likesByPost)) return false
 
   for (let like of likesByPost) {
     if (like.user_id === userId && like.post_id === postId) {
-      return true;
+      return true
     }
   }
-  return false;
-};
+  return false
+}
 
-export default useIsLiked;
+export default useIsLiked

@@ -146,41 +146,41 @@ app/
 ### State Management
 
 ```typescript
-import { useAppDispatch, useAppSelector } from '@/libs/store';
-import { authActions } from '@/libs/store';
+import { useAppDispatch, useAppSelector } from '@/libs/store'
+import { authActions } from '@/libs/store'
 
 // In component
-const dispatch = useAppDispatch();
-const user = useAppSelector((state) => state.auth.user);
+const dispatch = useAppDispatch()
+const user = useAppSelector(state => state.auth.user)
 
 // Login action
-dispatch(authActions.loginSuccess({ user, token, refreshToken }));
+dispatch(authActions.loginSuccess({ user, token, refreshToken }))
 ```
 
 ### Data Fetching
 
 ```typescript
-import { useVideos, useLikeVideo } from '@/libs/swr-hooks';
+import { useVideos, useLikeVideo } from '@/libs/swr-hooks'
 
 // Fetch videos with infinite scroll
-const { videos, loadMore, isLoading } = useVideos();
+const { videos, loadMore, isLoading } = useVideos()
 
 // Like a video
-const { like, isLoading: isLiking } = useLikeVideo(videoId);
+const { like, isLoading: isLiking } = useLikeVideo(videoId)
 ```
 
 ### Real-time Events
 
 ```typescript
-import { socketManager } from '@/libs/socket-manager';
+import { socketManager } from '@/libs/socket-manager'
 
 // Listen for real-time events
-const cleanup = socketManager.on('video_liked', (data) => {
-  console.log('Video liked:', data);
-});
+const cleanup = socketManager.on('video_liked', data => {
+  console.log('Video liked:', data)
+})
 
 // Emit events
-socketManager.likeVideo(videoId);
+socketManager.likeVideo(videoId)
 ```
 
 ### Animations
@@ -200,9 +200,9 @@ import { FadeIn, SlideIn, StaggeredList } from '@/libs/animations'
 ### Form Validation
 
 ```typescript
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { schemas } from '@/libs/utils';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { schemas } from '@/libs/utils'
 
 const {
   register,
@@ -210,7 +210,7 @@ const {
   formState: { errors },
 } = useForm({
   resolver: zodResolver(schemas.videoTitle),
-});
+})
 ```
 
 ## 🔧 Configuration

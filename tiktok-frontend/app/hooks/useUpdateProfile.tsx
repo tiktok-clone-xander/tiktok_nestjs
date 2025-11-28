@@ -1,12 +1,12 @@
-import { apiClient } from '@/libs/ApiClient';
+import { apiClient } from '@/libs/ApiClient'
 
 const useUpdateProfile = async (id: string, name: string, bio: string) => {
   try {
-    await apiClient.updateProfile(id, { name, bio });
+    await apiClient.updateProfile(id, { name, bio })
   } catch (error) {
-    console.error('Error updating profile:', error);
-    throw error;
+    console.error('Error updating profile:', error)
+    throw error
   }
-};
+}
 
-export default useUpdateProfile;
+export default useUpdateProfile

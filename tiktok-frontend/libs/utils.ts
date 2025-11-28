@@ -1,20 +1,20 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import duration from 'dayjs/plugin/duration';
-import _ from 'lodash';
-import { z } from 'zod';
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import duration from 'dayjs/plugin/duration'
+import _ from 'lodash'
+import { z } from 'zod'
 
 // Initialize dayjs plugins
-dayjs.extend(relativeTime);
-dayjs.extend(duration);
+dayjs.extend(relativeTime)
+dayjs.extend(duration)
 
 /**
  * Utility function to merge Tailwind classes with clsx
  */
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 /**
@@ -28,7 +28,7 @@ export const dateUtils = {
   add: (date: Date | string, amount: number, unit: any) => dayjs(date).add(amount, unit).toDate(),
   subtract: (date: Date | string, amount: number, unit: any) =>
     dayjs(date).subtract(amount, unit).toDate(),
-};
+}
 
 /**
  * Lodash utility exports for common operations
@@ -49,7 +49,7 @@ export const utils = {
   get: _.get,
   set: _.set,
   has: _.has,
-};
+}
 
 /**
  * Common validation schemas using Zod
@@ -97,7 +97,7 @@ export const schemas = {
     createdAt: z.date(),
     updatedAt: z.date(),
   }),
-};
+}
 
 /**
  * Type guards and validation helpers
@@ -110,7 +110,7 @@ export const validators = {
   // Type-safe validation with detailed errors
   validateUserProfile: (data: unknown) => schemas.userProfile.safeParse(data),
   validateVideo: (data: unknown) => schemas.video.safeParse(data),
-};
+}
 
 /**
  * Format utilities for numbers and text
@@ -118,39 +118,39 @@ export const validators = {
 export const formatUtils = {
   // Format numbers for display (1K, 1M, etc.)
   formatCount: (count: number): string => {
-    if (count < 1000) return count.toString();
-    if (count < 1000000) return `${(count / 1000).toFixed(1)}K`;
-    if (count < 1000000000) return `${(count / 1000000).toFixed(1)}M`;
-    return `${(count / 1000000000).toFixed(1)}B`;
+    if (count < 1000) return count.toString()
+    if (count < 1000000) return `${(count / 1000).toFixed(1)}K`
+    if (count < 1000000000) return `${(count / 1000000).toFixed(1)}M`
+    return `${(count / 1000000000).toFixed(1)}B`
   },
 
   // Format duration for video display
   formatDuration: (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = Math.floor(seconds % 60)
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   },
 
   // Truncate text with ellipsis
   truncateText: (text: string, length: number): string => {
-    if (text.length <= length) return text;
-    return text.slice(0, length).trim() + '...';
+    if (text.length <= length) return text
+    return text.slice(0, length).trim() + '...'
   },
 
   // Extract hashtags from text
   extractHashtags: (text: string): string[] => {
-    const hashtagRegex = /#[a-zA-Z0-9_]+/g;
-    return text.match(hashtagRegex) || [];
+    const hashtagRegex = /#[a-zA-Z0-9_]+/g
+    return text.match(hashtagRegex) || []
   },
 
   // Format file size
   formatFileSize: (bytes: number): string => {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes === 0) return '0 Bytes';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+    if (bytes === 0) return '0 Bytes'
+    const i = Math.floor(Math.log(bytes) / Math.log(1024))
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i]
   },
-};
+}
 
 /**
  * Error handling utilities
@@ -161,22 +161,22 @@ export const errorUtils = {
       error?.code === 'NETWORK_ERROR' ||
       error?.message?.includes('Network Error') ||
       !navigator.onLine
-    );
+    )
   },
 
   getErrorMessage: (error: any): string => {
-    if (typeof error === 'string') return error;
-    if (error?.response?.data?.message) return error.response.data.message;
-    if (error?.message) return error.message;
-    return 'An unexpected error occurred';
+    if (typeof error === 'string') return error
+    if (error?.response?.data?.message) return error.response.data.message
+    if (error?.message) return error.message
+    return 'An unexpected error occurred'
   },
 
   createApiError: (message: string, status?: number) => {
-    const error = new Error(message);
-    (error as any).status = status;
-    return error;
+    const error = new Error(message)
+    ;(error as any).status = status
+    return error
   },
-};
+}
 
 /**
  * Local storage utilities with type safety
@@ -184,35 +184,35 @@ export const errorUtils = {
 export const storageUtils = {
   set: <T>(key: string, value: T): void => {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      localStorage.setItem(key, JSON.stringify(value))
     } catch (error) {
-      console.error('Failed to save to localStorage:', error);
+      console.error('Failed to save to localStorage:', error)
     }
   },
 
   get: <T>(key: string): T | null => {
     try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null;
+      const item = localStorage.getItem(key)
+      return item ? JSON.parse(item) : null
     } catch (error) {
-      console.error('Failed to read from localStorage:', error);
-      return null;
+      console.error('Failed to read from localStorage:', error)
+      return null
     }
   },
 
   remove: (key: string): void => {
     try {
-      localStorage.removeItem(key);
+      localStorage.removeItem(key)
     } catch (error) {
-      console.error('Failed to remove from localStorage:', error);
+      console.error('Failed to remove from localStorage:', error)
     }
   },
 
   clear: (): void => {
     try {
-      localStorage.clear();
+      localStorage.clear()
     } catch (error) {
-      console.error('Failed to clear localStorage:', error);
+      console.error('Failed to clear localStorage:', error)
     }
   },
-};
+}

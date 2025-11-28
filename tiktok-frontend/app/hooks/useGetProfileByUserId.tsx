@@ -1,13 +1,13 @@
-import { apiClient } from '@/libs/ApiClient';
+import { apiClient } from '@/libs/ApiClient'
 
 const useGetProfileByUserId = async (userId: string) => {
   try {
-    const profile = await apiClient.getProfile(userId);
-    return profile;
+    const profile = await apiClient.getProfile(userId)
+    return profile
   } catch (error) {
-    console.error('Error fetching profile:', error);
-    return null;
+    console.error('Error fetching profile:', error)
+    return null
   }
-};
+}
 
-export default useGetProfileByUserId;
+export default useGetProfileByUserId

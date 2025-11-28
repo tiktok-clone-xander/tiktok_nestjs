@@ -1,114 +1,118 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { AiFillHeart } from 'react-icons/ai';
-import { BsChatDots, BsTrash3 } from 'react-icons/bs';
-import { ImMusic } from 'react-icons/im';
-import moment from 'moment';
-import { useUser } from '@/app/context/user';
-import { useEffect, useState } from 'react';
-import { BiLoaderCircle } from 'react-icons/bi';
-import ClientOnly from '../ClientOnly';
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl';
-import { useLikeStore } from '@/app/stores/like';
-import { useCommentStore } from '@/app/stores/comment';
-import { useGeneralStore } from '@/app/stores/general';
-import { useRouter } from 'next/navigation';
-import useIsLiked from '@/app/hooks/useIsLiked';
-import useCreateLike from '@/app/hooks/useCreateLike';
-import useDeleteLike from '@/app/hooks/useDeleteLike';
-import useDeletePostById from '@/app/hooks/useDeletePostById';
-import { CommentsHeaderCompTypes } from '@/app/types';
+import Link from 'next/link'
+import { AiFillHeart } from 'react-icons/ai'
+import { BsChatDots, BsTrash3 } from 'react-icons/bs'
+import { ImMusic } from 'react-icons/im'
+import dayjs from 'dayjs'
+import calendar from 'dayjs/plugin/calendar'
+import { useUser } from '@/app/context/user'
+import { useEffect, useState } from 'react'
+import { BiLoaderCircle } from 'react-icons/bi'
+import ClientOnly from '../ClientOnly'
+import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import { useLikeStore } from '@/app/stores/like'
+import { useCommentStore } from '@/app/stores/comment'
+import { useGeneralStore } from '@/app/stores/general'
+import { useRouter } from 'next/navigation'
+import useIsLiked from '@/app/hooks/useIsLiked'
+import useCreateLike from '@/app/hooks/useCreateLike'
+import useDeleteLike from '@/app/hooks/useDeleteLike'
+import useDeletePostById from '@/app/hooks/useDeletePostById'
+import { CommentsHeaderCompTypes } from '@/app/types'
 
 export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes) {
-  let { setLikesByPost, likesByPost } = useLikeStore();
-  let { commentsByPost, setCommentsByPost } = useCommentStore();
-  let { setIsLoginOpen } = useGeneralStore();
+  // Initialize dayjs calendar plugin
+  dayjs.extend(calendar)
 
-  const contextUser = useUser();
-  const router = useRouter();
-  const [hasClickedLike, setHasClickedLike] = useState<boolean>(false);
-  const [isDeleteing, setIsDeleteing] = useState<boolean>(false);
-  const [userLiked, setUserLiked] = useState<boolean>(false);
+  let { setLikesByPost, likesByPost } = useLikeStore()
+  let { commentsByPost, setCommentsByPost } = useCommentStore()
+  let { setIsLoginOpen } = useGeneralStore()
+
+  const contextUser = useUser()
+  const router = useRouter()
+  const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
+  const [isDeleteing, setIsDeleteing] = useState<boolean>(false)
+  const [userLiked, setUserLiked] = useState<boolean>(false)
 
   useEffect(() => {
-    setCommentsByPost(params?.postId);
-    setLikesByPost(params?.postId);
-  }, [post]);
+    setCommentsByPost(params?.postId)
+    setLikesByPost(params?.postId)
+  }, [post])
   useEffect(() => {
-    hasUserLikedPost();
-  }, [likesByPost]);
+    hasUserLikedPost()
+  }, [likesByPost])
 
   const hasUserLikedPost = () => {
     if (likesByPost.length < 1 || !contextUser?.user?.id) {
-      setUserLiked(false);
-      return;
+      setUserLiked(false)
+      return
     }
-    let res = useIsLiked(contextUser.user.id, params.postId, likesByPost);
-    setUserLiked(res ? true : false);
-  };
+    let res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
+    setUserLiked(res ? true : false)
+  }
 
   const like = async () => {
     try {
-      setHasClickedLike(true);
-      await useCreateLike(contextUser?.user?.id || '', params.postId);
-      setLikesByPost(params.postId);
-      setHasClickedLike(false);
+      setHasClickedLike(true)
+      await useCreateLike(contextUser?.user?.id || '', params.postId)
+      setLikesByPost(params.postId)
+      setHasClickedLike(false)
     } catch (error) {
-      console.log(error);
-      alert(error);
-      setHasClickedLike(false);
+      console.log(error)
+      alert(error)
+      setHasClickedLike(false)
     }
-  };
+  }
 
   const unlike = async (id: string) => {
     try {
-      setHasClickedLike(true);
-      await useDeleteLike(contextUser?.user?.id || '', params.postId);
-      setLikesByPost(params.postId);
-      setHasClickedLike(false);
+      setHasClickedLike(true)
+      await useDeleteLike(contextUser?.user?.id || '', params.postId)
+      setLikesByPost(params.postId)
+      setHasClickedLike(false)
     } catch (error) {
-      console.log(error);
-      alert(error);
-      setHasClickedLike(false);
+      console.log(error)
+      alert(error)
+      setHasClickedLike(false)
     }
-  };
+  }
 
   const likeOrUnlike = () => {
-    if (!contextUser?.user) return setIsLoginOpen(true);
+    if (!contextUser?.user) return setIsLoginOpen(true)
 
-    let res = useIsLiked(contextUser.user.id, params.postId, likesByPost);
+    let res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
     if (!res) {
-      like();
+      like()
     } else {
-      likesByPost.forEach((like) => {
+      likesByPost.forEach(like => {
         if (
           contextUser?.user?.id &&
           contextUser.user.id == like.user_id &&
           like.post_id == params.postId
         ) {
-          unlike(like.id);
+          unlike(like.id)
         }
-      });
+      })
     }
-  };
+  }
 
   const deletePost = async () => {
-    let res = confirm('Are you sure you want to delete this post?');
-    if (!res) return;
+    let res = confirm('Are you sure you want to delete this post?')
+    if (!res) return
 
-    setIsDeleteing(true);
+    setIsDeleteing(true)
 
     try {
-      await useDeletePostById(params?.postId, post?.video_url);
-      router.push(`/profile/${params.userId}`);
-      setIsDeleteing(false);
+      await useDeletePostById(params?.postId, post?.video_url)
+      router.push(`/profile/${params.userId}`)
+      setIsDeleteing(false)
     } catch (error) {
-      console.log(error);
-      setIsDeleteing(false);
-      alert(error);
+      console.log(error)
+      setIsDeleteing(false)
+      alert(error)
     }
-  };
+  }
   return (
     <>
       <div className="flex items-center justify-between px-8">
@@ -116,12 +120,12 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
           <Link href={`/profile/${post?.user_id}`}>
             {post?.profile.image ? (
               <img
-                className="rounded-full lg:mx-0 mx-auto"
+                className="mx-auto rounded-full lg:mx-0"
                 width="40"
                 src={useCreateBucketUrl(post?.profile.image)}
               />
             ) : (
-              <div className="w-[40px] h-[40px] bg-gray-200 rounded-full"></div>
+              <div className="h-[40px] w-[40px] rounded-full bg-gray-200"></div>
             )}
           </Link>
           <div className="ml-3 pt-0.5">
@@ -132,10 +136,10 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
               {post?.profile.name}
             </Link>
 
-            <div className="relative z-0 text-[13px] -mt-5 font-light">
+            <div className="relative z-0 -mt-5 text-[13px] font-light">
               {post?.profile.name}
-              <span className="relative -top-[2px] text-[30px] pl-1 pr-0.5 ">.</span>
-              <span className="font-medium">{moment(post?.created_at).calendar()}</span>
+              <span className="relative -top-[2px] pl-1 pr-0.5 text-[30px]">.</span>
+              <span className="font-medium">{dayjs(post?.created_at).calendar()}</span>
             </div>
           </div>
         </div>
@@ -153,20 +157,20 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
         ) : null}
       </div>
 
-      <p className="px-8 mt-4 text-sm">{post?.text}</p>
+      <p className="mt-4 px-8 text-sm">{post?.text}</p>
 
-      <p className="flex item-center gap-2 px-8 mt-4 text-sm font-bold">
+      <p className="item-center mt-4 flex gap-2 px-8 text-sm font-bold">
         <ImMusic size="17" />
         original sound - {post?.profile.name}
       </p>
 
-      <div className="flex items-center px-8 mt-8">
+      <div className="mt-8 flex items-center px-8">
         <ClientOnly>
-          <div className="pb-4 text-center flex items-center">
+          <div className="flex items-center pb-4 text-center">
             <button
               disabled={hasClickedLike}
               onClick={() => likeOrUnlike()}
-              className="rounded-full bg-gray-200 p-2 cursor-pointer"
+              className="cursor-pointer rounded-full bg-gray-200 p-2"
             >
               {!hasClickedLike ? (
                 <AiFillHeart
@@ -177,19 +181,19 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
                 <BiLoaderCircle className="animate-spin" size="25" />
               )}
             </button>
-            <span className="text-xs pl-2 pr-4 text-gray-800 font-semibold">
+            <span className="pl-2 pr-4 text-xs font-semibold text-gray-800">
               {likesByPost.length}
             </span>
           </div>
         </ClientOnly>
 
-        <div className="pb-4 text-center flex items-center">
-          <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
+        <div className="flex items-center pb-4 text-center">
+          <div className="cursor-pointer rounded-full bg-gray-200 p-2">
             <BsChatDots size={25} />
           </div>
-          <span className="text-xs pl-2 text-gray-800 font-semibold">{commentsByPost?.length}</span>
+          <span className="pl-2 text-xs font-semibold text-gray-800">{commentsByPost?.length}</span>
         </div>
       </div>
     </>
-  );
+  )
 }

@@ -1,91 +1,91 @@
-import { AiFillHeart } from 'react-icons/ai';
-import { FaShare, FaCommentDots } from 'react-icons/fa';
-import { useEffect, useState } from 'react';
-import { useUser } from '../context/user';
-import { BiLoaderCircle } from 'react-icons/bi';
-import { useGeneralStore } from '../stores/general';
-import { useRouter } from 'next/navigation';
-import { Comment, Like, PostMainLikesCompTypes } from '../types';
-import useGetCommentsByPostId from '../hooks/useGetCommentsByPostId';
-import useGetLikesByPostId from '../hooks/useGetLikesByPostId';
-import useIsLiked from '../hooks/useIsLiked';
-import useCreateLike from '../hooks/useCreateLike';
-import useDeleteLike from '../hooks/useDeleteLike';
+import { AiFillHeart } from 'react-icons/ai'
+import { FaShare, FaCommentDots } from 'react-icons/fa'
+import { useEffect, useState } from 'react'
+import { useUser } from '../context/user'
+import { BiLoaderCircle } from 'react-icons/bi'
+import { useGeneralStore } from '../stores/general'
+import { useRouter } from 'next/navigation'
+import { Comment, Like, PostMainLikesCompTypes } from '../types'
+import useGetCommentsByPostId from '../hooks/useGetCommentsByPostId'
+import useGetLikesByPostId from '../hooks/useGetLikesByPostId'
+import useIsLiked from '../hooks/useIsLiked'
+import useCreateLike from '../hooks/useCreateLike'
+import useDeleteLike from '../hooks/useDeleteLike'
 
 export default function PostMainLikes({ post }: PostMainLikesCompTypes) {
-  let { setIsLoginOpen } = useGeneralStore();
+  let { setIsLoginOpen } = useGeneralStore()
 
-  const router = useRouter();
-  const contextUser = useUser();
-  const [hasClickedLike, setHasClickedLike] = useState<boolean>(false);
-  const [userLiked, setUserLiked] = useState<boolean>(false);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [likes, setLikes] = useState<Like[]>([]);
-
-  useEffect(() => {
-    getAllLikesByPost();
-    getAllCommentsByPost();
-  }, [post]);
+  const router = useRouter()
+  const contextUser = useUser()
+  const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
+  const [userLiked, setUserLiked] = useState<boolean>(false)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [likes, setLikes] = useState<Like[]>([])
 
   useEffect(() => {
-    hasUserLikedPost();
-  }, [likes, contextUser]);
+    getAllLikesByPost()
+    getAllCommentsByPost()
+  }, [post])
+
+  useEffect(() => {
+    hasUserLikedPost()
+  }, [likes, contextUser])
 
   const getAllCommentsByPost = async () => {
-    let result = await useGetCommentsByPostId(post?.id);
-    setComments((result as Comment[]) || []);
-  };
+    let result = await useGetCommentsByPostId(post?.id)
+    setComments((result as Comment[]) || [])
+  }
 
   const getAllLikesByPost = async () => {
-    let result = await useGetLikesByPostId(post?.id);
-    setLikes(result || []);
-  };
+    let result = await useGetLikesByPostId(post?.id)
+    setLikes((result as Like[]) || [])
+  }
 
   const hasUserLikedPost = () => {
-    if (!contextUser) return;
+    if (!contextUser) return
 
     if (likes?.length < 1 || !contextUser?.user?.id) {
-      setUserLiked(false);
-      return;
+      setUserLiked(false)
+      return
     }
-    let res = useIsLiked(contextUser?.user?.id, post?.id, likes);
-    setUserLiked(res ? true : false);
-  };
+    let res = useIsLiked(contextUser?.user?.id, post?.id, likes)
+    setUserLiked(res ? true : false)
+  }
 
   const like = async () => {
-    setHasClickedLike(true);
-    await useCreateLike(contextUser?.user?.id || '', post?.id);
-    await getAllLikesByPost();
-    hasUserLikedPost();
-    setHasClickedLike(false);
-  };
+    setHasClickedLike(true)
+    await useCreateLike(contextUser?.user?.id || '', post?.id)
+    await getAllLikesByPost()
+    hasUserLikedPost()
+    setHasClickedLike(false)
+  }
 
   const unlike = async (id: string) => {
-    setHasClickedLike(true);
-    await useDeleteLike(contextUser?.user?.id || '', post?.id);
-    await getAllLikesByPost();
-    hasUserLikedPost();
-    setHasClickedLike(false);
-  };
+    setHasClickedLike(true)
+    await useDeleteLike(contextUser?.user?.id || '', post?.id)
+    await getAllLikesByPost()
+    hasUserLikedPost()
+    setHasClickedLike(false)
+  }
 
   const likeOrUnlike = () => {
     if (!contextUser?.user?.id) {
-      setIsLoginOpen(true);
-      return;
+      setIsLoginOpen(true)
+      return
     }
 
-    let res = useIsLiked(contextUser?.user?.id, post?.id, likes);
+    let res = useIsLiked(contextUser?.user?.id, post?.id, likes)
 
     if (!res) {
-      like();
+      like()
     } else {
       likes.forEach((like: Like) => {
         if (contextUser?.user?.id == like?.user_id && like?.post_id == post?.id) {
-          unlike(like?.id);
+          unlike(like?.id)
         }
-      });
+      })
     }
-  };
+  }
 
   return (
     <>
@@ -95,7 +95,7 @@ export default function PostMainLikes({ post }: PostMainLikesCompTypes) {
             <button
               disabled={hasClickedLike}
               onClick={() => likeOrUnlike()}
-              className="rounded-full bg-gray-200 p-2 cursor-pointer"
+              className="cursor-pointer rounded-full bg-gray-200 p-2"
             >
               {!hasClickedLike ? (
                 <AiFillHeart color={likes?.length > 0 && userLiked ? '#ff2626' : ''} size="25" />
@@ -103,27 +103,27 @@ export default function PostMainLikes({ post }: PostMainLikesCompTypes) {
                 <BiLoaderCircle className="animate-spin" size="25" />
               )}
             </button>
-            <span className="text-xs text-gray-800 font-semibold">{likes?.length}</span>
+            <span className="text-xs font-semibold text-gray-800">{likes?.length}</span>
           </div>
 
           <button
             onClick={() => router.push(`/post/${post?.id}/${post?.profile?.user_id}`)}
             className="pb-4 text-center"
           >
-            <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
+            <div className="cursor-pointer rounded-full bg-gray-200 p-2">
               <FaCommentDots size="25" />
             </div>
-            <span className="text-xs text-gray-800 font-semibold">{comments?.length}</span>
+            <span className="text-xs font-semibold text-gray-800">{comments?.length}</span>
           </button>
 
           <button className="text-center">
-            <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
+            <div className="cursor-pointer rounded-full bg-gray-200 p-2">
               <FaShare size="25" />
             </div>
-            <span className="text-xs text-gray-800 font-semibold">55</span>
+            <span className="text-xs font-semibold text-gray-800">55</span>
           </button>
         </div>
       </div>
     </>
-  );
+  )
 }

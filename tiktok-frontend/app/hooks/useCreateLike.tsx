@@ -1,12 +1,12 @@
-import { apiClient } from '@/libs/ApiClient';
+import { apiClient } from '@/libs/ApiClient'
 
 const useCreateLike = async (userId: string, postId: string) => {
   try {
-    await apiClient.createLike(postId);
+    await apiClient.createLike(postId)
   } catch (error) {
-    console.error('Error creating like:', error);
-    throw error;
+    console.error('Error creating like:', error)
+    throw error
   }
-};
+}
 
-export default useCreateLike;
+export default useCreateLike

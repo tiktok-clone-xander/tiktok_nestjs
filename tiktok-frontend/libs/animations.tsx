@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import { motion, AnimatePresence } from 'framer-motion'
+import { ReactNode } from 'react'
 
 // Common animation variants
 export const fadeInVariants = {
@@ -20,7 +20,7 @@ export const fadeInVariants = {
       ease: 'easeInOut',
     },
   },
-};
+}
 
 export const slideInFromRightVariants = {
   hidden: {
@@ -43,7 +43,7 @@ export const slideInFromRightVariants = {
       ease: [0.25, 0.25, 0, 1],
     },
   },
-};
+}
 
 export const slideInFromLeftVariants = {
   hidden: {
@@ -66,7 +66,7 @@ export const slideInFromLeftVariants = {
       ease: [0.25, 0.25, 0, 1],
     },
   },
-};
+}
 
 export const slideInFromTopVariants = {
   hidden: {
@@ -89,7 +89,7 @@ export const slideInFromTopVariants = {
       ease: [0.25, 0.25, 0, 1],
     },
   },
-};
+}
 
 export const slideInFromBottomVariants = {
   hidden: {
@@ -112,7 +112,7 @@ export const slideInFromBottomVariants = {
       ease: [0.25, 0.25, 0, 1],
     },
   },
-};
+}
 
 export const scaleVariants = {
   hidden: {
@@ -135,7 +135,7 @@ export const scaleVariants = {
       ease: [0.25, 0.25, 0, 1],
     },
   },
-};
+}
 
 export const bounceVariants = {
   hidden: {
@@ -159,7 +159,7 @@ export const bounceVariants = {
       duration: 0.2,
     },
   },
-};
+}
 
 export const staggerContainerVariants = {
   hidden: { opacity: 0 },
@@ -177,7 +177,7 @@ export const staggerContainerVariants = {
       staggerDirection: -1,
     },
   },
-};
+}
 
 export const staggerItemVariants = {
   hidden: {
@@ -199,7 +199,7 @@ export const staggerItemVariants = {
       duration: 0.2,
     },
   },
-};
+}
 
 // Loading spinner variants
 export const spinnerVariants = {
@@ -211,7 +211,7 @@ export const spinnerVariants = {
       repeat: Infinity,
     },
   },
-};
+}
 
 // Heart like animation
 export const heartLikeVariants = {
@@ -223,7 +223,7 @@ export const heartLikeVariants = {
       ease: 'easeInOut',
     },
   },
-};
+}
 
 // Video card hover variants
 export const videoCardVariants = {
@@ -241,7 +241,7 @@ export const videoCardVariants = {
       ease: 'easeInOut',
     },
   },
-};
+}
 
 // Button variants
 export const buttonVariants = {
@@ -262,7 +262,7 @@ export const buttonVariants = {
       ease: 'easeInOut',
     },
   },
-};
+}
 
 // Modal variants
 export const modalBackdropVariants = {
@@ -281,7 +281,7 @@ export const modalBackdropVariants = {
       duration: 0.2,
     },
   },
-};
+}
 
 export const modalVariants = {
   hidden: {
@@ -308,7 +308,7 @@ export const modalVariants = {
       ease: 'easeInOut',
     },
   },
-};
+}
 
 // Toast notification variants
 export const toastVariants = {
@@ -333,7 +333,7 @@ export const toastVariants = {
       ease: 'easeInOut',
     },
   },
-};
+}
 
 // Page transition variants
 export const pageTransitionVariants = {
@@ -357,14 +357,14 @@ export const pageTransitionVariants = {
       ease: 'easeIn',
     },
   },
-};
+}
 
 // Components using these variants
 
 interface FadeInProps {
-  children: ReactNode;
-  delay?: number;
-  duration?: number;
+  children: ReactNode
+  delay?: number
+  duration?: number
 }
 
 export function FadeIn({ children, delay = 0, duration = 0.3 }: FadeInProps) {
@@ -374,15 +374,15 @@ export function FadeIn({ children, delay = 0, duration = 0.3 }: FadeInProps) {
       animate={{ opacity: 1 }}
       transition={{ delay, duration, ease: 'easeInOut' }}
     >
-      {children}
+      {children as any}
     </motion.div>
-  );
+  )
 }
 
 interface SlideInProps {
-  children: ReactNode;
-  direction?: 'left' | 'right' | 'top' | 'bottom';
-  delay?: number;
+  children: ReactNode
+  direction?: 'left' | 'right' | 'top' | 'bottom'
+  delay?: number
 }
 
 export function SlideIn({ children, direction = 'bottom', delay = 0 }: SlideInProps) {
@@ -391,7 +391,7 @@ export function SlideIn({ children, direction = 'bottom', delay = 0 }: SlideInPr
     right: slideInFromRightVariants,
     top: slideInFromTopVariants,
     bottom: slideInFromBottomVariants,
-  };
+  }
 
   return (
     <motion.div
@@ -403,14 +403,14 @@ export function SlideIn({ children, direction = 'bottom', delay = 0 }: SlideInPr
         transitionDelay: `${delay}s`,
       }}
     >
-      {children}
+      {children as any}
     </motion.div>
-  );
+  )
 }
 
 interface ScaleInProps {
-  children: ReactNode;
-  delay?: number;
+  children: ReactNode
+  delay?: number
 }
 
 export function ScaleIn({ children, delay = 0 }: ScaleInProps) {
@@ -424,36 +424,36 @@ export function ScaleIn({ children, delay = 0 }: ScaleInProps) {
         transitionDelay: `${delay}s`,
       }}
     >
-      {children}
+      {children as any}
     </motion.div>
-  );
+  )
 }
 
 interface StaggeredListProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function StaggeredList({ children }: StaggeredListProps) {
   return (
     <motion.div initial="hidden" animate="visible" exit="exit" variants={staggerContainerVariants}>
-      {children}
+      {children as any}
     </motion.div>
-  );
+  )
 }
 
 interface StaggeredItemProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function StaggeredItem({ children }: StaggeredItemProps) {
-  return <motion.div variants={staggerItemVariants}>{children}</motion.div>;
+  return <motion.div variants={staggerItemVariants}>{children as any}</motion.div>
 }
 
 interface AnimatedButtonProps {
-  children: ReactNode;
-  onClick?: () => void;
-  className?: string;
-  disabled?: boolean;
+  children: ReactNode
+  onClick?: () => void
+  className?: string
+  disabled?: boolean
 }
 
 export function AnimatedButton({
@@ -472,14 +472,14 @@ export function AnimatedButton({
       whileHover={disabled ? 'rest' : 'hover'}
       whileTap={disabled ? 'rest' : 'tap'}
     >
-      {children}
+      {children as any}
     </motion.button>
-  );
+  )
 }
 
 interface LoadingSpinnerProps {
-  size?: number;
-  className?: string;
+  size?: number
+  className?: string
 }
 
 export function LoadingSpinner({ size = 24, className = '' }: LoadingSpinnerProps) {
@@ -491,7 +491,7 @@ export function LoadingSpinner({ size = 24, className = '' }: LoadingSpinnerProp
       animate="animate"
     >
       <svg
-        className="w-full h-full"
+        className="h-full w-full"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -515,14 +515,14 @@ export function LoadingSpinner({ size = 24, className = '' }: LoadingSpinnerProp
         </circle>
       </svg>
     </motion.div>
-  );
+  )
 }
 
 interface ModalProps {
-  children: ReactNode;
-  isOpen: boolean;
-  onClose: () => void;
-  className?: string;
+  children: ReactNode
+  isOpen: boolean
+  onClose: () => void
+  className?: string
 }
 
 export function Modal({ children, isOpen, onClose, className = '' }: ModalProps) {
@@ -531,38 +531,38 @@ export function Modal({ children, isOpen, onClose, className = '' }: ModalProps)
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 bg-black/60 z-50"
+            className="fixed inset-0 z-50 bg-black/60"
             variants={modalBackdropVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             onClick={onClose}
           />
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
-              className={`bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto ${className}`}
+              className={`max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900 ${className}`}
               variants={modalVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
-              {children}
+              {children as any}
             </motion.div>
           </div>
         </>
       )}
     </AnimatePresence>
-  );
+  )
 }
 
 interface PageTransitionProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function PageTransition({ children }: PageTransitionProps) {
   return (
     <motion.div initial="initial" animate="animate" exit="exit" variants={pageTransitionVariants}>
-      {children}
+      {children as any}
     </motion.div>
-  );
+  )
 }

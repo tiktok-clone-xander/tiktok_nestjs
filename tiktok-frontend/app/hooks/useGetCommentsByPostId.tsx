@@ -1,13 +1,13 @@
-import { apiClient } from '@/libs/ApiClient';
+import { apiClient } from '@/libs/ApiClient'
 
 const useGetCommentsByPostId = async (postId: string) => {
   try {
-    const comments = await apiClient.getCommentsByPostId(postId);
-    return comments;
+    const comments = await apiClient.getCommentsByPostId(postId)
+    return comments
   } catch (error) {
-    console.error('Error fetching comments:', error);
-    return [];
+    console.error('Error fetching comments:', error)
+    return []
   }
-};
+}
 
-export default useGetCommentsByPostId;
+export default useGetCommentsByPostId
