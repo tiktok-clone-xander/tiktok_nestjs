@@ -26,24 +26,6 @@ export class InteractionService {
 
   async likeVideo(userId: string, videoId: string) {
     try {
-      // Check if video exists
-      const video = await this.videoRepository.findOne({
-        where: { id: videoId },
-      });
-
-      if (!video) {
-        throw new RpcException('Video not found');
-      }
-
-      // Check if user exists
-      const user = await this.userRepository.findOne({
-        where: { id: userId },
-      });
-
-      if (!user) {
-        throw new RpcException('User not found');
-      }
-
       // Check if already liked in Redis
       const hasLiked = await this.redisService.hasUserLiked(userId, videoId);
 
@@ -130,20 +112,6 @@ export class InteractionService {
 
   async addComment(userId: string, videoId: string, content: string) {
     try {
-      // Validate video and user
-      const [video, user] = await Promise.all([
-        this.videoRepository.findOne({ where: { id: videoId } }),
-        this.userRepository.findOne({ where: { id: userId } }),
-      ]);
-
-      if (!video) {
-        throw new RpcException('Video not found');
-      }
-
-      if (!user) {
-        throw new RpcException('User not found');
-      }
-
       // Create comment
       const comment = this.commentRepository.create({
         userId,
@@ -208,12 +176,6 @@ export class InteractionService {
         videoId: comment.videoId,
         content: comment.content,
         createdAt: comment.createdAt.toISOString(),
-        user: {
-          id: comment.user.id,
-          username: comment.user.username,
-          fullName: comment.user.fullName,
-          avatar: comment.user.avatar,
-        },
       }));
 
       return {
@@ -231,15 +193,6 @@ export class InteractionService {
 
   async recordView(videoId: string, userId?: string) {
     try {
-      // Check if video exists
-      const video = await this.videoRepository.findOne({
-        where: { id: videoId },
-      });
-
-      if (!video) {
-        throw new RpcException('Video not found');
-      }
-
       // Increment view counter in Redis
       await this.redisService.incrementViews(videoId);
       const totalViews = await this.redisService.getViews(videoId);
