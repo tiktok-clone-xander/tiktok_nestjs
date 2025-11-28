@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Like, Comment, CommentLike, Follow, Share } from './entities';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Comment, CommentLike, Follow, Like, Share } from './entities';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        name: 'interaction',
         type: 'postgres',
         host: configService.get('INTERACTION_DB_HOST', 'localhost'),
         port: configService.get('INTERACTION_DB_PORT', 5434),
@@ -25,7 +24,7 @@ import { Like, Comment, CommentLike, Follow, Share } from './entities';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Like, Comment, CommentLike, Follow, Share], 'interaction'),
+    TypeOrmModule.forFeature([Like, Comment, CommentLike, Follow, Share]),
   ],
   exports: [TypeOrmModule],
 })

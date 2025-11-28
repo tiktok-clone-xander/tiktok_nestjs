@@ -1,24 +1,24 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { logger } from '@app/common/utils';
+import { Comment, CommentLike, Follow, Like, Share } from '@app/interaction-db';
+import { KafkaService } from '@app/kafka';
+import { RedisService } from '@app/redis';
+import { Injectable } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
-import { Like, Comment, CommentLike, Follow, Share } from '@app/interaction-db';
-import { RedisService } from '@app/redis';
-import { KafkaService } from '@app/kafka';
-import { logger } from '@app/common/utils';
 
 @Injectable()
 export class InteractionService {
   constructor(
-    @InjectRepository(Like, 'interaction')
+    @InjectRepository(Like)
     private readonly likeRepository: Repository<Like>,
-    @InjectRepository(Comment, 'interaction')
+    @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
-    @InjectRepository(CommentLike, 'interaction')
+    @InjectRepository(CommentLike)
     private readonly commentLikeRepository: Repository<CommentLike>,
-    @InjectRepository(Follow, 'interaction')
+    @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
-    @InjectRepository(Share, 'interaction')
+    @InjectRepository(Share)
     private readonly shareRepository: Repository<Share>,
     private readonly redisService: RedisService,
     private readonly kafkaService: KafkaService,

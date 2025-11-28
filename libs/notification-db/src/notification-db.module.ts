@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification, NotificationDelivery, NotificationPreference } from './entities';
 
 @Module({
@@ -8,7 +8,6 @@ import { Notification, NotificationDelivery, NotificationPreference } from './en
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        name: 'notification',
         type: 'postgres',
         host: configService.get('NOTIFICATION_DB_HOST', 'localhost'),
         port: configService.get('NOTIFICATION_DB_PORT', 5435),
@@ -25,7 +24,7 @@ import { Notification, NotificationDelivery, NotificationPreference } from './en
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Notification, NotificationDelivery, NotificationPreference], 'notification'),
+    TypeOrmModule.forFeature([Notification, NotificationDelivery, NotificationPreference]),
   ],
   exports: [TypeOrmModule],
 })

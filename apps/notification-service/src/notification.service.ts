@@ -16,11 +16,11 @@ export class NotificationService {
   private notifications: Map<string, any[]> = new Map();
 
   constructor(
-    @InjectRepository(Notification, 'notification')
+    @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
-    @InjectRepository(NotificationDelivery, 'notification')
+    @InjectRepository(NotificationDelivery)
     private readonly notificationDeliveryRepository: Repository<NotificationDelivery>,
-    @InjectRepository(NotificationPreference, 'notification')
+    @InjectRepository(NotificationPreference)
     private readonly notificationPreferenceRepository: Repository<NotificationPreference>,
   ) {}
 

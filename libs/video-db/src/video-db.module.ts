@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { Video, VideoView } from './entities';
 
 @Module({
@@ -8,7 +8,6 @@ import { Video, VideoView } from './entities';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        name: 'video',
         type: 'postgres',
         host: configService.get('VIDEO_DB_HOST', 'localhost'),
         port: configService.get('VIDEO_DB_PORT', 5433),
@@ -25,7 +24,7 @@ import { Video, VideoView } from './entities';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Video, VideoView], 'video'),
+    TypeOrmModule.forFeature([Video, VideoView]),
   ],
   exports: [TypeOrmModule],
 })

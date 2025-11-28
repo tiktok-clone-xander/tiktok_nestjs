@@ -1,19 +1,18 @@
-import { CreateVideoDto, UpdateVideoStatsDto } from '@app/common/dto/video.dto';
-import { logger } from '@app/common/utils';
-import { Video, VideoView } from '@app/video-db';
+import { CreateVideoDto } from '@app/common/dto/video.dto';
 import { KafkaService } from '@app/kafka';
 import { RedisService } from '@app/redis';
+import { Video, VideoView } from '@app/video-db';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class VideoService {
   constructor(
-    @InjectRepository(Video, 'video')
+    @InjectRepository(Video)
     private readonly videoRepository: Repository<Video>,
-    @InjectRepository(VideoView, 'video')
+    @InjectRepository(VideoView)
     private readonly videoViewRepository: Repository<VideoView>,
     private readonly redisService: RedisService,
     private readonly kafkaService: KafkaService,
@@ -21,16 +20,8 @@ export class VideoService {
 
   async createVideo(data: CreateVideoDto) {
     try {
-      // Validate user exists
-      const user = await this.userRepository.findOne({
-        where: { id: data.userId },
-      });
+      // TODO: Validate user exists via gRPC call to auth service
 
-      if (!user) {
-        throw new RpcException('User not found');
-      }
-
-      // Create video entity
       const video = this.videoRepository.create({
         userId: data.userId,
         title: data.title,
@@ -42,169 +33,180 @@ export class VideoService {
 
       const savedVideo = await this.videoRepository.save(video);
 
-      // Initialize Redis counters
-      await Promise.all([
-        this.redisService.set(`video:${savedVideo.id}:views`, '0'),
-        this.redisService.set(`video:${savedVideo.id}:likes`, '0'),
-        this.redisService.set(`video:${savedVideo.id}:comments`, '0'),
-      ]);
-
-      // Invalidate feed cache
-      await this.redisService.invalidateFeedCache(data.userId);
-
-      // Publish event to Kafka
-      await this.kafkaService.publish('video.deleted', {
-        videoId: savedVideo.id,
-        userId: data.userId,
-        title: data.title,
-      });
-
-      logger.info(`Video created: ${savedVideo.id}`);
-
-      return {
-        video: {
-          id: savedVideo.id,
-          userId: savedVideo.userId,
-          title: savedVideo.title,
-          description: savedVideo.description,
-          videoUrl: savedVideo.videoUrl,
-          thumbnailUrl: savedVideo.thumbnailUrl,
-          duration: savedVideo.duration,
-          views: 0,
-          likesCount: 0,
-          commentsCount: 0,
-          createdAt: savedVideo.createdAt.toISOString(),
-        },
-      };
+      return { video: savedVideo };
     } catch (error) {
-      logger.error('Error creating video:', error);
-      throw new RpcException(error.message || 'Failed to create video');
+      throw new RpcException(`Error creating video: ${error.message}`);
     }
   }
 
   async getVideo(videoId: string) {
     try {
-      // Try to get from cache first
-      const cachedVideo = await this.redisService.get(`video:${videoId}`);
-      if (cachedVideo) {
-        return { video: JSON.parse(cachedVideo) };
-      }
-
-      // Get from database
       const video = await this.videoRepository.findOne({
         where: { id: videoId },
-        relations: ['user'],
       });
 
       if (!video) {
         throw new RpcException('Video not found');
       }
 
-      // Get stats from Redis
-      const [views, likes, comments] = await Promise.all([
-        this.redisService.getViews(videoId),
-        this.redisService.getLikes(videoId),
-        this.redisService.getCommentsCount(videoId),
-      ]);
+      return {
+        video: {
+          id: video.id,
+          title: video.title,
+          description: video.description,
+          videoUrl: video.videoUrl,
+          thumbnailUrl: video.thumbnailUrl,
+          duration: video.duration,
+          views: video.views,
+          likesCount: video.likesCount,
+          commentsCount: video.commentsCount,
+          createdAt: video.createdAt.toISOString(),
+          // TODO: Get user data via gRPC call
+          user: {
+            id: video.userId,
+            username: 'Unknown',
+            fullName: 'Unknown',
+            avatar: null,
+          },
+        },
+      };
+    } catch (error) {
+      throw new RpcException(`Error getting video: ${error.message}`);
+    }
+  }
 
-      const videoData = {
+  async getVideos(userId?: string, page: number = 1, limit: number = 10) {
+    try {
+      const videos = await this.videoRepository.find({
+        skip: (page - 1) * limit,
+        take: limit,
+        order: { createdAt: 'DESC' },
+      });
+
+      const enrichedVideos = videos.map((video) => ({
         id: video.id,
-        userId: video.userId,
         title: video.title,
         description: video.description,
         videoUrl: video.videoUrl,
         thumbnailUrl: video.thumbnailUrl,
         duration: video.duration,
-        views: views || video.views,
-        likesCount: likes || video.likesCount,
-        commentsCount: comments || video.commentsCount,
+        views: video.views,
+        likesCount: video.likesCount,
+        commentsCount: video.commentsCount,
         createdAt: video.createdAt.toISOString(),
+        // TODO: Get user data via gRPC call
         user: {
-          id: video.user.id,
-          username: video.user.username,
-          fullName: video.user.fullName,
-          avatar: video.user.avatar,
+          id: video.userId,
+          username: 'Unknown',
+          fullName: 'Unknown',
+          avatar: null,
         },
-      };
-
-      // Cache for 5 minutes
-      await this.redisService.set(`video:${videoId}`, JSON.stringify(videoData), 300);
-
-      return { video: videoData };
-    } catch (error) {
-      logger.error(`Error getting video ${videoId}:`, error);
-      throw new RpcException(error.message || 'Failed to get video');
-    }
-  }
-
-  async getFeed(userId?: string, page = 1, limit = 10) {
-    try {
-      const cacheKey = userId ? `feed:${userId}` : 'feed:global';
-      const cachePageKey = `${cacheKey}:${page}:${limit}`;
-
-      // Try cache first
-      const cachedFeed = await this.redisService.getCachedFeed(userId || 'global', page, limit);
-      if (cachedFeed) {
-        return { videos: cachedFeed, page, limit, hasMore: (cachedFeed as any[]).length === limit };
-      }
-
-      // Get from database with pagination
-      const skip = (page - 1) * limit;
-      const [videos, total] = await this.videoRepository.findAndCount({
-        relations: ['user'],
-        order: { createdAt: 'DESC' },
-        skip,
-        take: limit,
-      });
-
-      // Enrich with Redis stats
-      const enrichedVideos = await Promise.all(
-        videos.map(async (video) => {
-          const [views, likes, comments] = await Promise.all([
-            this.redisService.getViews(video.id),
-            this.redisService.getLikes(video.id),
-            this.redisService.getCommentsCount(video.id),
-          ]);
-
-          return {
-            id: video.id,
-            userId: video.userId,
-            title: video.title,
-            description: video.description,
-            videoUrl: video.videoUrl,
-            thumbnailUrl: video.thumbnailUrl,
-            duration: video.duration,
-            views: views || video.views,
-            likesCount: likes || video.likesCount,
-            commentsCount: comments || video.commentsCount,
-            createdAt: video.createdAt.toISOString(),
-            user: {
-              id: video.user.id,
-              username: video.user.username,
-              fullName: video.user.fullName,
-              avatar: video.user.avatar,
-            },
-          };
-        }),
-      );
-
-      // Cache for 2 minutes
-      await this.redisService.cacheFeed(userId || 'global', page, limit, enrichedVideos, 120);
+      }));
 
       return {
         videos: enrichedVideos,
-        page,
-        limit,
-        total,
-        hasMore: skip + videos.length < total,
+        pagination: {
+          page,
+          limit,
+          total: await this.videoRepository.count(),
+        },
       };
     } catch (error) {
-      logger.error('Error getting feed:', error);
-      throw new RpcException(error.message || 'Failed to get feed');
+      throw new RpcException(`Error getting videos: ${error.message}`);
     }
   }
 
-  async updateVideoStats(data: UpdateVideoStatsDto) {
+  // Alias methods for controller compatibility
+  async getFeed(userId?: string, page: number = 1, limit: number = 10) {
+    return this.getVideos(userId, page, limit);
+  }
+
+  async getUserVideos(userId: string, page: number = 1, limit: number = 10) {
+    try {
+      const videos = await this.videoRepository.find({
+        where: { userId },
+        skip: (page - 1) * limit,
+        take: limit,
+        order: { createdAt: 'DESC' },
+      });
+
+      const enrichedVideos = videos.map((video) => ({
+        id: video.id,
+        title: video.title,
+        description: video.description,
+        videoUrl: video.videoUrl,
+        thumbnailUrl: video.thumbnailUrl,
+        duration: video.duration,
+        views: video.views,
+        likesCount: video.likesCount,
+        commentsCount: video.commentsCount,
+        createdAt: video.createdAt.toISOString(),
+        user: {
+          id: video.userId,
+          username: 'Unknown',
+          fullName: 'Unknown',
+          avatar: null,
+        },
+      }));
+
+      return {
+        videos: enrichedVideos,
+        pagination: {
+          page,
+          limit,
+          total: await this.videoRepository.count({ where: { userId } }),
+        },
+      };
+    } catch (error) {
+      throw new RpcException(`Error getting user videos: ${error.message}`);
+    }
+  }
+
+  async searchVideos(query: string, page: number = 1, limit: number = 10) {
+    try {
+      // Simple search implementation
+      const videos = await this.videoRepository
+        .createQueryBuilder('video')
+        .where('video.title ILIKE :query', { query: `%${query}%` })
+        .orWhere('video.description ILIKE :query', { query: `%${query}%` })
+        .skip((page - 1) * limit)
+        .take(limit)
+        .orderBy('video.createdAt', 'DESC')
+        .getMany();
+
+      const enrichedVideos = videos.map((video) => ({
+        id: video.id,
+        title: video.title,
+        description: video.description,
+        videoUrl: video.videoUrl,
+        thumbnailUrl: video.thumbnailUrl,
+        duration: video.duration,
+        views: video.views,
+        likesCount: video.likesCount,
+        commentsCount: video.commentsCount,
+        createdAt: video.createdAt.toISOString(),
+        user: {
+          id: video.userId,
+          username: 'Unknown',
+          fullName: 'Unknown',
+          avatar: null,
+        },
+      }));
+
+      return {
+        videos: enrichedVideos,
+        pagination: {
+          page,
+          limit,
+          total: enrichedVideos.length,
+        },
+      };
+    } catch (error) {
+      throw new RpcException(`Error searching videos: ${error.message}`);
+    }
+  }
+
+  async updateVideoStats(data: any) {
     try {
       const video = await this.videoRepository.findOne({
         where: { id: data.videoId },
@@ -214,173 +216,34 @@ export class VideoService {
         throw new RpcException('Video not found');
       }
 
-      // Update in database
-      if (data.views !== undefined) {
-        video.views = data.views;
-      }
-      if (data.likesCount !== undefined) {
-        video.likesCount = data.likesCount;
-      }
-      if (data.commentsCount !== undefined) {
-        video.commentsCount = data.commentsCount;
-      }
+      // Update stats
+      if (data.views !== undefined) video.views = data.views;
+      if (data.likesCount !== undefined) video.likesCount = data.likesCount;
+      if (data.commentsCount !== undefined) video.commentsCount = data.commentsCount;
 
       await this.videoRepository.save(video);
 
-      // Invalidate cache
-      await this.redisService.del(`video:${data.videoId}`);
-
-      logger.info(`Video stats updated: ${data.videoId}`);
-
-      return { success: true };
+      return { success: true, video };
     } catch (error) {
-      logger.error('Error updating video stats:', error);
-      throw new RpcException(error.message || 'Failed to update video stats');
+      throw new RpcException(`Error updating video stats: ${error.message}`);
     }
   }
 
   async deleteVideo(videoId: string, userId: string) {
     try {
       const video = await this.videoRepository.findOne({
-        where: { id: videoId },
+        where: { id: videoId, userId },
       });
 
       if (!video) {
-        throw new RpcException('Video not found');
+        throw new RpcException('Video not found or unauthorized');
       }
 
-      if (video.userId !== userId) {
-        throw new RpcException('Forbidden: You can only delete your own videos');
-      }
-
-      // Delete from database (cascade will handle likes and comments)
       await this.videoRepository.remove(video);
-
-      // Clean up Redis
-      await Promise.all([
-        this.redisService.del(`video:${videoId}`),
-        this.redisService.del(`video:${videoId}:views`),
-        this.redisService.del(`video:${videoId}:likes`),
-        this.redisService.del(`video:${videoId}:comments`),
-      ]);
-
-      // Invalidate feed cache
-      await this.redisService.invalidateFeedCache(userId);
-
-      // Publish event
-      await this.kafkaService.publish('video.deleted', {
-        videoId,
-        userId,
-      });
-
-      logger.info(`Video deleted: ${videoId}`);
 
       return { success: true };
     } catch (error) {
-      logger.error('Error deleting video:', error);
-      throw new RpcException(error.message || 'Failed to delete video');
-    }
-  }
-
-  async getUserVideos(userId: string, page = 1, limit = 10) {
-    try {
-      const skip = (page - 1) * limit;
-      const [videos, total] = await this.videoRepository.findAndCount({
-        where: { userId },
-        relations: ['user'],
-        order: { createdAt: 'DESC' },
-        skip,
-        take: limit,
-      });
-
-      const enrichedVideos = await Promise.all(
-        videos.map(async (video) => {
-          const [views, likes, comments] = await Promise.all([
-            this.redisService.getViews(video.id),
-            this.redisService.getLikes(video.id),
-            this.redisService.getCommentsCount(video.id),
-          ]);
-
-          return {
-            id: video.id,
-            userId: video.userId,
-            title: video.title,
-            description: video.description,
-            videoUrl: video.videoUrl,
-            thumbnailUrl: video.thumbnailUrl,
-            duration: video.duration,
-            views: views || video.views,
-            likesCount: likes || video.likesCount,
-            commentsCount: comments || video.commentsCount,
-            createdAt: video.createdAt.toISOString(),
-          };
-        }),
-      );
-
-      return {
-        videos: enrichedVideos,
-        page,
-        limit,
-        total,
-        hasMore: skip + videos.length < total,
-      };
-    } catch (error) {
-      logger.error('Error getting user videos:', error);
-      throw new RpcException(error.message || 'Failed to get user videos');
-    }
-  }
-
-  async searchVideos(query: string, page = 1, limit = 10) {
-    try {
-      const skip = (page - 1) * limit;
-      const [videos, total] = await this.videoRepository.findAndCount({
-        where: [{ title: ILike(`%${query}%`) }, { description: ILike(`%${query}%`) }],
-        relations: ['user'],
-        order: { createdAt: 'DESC' },
-        skip,
-        take: limit,
-      });
-
-      const enrichedVideos = await Promise.all(
-        videos.map(async (video) => {
-          const [views, likes, comments] = await Promise.all([
-            this.redisService.getViews(video.id),
-            this.redisService.getLikes(video.id),
-            this.redisService.getCommentsCount(video.id),
-          ]);
-
-          return {
-            id: video.id,
-            userId: video.userId,
-            title: video.title,
-            description: video.description,
-            videoUrl: video.videoUrl,
-            thumbnailUrl: video.thumbnailUrl,
-            duration: video.duration,
-            views: views || video.views,
-            likesCount: likes || video.likesCount,
-            commentsCount: comments || video.commentsCount,
-            createdAt: video.createdAt.toISOString(),
-            user: {
-              id: video.user.id,
-              username: video.user.username,
-              fullName: video.user.fullName,
-              avatar: video.user.avatar,
-            },
-          };
-        }),
-      );
-
-      return {
-        videos: enrichedVideos,
-        page,
-        limit,
-        total,
-        hasMore: skip + videos.length < total,
-      };
-    } catch (error) {
-      logger.error('Error searching videos:', error);
-      throw new RpcException(error.message || 'Failed to search videos');
+      throw new RpcException(`Error deleting video: ${error.message}`);
     }
   }
 }
