@@ -138,7 +138,7 @@ $ports = @(
     @{Port = 9000; Service = "Kafka UI"},
     @{Port = 8081; Service = "Redis UI"},
     @{Port = 5050; Service = "pgAdmin"},
-    @{Port = 4000; Service = "API Gateway"},
+    @{Port = 5555; Service = "API Gateway"},
     @{Port = 4001; Service = "Auth Service"},
     @{Port = 4002; Service = "Video Service"},
     @{Port = 4003; Service = "Interaction Service"},
@@ -162,7 +162,7 @@ foreach ($portInfo in $ports) {
 # Summary
 Write-Host "`nQuick Links:" -ForegroundColor Yellow
 Write-Host "  - Frontend: http://localhost:3000" -ForegroundColor Cyan
-Write-Host "  - API Gateway: http://localhost:4000" -ForegroundColor Cyan
+Write-Host "  - API Gateway: http://localhost:5555" -ForegroundColor Cyan
 Write-Host "  - Kafka UI: http://localhost:9000" -ForegroundColor Cyan
 Write-Host "  - Redis UI: http://localhost:8081" -ForegroundColor Cyan
 Write-Host "  - pgAdmin: http://localhost:5050" -ForegroundColor Cyan

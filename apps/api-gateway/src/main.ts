@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { ApiGatewayModule } from './api-gateway.module';
 
@@ -22,7 +22,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN', 'http://localhost:3000').split(','),
+    origin: configService.get('CORS_ORIGIN', 'http://localhost:5555').split(','),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -53,7 +53,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = configService.get('PORT', 4000);
+  const port = configService.get('PORT', 5555);
   await app.listen(port);
 
   logger.log(`🚀 API Gateway is running on http://localhost:${port}`);

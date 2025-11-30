@@ -47,11 +47,10 @@ RUN mkdir -p /app/logs && chown -R 1001:1001 /app/logs
 USER nestjs
 
 # Expose gRPC and HTTP ports
-EXPOSE 50051 3001
+EXPOSE 50051 4001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
-  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
+  CMD node -e "require('http').get('http://localhost:4001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 # Start the service
 CMD ["node", "dist/apps/auth-service/main.js"]

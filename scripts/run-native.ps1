@@ -255,7 +255,7 @@ AUTH_SERVICE_PORT=4001
 VIDEO_SERVICE_PORT=4002
 INTERACTION_SERVICE_PORT=4003
 NOTIFICATION_SERVICE_PORT=4004
-API_GATEWAY_PORT=4000
+API_GATEWAY_PORT=5555
 FRONTEND_PORT=3000
 
 # Node Environment
@@ -297,7 +297,7 @@ $services = @(
     @{Name="Video Service"; Command="npm run start:video"; Title="VIDEO-SERVICE"; Port="4002"; gRPCPort="50052"},
     @{Name="Interaction Service"; Command="npm run start:interaction"; Title="INTERACTION-SERVICE"; Port="4003"; gRPCPort="50053"},
     @{Name="Notification Service"; Command="npm run start:notification"; Title="NOTIFICATION-SERVICE"; Port="4004"; gRPCPort="50054"},
-    @{Name="API Gateway"; Command="npm run start:gateway"; Title="API-GATEWAY"; Port="4000"; gRPCPort="N/A"}
+    @{Name="API Gateway"; Command="npm run start:gateway"; Title="API-GATEWAY"; Port="5555"; gRPCPort="N/A"}
 )
 
 # Kill existing services first
@@ -450,7 +450,7 @@ Write-Host "  - Auth Service: http://localhost:4001 (gRPC: localhost:50051)" -Fo
 Write-Host "  - Video Service: http://localhost:4002 (gRPC: localhost:50052)" -ForegroundColor White
 Write-Host "  - Interaction Service: http://localhost:4003 (gRPC: localhost:50053)" -ForegroundColor White
 Write-Host "  - Notification Service: http://localhost:4004 (gRPC: localhost:50054)" -ForegroundColor White
-Write-Host "  - API Gateway: http://localhost:4000" -ForegroundColor White
+Write-Host "  - API Gateway: http://localhost:5555" -ForegroundColor White
 
 if (-not $SkipFrontend) {
     Write-Info "`nFrontend (Next.js with Hot Reload):"

@@ -47,10 +47,9 @@ RUN mkdir -p /app/logs && chown -R 1001:1001 /app/logs
 USER nestjs
 
 # Expose gRPC and HTTP ports
-EXPOSE 3004 50054
+EXPOSE 4004 50054
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3004/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
+  CMD node -e "require('http').get('http://localhost:4004/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 CMD ["node", "dist/apps/notification-service/main.js"]

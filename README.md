@@ -23,9 +23,9 @@ cd tiktok_nestjs
 
 **Sau 5-10 phút, truy cập:**
 
-- 🌐 Frontend: http://localhost:3000
-- 🔌 API: http://localhost:4000
-- 📚 Swagger: http://localhost:4000/api/docs
+- 🌐 Frontend: http://localhost:5555
+- 🔌 API: http://localhost:5555
+- 📚 Swagger: http://localhost:5555/api/docs
 
 > 💡 Script tự động kiểm tra, cài đặt dependencies, tạo .env, và start tất cả containers!
 
@@ -84,7 +84,7 @@ cd tiktok_nestjs
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        API Gateway (3000)                    │
+│                        API Gateway (5555)                    │
 │  - Authentication Middleware                                 │
 │  - Request Routing                                          │
 │  - WebSocket Gateway                                        │
@@ -199,7 +199,7 @@ Chỉnh sửa file `.env` với thông tin của bạn:
 # Application
 
 NODE_ENV=development
-PORT=3000
+PORT=5555
 
 # Database
 
@@ -235,7 +235,7 @@ GRPC_INTERACTION_URL=localhost:50053
 
 # CORS
 
-CORS_ORIGIN=http://localhost:3000,http://localhost:3001
+CORS_ORIGIN=http://localhost:5555,http://localhost:3001
 \`\`\`
 
 ## 🏃 Chạy dự án
@@ -298,8 +298,8 @@ npm run start:gateway
 
 ### Kiểm tra Services
 
-- API Gateway: http://localhost:3000/health
-- Swagger Docs: http://localhost:3000/api/docs
+- API Gateway: http://localhost:5555/health
+- Swagger Docs: http://localhost:5555/api/docs
 - Auth Service: http://localhost:3001/health
 - Video Service: http://localhost:3002/health
 - Interaction Service: http://localhost:3003/health
@@ -338,7 +338,7 @@ GET /api/interactions/comments/:videoId
 POST /api/interactions/view
 \`\`\`
 
-Chi tiết xem tại: http://localhost:3000/api/docs
+Chi tiết xem tại: http://localhost:5555/api/docs
 
 ## 🧪 Testing
 
@@ -376,7 +376,7 @@ npm install -g artillery
 
 # Test API Gateway
 
-artillery quick --count 100 --num 10 http://localhost:3000/health
+artillery quick --count 100 --num 10 http://localhost:5555/health
 \`\`\`
 
 ## 🔄 CI/CD
@@ -437,7 +437,7 @@ Mở các ports sau trên AWS Security Group:
 - 22 (SSH)
 - 80 (HTTP)
 - 443 (HTTPS)
-- 3000 (API Gateway)
+- 5555 (API Gateway)
 - 5432 (PostgreSQL - nếu cần)
 
 #### 3. Deploy

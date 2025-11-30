@@ -170,7 +170,7 @@ npm install
 ### Development Services
 
 - **Frontend**: http://localhost:3000
-- **API Gateway**: http://localhost:4000
+- **API Gateway**: http://localhost:5555
 - **Auth Service**: http://localhost:4001 (gRPC: 50051)
 - **Video Service**: http://localhost:4002 (gRPC: 50052)
 - **Interaction Service**: http://localhost:4003 (gRPC: 50053)
@@ -238,7 +238,7 @@ docker ps
 
 ```powershell
 # Check what's using ports
-netstat -an | findstr ":4000"
+netstat -an | findstr ":5555"
 
 # Stop all Node processes
 Get-Process node | Stop-Process

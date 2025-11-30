@@ -17,7 +17,7 @@ async function bootstrap() {
     options: {
       package: 'auth',
       protoPath: join(__dirname, '../../../proto/auth.proto'),
-      url: configService.get('GRPC_AUTH_URL', 'localhost:50051'),
+      url: `0.0.0.0:${configService.get('AUTH_GRPC_PORT', 50051)}`,
     },
   });
 
@@ -30,11 +30,12 @@ async function bootstrap() {
   );
 
   await app.startAllMicroservices();
-  logger.log('🚀 Auth Service is running on gRPC port 50051');
+  const grpcPort = configService.get('AUTH_GRPC_PORT', 50051);
+  logger.log(`🚀 Auth Service is running on gRPC port ${grpcPort}`);
 
   // Also start HTTP for health checks
-  const port = configService.get('AUTH_HTTP_PORT', 9081);
-  await app.listen(port, '127.0.0.1');
+  const port = configService.get('AUTH_HTTP_PORT', 4001);
+  await app.listen(port, 'localhost');
   logger.log(`🚀 Auth Service HTTP is running on port ${port}`);
 }
 

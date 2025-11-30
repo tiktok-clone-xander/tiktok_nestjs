@@ -33,7 +33,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   await app.startAllMicroservices();
-  logger.info('Interaction gRPC service is listening on port 50053');
+  const grpcPort = configService.get('INTERACTION_GRPC_PORT', 50053);
+  logger.info(`Interaction gRPC service is listening on port ${grpcPort}`);
 
   const port = configService.get('INTERACTION_HTTP_PORT', 4003);
   await app.listen(port);

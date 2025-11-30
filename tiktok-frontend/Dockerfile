@@ -9,7 +9,7 @@ WORKDIR /app
 COPY tiktok-frontend/package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm i
 
 # Copy source code
 COPY tiktok-frontend/ .

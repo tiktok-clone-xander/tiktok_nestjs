@@ -36,7 +36,8 @@ async function bootstrap() {
 
   // Start all microservices
   await app.startAllMicroservices();
-  logger.info('Video gRPC service is listening on port 50052');
+  const grpcPort = configService.get('VIDEO_GRPC_PORT', 50052);
+  logger.info(`Video gRPC service is listening on port ${grpcPort}`);
 
   // Start HTTP server for health checks
   const port = configService.get('VIDEO_HTTP_PORT', 4002);
