@@ -1,9 +1,9 @@
 import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import _ from 'lodash'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 // Initialize dayjs plugins
@@ -193,9 +193,17 @@ export const storageUtils = {
   get: <T>(key: string): T | null => {
     try {
       const item = localStorage.getItem(key)
-      return item ? JSON.parse(item) : null
+      // Handle null, undefined, or empty string
+      if (!item || item === 'undefined' || item === 'null') {
+        return null
+      }
+      return JSON.parse(item)
     } catch (error) {
       console.error('Failed to read from localStorage:', error)
+      // Clear invalid data
+      try {
+        localStorage.removeItem(key)
+      } catch {}
       return null
     }
   },

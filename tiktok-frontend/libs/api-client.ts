@@ -1,11 +1,11 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
-import { toast } from 'react-hot-toast'
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Cookies from 'js-cookie'
 import { jwtDecode } from 'jwt-decode'
+import { toast } from 'react-hot-toast'
 import { errorUtils } from './utils'
 
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+const API_BASE_URL = 'http://localhost:4000'
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
 // Token management
@@ -323,6 +323,6 @@ export const apiEndpoints = {
 export const apiClient = new ApiClient()
 
 // Export types for better TypeScript support
-export type { AxiosRequestConfig, AxiosResponse, AxiosError }
+export type { AxiosError, AxiosRequestConfig, AxiosResponse }
 
 export default apiClient
