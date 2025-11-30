@@ -1,60 +1,48 @@
-# =============================================================================
-# Build stage
-# =============================================================================
-FROM node:20-alpine AS builder
-
-# Install build dependencies for canvas and other native modules
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    cairo-dev \
-    jpeg-dev \
-    pango-dev \
-    giflib-dev \
-    pixman-dev
-
+# ============================================
+# 1) BASE IMAGE
+# ============================================
+FROM node:20-alpine AS base
 WORKDIR /app
+RUN apk add --no-cache libc6-compat
 
-# Copy only frontend package files
-COPY package*.json ./
+# ============================================
+# 2) DEPENDENCIES (tối ưu cache)
+# ============================================
+FROM base AS deps
+COPY package.json package-lock.json* ./
+RUN npm ci
 
-# Install dependencies with cache mount (standalone frontend)
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline --no-audit --no-fund
-
-# Copy frontend source code
+# ============================================
+# 3) BUILDER (build .next)
+# ============================================
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the application
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-# =============================================================================
-# Production stage
-# =============================================================================
-FROM node:20-alpine
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-  adduser -S nextjs -u 1001
-
+# ============================================
+# 4) RUNNER (chỉ giữ production artifacts)
+# ============================================
+FROM node:20-alpine AS runner
 WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy necessary files from builder
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+RUN apk add --no-cache libc6-compat && \
+    addgroup -S nextjs && adduser -S nextjs -G nextjs
 
-# Switch to non-root user
+# output build
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./
+
+# copy production modules
+COPY --from=deps /app/node_modules ./node_modules
+
+RUN chown -R nextjs:nextjs /app
 USER nextjs
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOSTNAME="localhost"
-
-# Expose port
 EXPOSE 3000
-
-# Start the application using standalone server
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
