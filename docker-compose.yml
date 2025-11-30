@@ -275,9 +275,10 @@ services:
     image: grafana/grafana:latest
     container_name: tiktok_grafana
     ports:
-      - '3005:3005' # changed from 3001:3000 to avoid host port conflict
+      - '3005:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_HTTP_PORT=3000
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
@@ -290,12 +291,14 @@ services:
     build:
       context: .
       dockerfile: tiktok-frontend/Dockerfile
+      cache_from:
+        - tiktok_frontend:latest
     container_name: tiktok_frontend
     environment:
       NODE_ENV: production
       # Use container name for internal Docker network communication
-      NEXT_PUBLIC_API_URL: http://localhost:4000
-      NEXT_PUBLIC_WS_URL: http://localhost:4000
+      NEXT_PUBLIC_API_URL: http://api-gateway:4000
+      NEXT_PUBLIC_WS_URL: ws://api-gateway:4000
     ports:
       - '3000:3000'
     depends_on:

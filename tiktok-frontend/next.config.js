@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   serverExternalPackages: ['canvas'],
   webpack: (config, { isServer }) => {
     // Add a rule to handle the canvas.node binary module
