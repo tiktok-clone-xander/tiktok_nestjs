@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
-import MainLayout from './layouts/MainLayout'
 import { usePostStore } from '@/app/stores/post'
+import { useEffect } from 'react'
 import ClientOnly from './components/ClientOnly'
 import PostMain from './components/PostMain'
+import MainLayout from './layouts/MainLayout'
 
 export default function Home() {
-  let { allPosts, setAllPosts } = usePostStore()
+  const { allPosts, setAllPosts } = usePostStore()
   useEffect(() => {
     setAllPosts()
   }, [])
@@ -16,9 +16,8 @@ export default function Home() {
       <MainLayout>
         <div className="ml-auto mt-[80px] w-[calc(100%-90px)] max-w-[690px]">
           <ClientOnly>
-            {allPosts.map((post, index) => (
-              <PostMain post={post} key={index} />
-            ))}
+            {Array.isArray(allPosts) &&
+              allPosts.map((post, index) => <PostMain post={post} key={index} />)}
           </ClientOnly>
         </div>
       </MainLayout>
