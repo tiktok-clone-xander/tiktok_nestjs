@@ -47,6 +47,12 @@ interface RefreshTokenRequest {
 
 interface RefreshTokenResponse {
   accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+  };
 }
 
 interface AuthServiceGrpc {
@@ -94,6 +100,8 @@ export class AuthController implements OnModuleInit {
         message: 'User registered successfully',
         data: {
           user: result.user,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
         },
       });
     } catch (error) {
@@ -132,6 +140,8 @@ export class AuthController implements OnModuleInit {
         message: 'User logged in successfully',
         data: {
           user: result.user,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
         },
       });
     } catch (error) {
@@ -179,20 +189,29 @@ export class AuthController implements OnModuleInit {
       });
     }
 
-    const result = (await lastValueFrom(this.authService.refreshToken({ refreshToken }))) as {
-      accessToken: string;
-    };
+    const result = (await lastValueFrom(
+      this.authService.refreshToken({ refreshToken }),
+    )) as RefreshTokenResponse;
 
     const cookieOptions = generateCookieOptions(process.env.NODE_ENV === 'production');
 
     res.cookie(ACCESS_TOKEN_COOKIE, result.accessToken, {
       ...cookieOptions,
-      maxAge: 15 * 60 * 1000,
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    res.cookie(REFRESH_TOKEN_COOKIE, result.refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     return res.status(HttpStatus.OK).json({
       success: true,
       message: 'Token refreshed successfully',
+      data: {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
     });
   }
 }
