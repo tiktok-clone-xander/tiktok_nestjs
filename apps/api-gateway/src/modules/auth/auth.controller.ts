@@ -109,8 +109,11 @@ export class AuthController implements OnModuleInit {
   @ApiResponse({ status: 200, description: 'User logged in successfully' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+    console.log('🔥 API Gateway - Login endpoint hit!', loginDto);
     try {
+      console.log('🚀 Calling Auth Service via gRPC...');
       const result = (await lastValueFrom(this.authService.login(loginDto))) as AuthResponse;
+      console.log('✅ Auth Service response:', result);
 
       const cookieOptions = generateCookieOptions(process.env.NODE_ENV === 'production');
 

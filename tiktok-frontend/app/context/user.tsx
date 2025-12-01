@@ -57,7 +57,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = (await apiClient.login({ email, password })) as any
+      // Backend expects 'username' field, but we can use email as username
+      const response = (await apiClient.login({ username: email, password })) as any
 
       // Store the auth token
       if (response.token) {

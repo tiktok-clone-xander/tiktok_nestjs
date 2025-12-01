@@ -281,12 +281,17 @@ class ApiClient {
 
   // Convenience methods for backward compatibility
   // Auth methods
-  async login(credentials: { email: string; password: string }) {
+  async login(credentials: { username: string; password: string }) {
     return this.post('api/auth/login', credentials)
   }
 
-  async register(userData: { email: string; password: string; username: string }) {
-    return this.post('/auth/register', userData)
+  async register(userData: {
+    email: string
+    password: string
+    username: string
+    fullName?: string
+  }) {
+    return this.post('api/auth/register', userData)
   }
 
   async logout() {

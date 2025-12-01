@@ -16,8 +16,11 @@ export class AuthController {
 
   @GrpcMethod('AuthService', 'Login')
   async login(data: { username: string; password: string }) {
+    console.log('🔥🔥🔥 AUTH SERVICE - Login method called!', data);
     this.logger.log(`Login request for: ${data.username}`);
-    return await this.authService.login(data);
+    const result = await this.authService.login(data);
+    console.log('✅ Auth Service login result:', result);
+    return result;
   }
 
   @GrpcMethod('AuthService', 'ValidateToken')
