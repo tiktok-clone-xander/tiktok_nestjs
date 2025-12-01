@@ -211,13 +211,33 @@ class ApiClient {
     return response.data
   }
 
-  // File upload with progress
-  public async uploadFile<T>(
-    url: string,
-    file: File,
-    onProgress?: (progress: number) => void,
+  // File upload with progress - supports both old and new signatures
+  public async uploadFile<T = any>(
+    urlOrFile: string | File,
+    fileOrType?: File | 'video' | 'image',
+    onProgressOrType?: ((progress: number) => void) | 'video' | 'image',
     additionalData?: Record<string, any>
   ): Promise<T> {
+    // Support old signature: uploadFile(file: File, type: 'video' | 'image')
+    if (urlOrFile instanceof File) {
+      const file = urlOrFile
+      const type = (fileOrType as 'video' | 'image') || 'image'
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', type)
+
+      const response = await this.instance.post<T>('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return response.data
+    }
+
+    // Support new signature: uploadFile(url, file, onProgress, additionalData)
+    const url = urlOrFile as string
+    const file = fileOrType as File
+    const onProgress = onProgressOrType as ((progress: number) => void) | undefined
     const formData = new FormData()
     formData.append('file', file)
 
@@ -258,20 +278,97 @@ class ApiClient {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(downloadUrl)
   }
+
+  // Convenience methods for backward compatibility
+  // Auth methods
+  async login(credentials: { email: string; password: string }) {
+    return this.post('api/auth/login', credentials)
+  }
+
+  async register(userData: { email: string; password: string; username: string }) {
+    return this.post('/auth/register', userData)
+  }
+
+  async logout() {
+    return this.post('/auth/logout')
+  }
+
+  // User/Profile methods
+  async getProfile(userId: string) {
+    return this.get(`/users/${userId}`)
+  }
+
+  async updateProfile(userId: string, data: any) {
+    return this.put(`/users/${userId}`, data)
+  }
+
+  async searchUsers(query: string) {
+    return this.get(`/users/search?q=${encodeURIComponent(query)}`)
+  }
+
+  // Video/Post methods
+  async getAllPosts() {
+    return this.get('/videos')
+  }
+
+  async getPostById(postId: string) {
+    return this.get(`/videos/${postId}`)
+  }
+
+  async getPostsByUserId(userId: string) {
+    return this.get(`/videos/user/${userId}`)
+  }
+
+  async createPost(postData: FormData) {
+    return this.post('/videos', postData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  }
+
+  async deletePost(postId: string) {
+    return this.delete(`/videos/${postId}`)
+  }
+
+  // Interaction methods
+  async getCommentsByPostId(postId: string) {
+    return this.get(`/interactions/${postId}/comments`)
+  }
+
+  async createComment(postId: string, comment: string) {
+    return this.post(`/interactions/${postId}/comments`, { comment })
+  }
+
+  async deleteComment(commentId: string) {
+    return this.delete(`/interactions/comments/${commentId}`)
+  }
+
+  async getLikesByPostId(postId: string) {
+    return this.get(`/interactions/${postId}/likes`)
+  }
+
+  async createLike(postId: string) {
+    return this.post(`/interactions/${postId}/likes`)
+  }
+
+  async deleteLike(postId: string) {
+    return this.delete(`/interactions/${postId}/likes`)
+  }
 }
 
 // API endpoints
 export const apiEndpoints = {
   // Auth endpoints
   auth: {
-    login: '/auth/login',
-    register: '/auth/register',
-    logout: '/auth/logout',
-    refresh: '/auth/refresh',
-    profile: '/auth/profile',
-    forgotPassword: '/auth/forgot-password',
-    resetPassword: '/auth/reset-password',
-    verifyEmail: '/auth/verify-email',
+    login: 'api/auth/login',
+    register: 'api/auth/register',
+    logout: 'api/auth/logout',
+    refresh: 'api/auth/refresh',
+    profile: 'api/auth/profile',
+    forgotPassword: 'api/auth/forgot-password',
+    resetPassword: 'api/auth/reset-password',
+    verifyEmail: 'api/auth/verify-email',
   },
 
   // User endpoints
@@ -324,5 +421,14 @@ export const apiClient = new ApiClient()
 
 // Export types for better TypeScript support
 export type { AxiosError, AxiosRequestConfig, AxiosResponse }
+
+// Helper functions for backward compatibility
+export const generateId = () => {
+  return Math.random().toString(36).substr(2, 9) + Date.now().toString(36)
+}
+
+export const createBucketUrl = (fileId: string, type: 'video' | 'image' = 'image') => {
+  return `${API_BASE_URL}/files/${type}/${fileId}`
+}
 
 export default apiClient

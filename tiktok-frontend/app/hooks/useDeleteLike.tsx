@@ -1,4 +1,4 @@
-import { apiClient } from '@/libs/ApiClient'
+import { apiClient } from '@/libs/api-client'
 
 const useDeleteLike = async (userId: string, postId: string) => {
   try {

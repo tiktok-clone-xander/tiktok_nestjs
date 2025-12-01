@@ -1,11 +1,10 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { apiClient } from '@/libs/ApiClient'
-import { User, UserContextTypes } from '../types'
+import { apiClient } from '@/libs/api-client'
 import { useRouter } from 'next/navigation'
-import useGetProfileByUserId from '../hooks/useGetProfileByUserId'
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import useCreateProfile from '../hooks/useCreateProfile'
+import { User, UserContextTypes } from '../types'
 
 const UserContext = createContext<UserContextTypes | null>(null)
 

@@ -1,4 +1,4 @@
-import { apiClient } from '@/libs/ApiClient'
+import { apiClient } from '@/libs/api-client'
 
 const useCreateComment = async (userId: string, postId: string, comment: string) => {
   try {

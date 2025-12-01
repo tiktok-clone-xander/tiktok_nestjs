@@ -1,4 +1,4 @@
-import { apiClient } from '@/libs/ApiClient'
+import { apiClient } from '@/libs/api-client'
 
 const useGetPostsByUserId = async (userId: string) => {
   try {

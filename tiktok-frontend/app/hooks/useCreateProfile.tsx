@@ -1,4 +1,4 @@
-import { apiClient } from '@/libs/ApiClient'
+import { apiClient } from '@/libs/api-client'
 
 const useCreateProfile = async (userId: string, name: string, bio: string, image: string) => {
   try {

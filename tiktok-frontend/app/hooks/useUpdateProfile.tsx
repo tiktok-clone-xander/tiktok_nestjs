@@ -1,4 +1,4 @@
-import { apiClient } from '@/libs/ApiClient'
+import { apiClient } from '@/libs/api-client'
 
 const useUpdateProfile = async (id: string, name: string, bio: string) => {
   try {
