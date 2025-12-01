@@ -106,7 +106,8 @@ services:
       KAFKA_BROKERS: kafka:29092
       KAFKA_CLIENT_ID: auth-service
       KAFKA_GROUP_ID: auth-service-group
-      GRPC_AUTH_URL: localhost:50051
+      # When running in docker-compose, use the service name and internal port
+      GRPC_AUTH_URL: auth-service:50051
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-your-secret-key-please-change-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-refresh-key-please-change-in-production}
     ports:
@@ -142,7 +143,7 @@ services:
       KAFKA_BROKERS: kafka:29092
       KAFKA_CLIENT_ID: video-service
       KAFKA_GROUP_ID: video-service-group
-      GRPC_VIDEO_URL: localhost:50052
+      GRPC_VIDEO_URL: video-service:50052
     ports:
       - '4002:4002'
       - '50052:50052'
@@ -178,7 +179,7 @@ services:
       KAFKA_BROKERS: kafka:29092
       KAFKA_CLIENT_ID: interaction-service
       KAFKA_GROUP_ID: interaction-service-group
-      GRPC_INTERACTION_URL: localhost:50053
+      GRPC_INTERACTION_URL: interaction-service:50053
     ports:
       - '4003:4003'
       - '50053:50053'
@@ -211,7 +212,8 @@ services:
       GRPC_INTERACTION_URL: interaction-service:50053
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-your-secret-key-please-change-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-refresh-key-please-change-in-production}
-      CORS_ORIGIN: http://localhost:3006,http://localhost:4000,http://frontend:3000
+      # Allow host/browser access to frontend (localhost:3000) and gateway
+      CORS_ORIGIN: http://localhost:3006,http://localhost:4000,http://localhost:3000
     ports:
       - '4000:4000'
     depends_on:
@@ -241,7 +243,7 @@ services:
       KAFKA_BROKERS: kafka:29092
       KAFKA_CLIENT_ID: notification-service
       KAFKA_GROUP_ID: notification-service-group
-      GRPC_NOTIFICATION_URL: localhost:50054
+      GRPC_NOTIFICATION_URL: notification-service:50054
     ports:
       - '4004:4004'
       - '50054:50054'
@@ -289,16 +291,20 @@ services:
   # Frontend (Next.js)
   frontend:
     build:
-      context: .
-      dockerfile: tiktok-frontend/Dockerfile
+      # Use the frontend folder as build context so Dockerfile's `COPY . .`
+      # will copy the Next.js app files (same behavior as `docker build` run
+      # inside the `tiktok-frontend` directory).
+      context: ./tiktok-frontend
+      dockerfile: Dockerfile
       cache_from:
-        - tiktok_frontend:latest
+        - tiktok-frontend:latest
     container_name: tiktok_frontend
     environment:
       NODE_ENV: production
       # Use container name for internal Docker network communication
       NEXT_PUBLIC_API_URL: http://api-gateway:4000
-      NEXT_PUBLIC_WS_URL: ws://api-gateway:4000
+      # The app expects NEXT_PUBLIC_SOCKET_URL (used by libs/socket-manager.ts)
+      NEXT_PUBLIC_SOCKET_URL: ws://api-gateway:4000
     ports:
       - '3000:3000'
     depends_on:
