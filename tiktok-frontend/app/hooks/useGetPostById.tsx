@@ -4,12 +4,14 @@ import { apiClient } from '@/libs/api-client'
 const useGetPostById = async (id: string): Promise<PostWithProfile | null> => {
   try {
     const response = (await apiClient.getPostById(id)) as any
-    if (response?.data?.video) {
-      const video = response.data.video
+    const video = response?.data?.video || response?.video
+
+    if (video) {
+      const userId = video.user?.id || video.userId || 'unknown'
       // Map API response to PostWithProfile type
       return {
         id: video.id,
-        user_id: video.user?.id || video.userId,
+        user_id: userId,
         video_url: video.videoUrl || video.video_url || '',
         text: video.description || video.text || '',
         created_at: video.createdAt || video.created_at || '',
@@ -20,14 +22,12 @@ const useGetPostById = async (id: string): Promise<PostWithProfile | null> => {
         duration: video.duration,
         views: video.views,
         createdAt: video.createdAt,
-        // Map user object to profile
-        profile: video.user
-          ? {
-              user_id: video.user.id,
-              name: video.user.fullName || video.user.username || 'Unknown',
-              image: video.user.avatar || '',
-            }
-          : undefined,
+        // Always provide profile with fallback values
+        profile: {
+          user_id: userId,
+          name: video.user?.fullName || video.user?.username || 'Unknown User',
+          image: video.user?.avatar || '',
+        },
       }
     }
     return null

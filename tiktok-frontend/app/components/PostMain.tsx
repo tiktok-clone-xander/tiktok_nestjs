@@ -44,8 +44,10 @@ export default function PostMain({ post }: PostMainCompTypes) {
 
         <div className="w-full px-4 pl-3">
           <div className="flex items-center justify-between pb-0.5">
-            <Link href={`/profile/${post.profile.user_id}`}>
-              <span className="cursor-pointer font-bold hover:underline">{post.profile.name}</span>
+            <Link href={`/profile/${post?.profile?.user_id || 'unknown'}`}>
+              <span className="cursor-pointer font-bold hover:underline">
+                {post?.profile?.name || 'Unknown User'}
+              </span>
             </Link>
 
             <button className="rounded-md border border-[#F02C56] px-[21px] py-0.5 text-[15px] font-semibold text-[#F02C56] hover:bg-[#ffeef2]">
@@ -75,7 +77,8 @@ export default function PostMain({ post }: PostMainCompTypes) {
               <Image
                 alt="TikTok Logo"
                 className="absolute bottom-10 right-2"
-                width="90"
+                width={90}
+                height={90}
                 src="/images/tiktok-logo-white.png"
               />
             </div>

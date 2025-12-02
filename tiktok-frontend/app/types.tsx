@@ -74,7 +74,7 @@ export interface PostWithProfile {
   text?: string
   created_at?: string
   createdAt?: string
-  profile?: {
+  profile: {
     user_id: string
     name: string
     image: string

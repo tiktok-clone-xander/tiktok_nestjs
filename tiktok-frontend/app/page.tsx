@@ -8,11 +8,12 @@ import MainLayout from './layouts/MainLayout'
 
 export default function Home() {
   const { allPosts, setAllPosts } = usePostStore()
+
   useEffect(() => {
-    console.log('Fetching all posts on homepage load')
-    console.log('All posts:', allPosts)
     setAllPosts()
-  }, [])
+  }, [setAllPosts])
+
+  useEffect(() => {}, [allPosts])
   return (
     <>
       <MainLayout>
