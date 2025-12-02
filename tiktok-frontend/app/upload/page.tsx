@@ -1,24 +1,25 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import UploadLayout from '../layouts/UploadLayout'
-import { BiLoaderCircle, BiSolidCloudUpload } from 'react-icons/bi'
-import { AiOutlineCheckCircle } from 'react-icons/ai'
-import { PiKnifeLight } from 'react-icons/pi'
-import { useRouter } from 'next/navigation'
 import { useUser } from '@/app/context/user'
-import { UploadError } from '../types'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { AiOutlineCheckCircle } from 'react-icons/ai'
+import { BiLoaderCircle, BiSolidCloudUpload } from 'react-icons/bi'
+import { PiKnifeLight } from 'react-icons/pi'
 import useCreatePost from '../hooks/useCreatePost'
+import UploadLayout from '../layouts/UploadLayout'
+import { UploadError } from '../types'
 
 export default function Upload() {
   const contextUser = useUser()
   const router = useRouter()
 
-  let [fileDisplay, setFileDisplay] = useState<string>('')
-  let [caption, setCaption] = useState<string>('')
-  let [file, setFile] = useState<File | null>(null)
-  let [error, setError] = useState<UploadError | null>(null)
-  let [isUploading, setIsUploading] = useState<boolean>(false)
+  const [fileDisplay, setFileDisplay] = useState<string>('')
+  const [caption, setCaption] = useState<string>('')
+  const [file, setFile] = useState<File | null>(null)
+  const [error, setError] = useState<UploadError | null>(null)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
 
   useEffect(() => {
     if (!contextUser?.user) router.push('/')
@@ -61,7 +62,7 @@ export default function Upload() {
   }
 
   const createNewPost = async () => {
-    let isError = validate()
+    const isError = validate()
     if (isError) return
     if (!file || !contextUser?.user) return
     setIsUploading(true)
@@ -117,8 +118,13 @@ export default function Upload() {
                   </div>
                 ) : null}
 
-                <img className="pointer-events-none absolute z-20" src="/images/mobile-case.png" />
-                <img
+                <Image
+                  alt="mobile case"
+                  className="pointer-events-none absolute z-20"
+                  src="/images/mobile-case.png"
+                />
+                <Image
+                  alt="TikTok Logo White"
                   className="absolute bottom-6 right-4 z-20"
                   width="90"
                   src="/images/tiktok-logo-white.png"

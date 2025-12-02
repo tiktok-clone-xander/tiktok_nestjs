@@ -1,10 +1,10 @@
-import { AiOutlineLoading3Quarters } from 'react-icons/ai'
-import { SiSoundcharts } from 'react-icons/si'
-import { BiErrorCircle } from 'react-icons/bi'
-import { useEffect } from 'react'
-import Link from 'next/link'
 import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
 import { PostUserCompTypes } from '@/app/types'
+import Link from 'next/link'
+import { useEffect } from 'react'
+import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import { BiErrorCircle } from 'react-icons/bi'
+import { SiSoundcharts } from 'react-icons/si'
 
 export default function PostUser({ post }: PostUserCompTypes) {
   useEffect(() => {
@@ -27,16 +27,18 @@ export default function PostUser({ post }: PostUserCompTypes) {
           <div className="absolute left-0 top-0 flex aspect-[3/4] w-full items-center justify-center rounded-md bg-black object-cover">
             <AiOutlineLoading3Quarters className="ml-1 animate-spin" size="80" color="#FFFFFF" />
           </div>
-        ) : (
+        ) : post.video_url ? (
           <Link href={`/post/${post.id}/${post.user_id}`}>
             <video
               id={`video${post.id}`}
               muted
               loop
               className="aspect-[3/4] rounded-md object-cover"
-              src={useCreateBucketUrl(post.video_url)}
+              src={useCreateBucketUrl(post.video_url)!}
             />
           </Link>
+        ) : (
+          <div className="aspect-[3/4] rounded-md bg-gray-200" />
         )}
         <div className="px-1">
           <p className="break-words pt-1 text-[15px] text-gray-700">{post.text}</p>

@@ -1,19 +1,20 @@
+import { useUser } from '@/app/context/user'
+import useChangeUserImage from '@/app/hooks/useChangeUserImage'
+import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import useUpdateProfile from '@/app/hooks/useUpdateProfile'
+import useUpdateProfileImage from '@/app/hooks/useUpdateProfileImage'
+import { useGeneralStore } from '@/app/stores/general'
+import { useProfileStore } from '@/app/stores/profile'
+import { CropperDimensions, ShowErrorObject } from '@/app/types'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Cropper } from 'react-advanced-cropper'
 import 'react-advanced-cropper/dist/style.css'
-import TextInput from '../TextInput'
-import { BsPencil } from 'react-icons/bs'
 import { AiOutlineClose } from 'react-icons/ai'
-import { useUser } from '@/app/context/user'
-import { useRouter } from 'next/navigation'
 import { BiLoaderCircle } from 'react-icons/bi'
-import { CropperDimensions, ShowErrorObject } from '@/app/types'
-import { useProfileStore } from '@/app/stores/profile'
-import { useGeneralStore } from '@/app/stores/general'
-import useUpdateProfile from '@/app/hooks/useUpdateProfile'
-import useChangeUserImage from '@/app/hooks/useChangeUserImage'
-import useUpdateProfileImage from '@/app/hooks/useUpdateProfileImage'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import { BsPencil } from 'react-icons/bs'
+import TextInput from '../TextInput'
 
 export default function EditProfileOverlay() {
   const { currentProfile, setCurrentProfile } = useProfileStore()
@@ -140,11 +141,16 @@ export default function EditProfileOverlay() {
 
                   <div className="flex items-center justify-center sm:-mt-6">
                     <label htmlFor="image" className="relative cursor-pointer">
-                      <img
-                        className="rounded-full"
-                        width="95"
-                        src={useCreateBucketUrl(userImage)}
-                      />
+                      {userImage ? (
+                        <Image
+                          alt="Profile Image"
+                          className="rounded-full"
+                          width="95"
+                          src={useCreateBucketUrl(userImage)!}
+                        />
+                      ) : (
+                        <div className="h-[95px] w-[95px] rounded-full bg-gray-200" />
+                      )}
 
                       <button className="absolute bottom-0 right-0 inline-block h-[32px] w-[32px] rounded-full border border-gray-300 bg-white p-1 shadow-xl">
                         <BsPencil size="17" className="ml-0.5" />

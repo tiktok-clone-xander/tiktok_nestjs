@@ -1,33 +1,34 @@
 'use client'
 
-import Link from 'next/link'
-import { AiFillHeart } from 'react-icons/ai'
-import { BsChatDots, BsTrash3 } from 'react-icons/bs'
-import { ImMusic } from 'react-icons/im'
-import dayjs from 'dayjs'
-import calendar from 'dayjs/plugin/calendar'
 import { useUser } from '@/app/context/user'
-import { useEffect, useState } from 'react'
-import { BiLoaderCircle } from 'react-icons/bi'
-import ClientOnly from '../ClientOnly'
 import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
-import { useLikeStore } from '@/app/stores/like'
-import { useCommentStore } from '@/app/stores/comment'
-import { useGeneralStore } from '@/app/stores/general'
-import { useRouter } from 'next/navigation'
-import useIsLiked from '@/app/hooks/useIsLiked'
 import useCreateLike from '@/app/hooks/useCreateLike'
 import useDeleteLike from '@/app/hooks/useDeleteLike'
 import useDeletePostById from '@/app/hooks/useDeletePostById'
+import useIsLiked from '@/app/hooks/useIsLiked'
+import { useCommentStore } from '@/app/stores/comment'
+import { useGeneralStore } from '@/app/stores/general'
+import { useLikeStore } from '@/app/stores/like'
 import { CommentsHeaderCompTypes } from '@/app/types'
+import dayjs from 'dayjs'
+import calendar from 'dayjs/plugin/calendar'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { AiFillHeart } from 'react-icons/ai'
+import { BiLoaderCircle } from 'react-icons/bi'
+import { BsChatDots, BsTrash3 } from 'react-icons/bs'
+import { ImMusic } from 'react-icons/im'
+import ClientOnly from '../ClientOnly'
 
 export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes) {
   // Initialize dayjs calendar plugin
   dayjs.extend(calendar)
 
-  let { setLikesByPost, likesByPost } = useLikeStore()
-  let { commentsByPost, setCommentsByPost } = useCommentStore()
-  let { setIsLoginOpen } = useGeneralStore()
+  const { setLikesByPost, likesByPost } = useLikeStore()
+  const { commentsByPost, setCommentsByPost } = useCommentStore()
+  const { setIsLoginOpen } = useGeneralStore()
 
   const contextUser = useUser()
   const router = useRouter()
@@ -48,7 +49,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
       setUserLiked(false)
       return
     }
-    let res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
+    const res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
     setUserLiked(res ? true : false)
   }
 
@@ -81,7 +82,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
   const likeOrUnlike = () => {
     if (!contextUser?.user) return setIsLoginOpen(true)
 
-    let res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
+    const res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
     if (!res) {
       like()
     } else {
@@ -98,7 +99,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
   }
 
   const deletePost = async () => {
-    let res = confirm('Are you sure you want to delete this post?')
+    const res = confirm('Are you sure you want to delete this post?')
     if (!res) return
 
     setIsDeleteing(true)
@@ -119,10 +120,11 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
         <div className="flex items-center">
           <Link href={`/profile/${post?.user_id}`}>
             {post?.profile.image ? (
-              <img
+              <Image
                 className="mx-auto rounded-full lg:mx-0"
                 width="40"
                 src={useCreateBucketUrl(post?.profile.image)}
+                alt={`${post?.profile.name}'s profile picture`}
               />
             ) : (
               <div className="h-[40px] w-[40px] rounded-full bg-gray-200"></div>

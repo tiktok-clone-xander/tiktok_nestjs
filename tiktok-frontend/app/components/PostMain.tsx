@@ -1,12 +1,13 @@
 'use client'
 
-import { AiFillHeart } from 'react-icons/ai'
-import { ImMusic } from 'react-icons/im'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect } from 'react'
-import PostMainLikes from './PostMainLikes'
+import { AiFillHeart } from 'react-icons/ai'
+import { ImMusic } from 'react-icons/im'
 import useCreateBucketUrl from '../hooks/useCreateBucketUrl'
 import { PostMainCompTypes } from '../types'
+import PostMainLikes from './PostMainLikes'
 
 export default function PostMain({ post }: PostMainCompTypes) {
   useEffect(() => {
@@ -14,7 +15,7 @@ export default function PostMain({ post }: PostMainCompTypes) {
     const postMainElement = document.getElementById(`PostMain-${post.id}`)
 
     if (postMainElement) {
-      let observer = new IntersectionObserver(
+      const observer = new IntersectionObserver(
         entries => {
           entries[0].isIntersecting ? video.play() : video.pause()
         },
@@ -29,11 +30,16 @@ export default function PostMain({ post }: PostMainCompTypes) {
     <>
       <div id={`PostMain-${post.id}`} className="flex border-b py-6">
         <div className="cursor-pointer">
-          <img
-            className="max-h-[60px] rounded-full"
-            width="60"
-            src={useCreateBucketUrl(post?.profile?.image)}
-          />
+          {post?.profile?.image ? (
+            <Image
+              alt="Profile Image"
+              className="max-h-[60px] rounded-full"
+              width="60"
+              src={useCreateBucketUrl(post.profile.image)!}
+            />
+          ) : (
+            <div className="h-[60px] w-[60px] rounded-full bg-gray-200" />
+          )}
         </div>
 
         <div className="w-full px-4 pl-3">
@@ -66,7 +72,8 @@ export default function PostMain({ post }: PostMainCompTypes) {
                 className="mx-auto h-full rounded-xl object-cover"
                 src={useCreateBucketUrl(post?.video_url)}
               />
-              <img
+              <Image
+                alt="TikTok Logo"
                 className="absolute bottom-10 right-2"
                 width="90"
                 src="/images/tiktok-logo-white.png"

@@ -1,22 +1,23 @@
 'use client'
 
-import PostUser from '@/app/components/profile/PostUser'
-import MainLayout from '@/app/layouts/MainLayout'
-import { BsPencil } from 'react-icons/bs'
-import { useEffect } from 'react'
-import { useUser } from '@/app/context/user'
 import ClientOnly from '@/app/components/ClientOnly'
-import { ProfilePageTypes, User } from '@/app/types'
+import PostUser from '@/app/components/profile/PostUser'
+import { useUser } from '@/app/context/user'
+import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import MainLayout from '@/app/layouts/MainLayout'
+import { useGeneralStore } from '@/app/stores/general'
 import { usePostStore } from '@/app/stores/post'
 import { useProfileStore } from '@/app/stores/profile'
-import { useGeneralStore } from '@/app/stores/general'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import { User } from '@/app/types'
+import Image from 'next/image'
+import React, { useEffect } from 'react'
+import { BsPencil } from 'react-icons/bs'
 
-export default async function Profile({ params }: ProfilePageTypes) {
-  const { id } = await params
+export default function Profile({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params)
   const contextUser = useUser()
-  let { postsByUser, setPostsByUser } = usePostStore()
-  let { setCurrentProfile, currentProfile } = useProfileStore()
+  const { postsByUser, setPostsByUser } = usePostStore()
+  const { setCurrentProfile, currentProfile } = useProfileStore()
   let { isEditProfileOpen, setIsEditProfileOpen } = useGeneralStore()
 
   useEffect(() => {
@@ -30,10 +31,11 @@ export default async function Profile({ params }: ProfilePageTypes) {
         <div className="ml-[90px] w-[calc(100%-90px)] max-w-[1800px] pr-3 pt-[90px] lg:pl-[160px] lg:pr-0 2xl:mx-auto 2xl:pl-[185px]">
           <div className="flex w-[calc(100vw-230px)]">
             <ClientOnly>
-              {currentProfile ? (
-                <img
+              {currentProfile?.image ? (
+                <Image
+                  alt="Profile Image"
                   className="w-[120px] min-w-[120px] rounded-full"
-                  src={useCreateBucketUrl(currentProfile?.image)}
+                  src={useCreateBucketUrl(currentProfile.image)!}
                 />
               ) : (
                 <div className="h-[120px] min-w-[150px] rounded-full bg-gray-200" />

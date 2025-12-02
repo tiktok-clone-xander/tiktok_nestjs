@@ -1,20 +1,21 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import { AnimatedButton, FadeIn, StaggeredItem, StaggeredList } from '@/libs/animations'
+import type { Video } from '@/libs/store'
+import { useAppDispatch } from '@/libs/store'
+import { useLikeVideo, useUnlikeVideo } from '@/libs/swr-hooks'
+import { cn, formatUtils } from '@/libs/utils'
+import { ChatBubbleLeftIcon, HeartIcon, PlayIcon, ShareIcon } from '@heroicons/react/24/outline'
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'
+import { zodResolver } from '@hookform/resolvers/zod'
+import dayjs from 'dayjs'
+import Decimal from 'decimal.js'
 import { motion } from 'framer-motion'
+import { debounce } from 'lodash'
+import Image from 'next/image'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { useInView } from 'react-intersection-observer'
-import { debounce } from 'lodash'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import Decimal from 'decimal.js'
-import dayjs from 'dayjs'
-import { HeartIcon, ShareIcon, ChatBubbleLeftIcon, PlayIcon } from '@heroicons/react/24/outline'
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'
-import { cn, formatUtils } from '@/libs/utils'
-import { useLikeVideo, useUnlikeVideo } from '@/libs/swr-hooks'
-import { useAppDispatch } from '@/libs/store'
-import { FadeIn, StaggeredList, StaggeredItem, AnimatedButton } from '@/libs/animations'
-import type { Video } from '@/libs/store'
 
 // Zod schema for video interaction
 const videoInteractionSchema = z.object({
@@ -181,8 +182,8 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
             <div className="mr-4 flex-1">
               {/* User Info */}
               <div className="mb-3 flex items-center">
-                <img
-                  src={video.user.avatarUrl || '/default-avatar.png'}
+                <Image
+                  src={video.user.avatarUrl || '/images/default-avatar.png'}
                   alt={video.user.displayName}
                   className="h-10 w-10 rounded-full border-2 border-white"
                 />
@@ -319,8 +320,8 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, isActive = false, onPlay, 
                   <StaggeredItem key={i}>
                     <div className="mb-4 rounded-lg bg-white/5 p-3">
                       <div className="flex items-start gap-3">
-                        <img
-                          src="/default-avatar.png"
+                        <Image
+                          src="/images/default-avatar.png"
                           alt="Commenter"
                           className="h-8 w-8 rounded-full"
                         />

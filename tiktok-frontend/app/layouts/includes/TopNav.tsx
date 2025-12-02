@@ -1,16 +1,17 @@
-import Link from 'next/link'
+import { useUser } from '@/app/context/user'
+import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import useSearchProfilesByName from '@/app/hooks/useSearchProfilesByName'
+import { useGeneralStore } from '@/app/stores/general'
+import { RandomUsers } from '@/app/types'
 import { debounce } from 'lodash'
-import { useRouter, usePathname } from 'next/navigation'
-import { BiSearch, BiUser } from 'react-icons/bi'
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { AiOutlinePlus } from 'react-icons/ai'
+import { BiSearch, BiUser } from 'react-icons/bi'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import { FiLogOut } from 'react-icons/fi'
-import { useEffect, useState } from 'react'
-import { useUser } from '@/app/context/user'
-import { useGeneralStore } from '@/app/stores/general'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
-import { RandomUsers } from '@/app/types'
-import useSearchProfilesByName from '@/app/hooks/useSearchProfilesByName'
 
 export default function TopNav() {
   const userContext = useUser()
@@ -19,7 +20,7 @@ export default function TopNav() {
 
   const [searchProfiles, setSearchProfiles] = useState<RandomUsers[]>([])
   let [showMenu, setShowMenu] = useState<boolean>(false)
-  let { setIsLoginOpen, setIsEditProfileOpen } = useGeneralStore()
+  const { setIsLoginOpen, setIsEditProfileOpen } = useGeneralStore()
 
   useEffect(() => {
     setIsEditProfileOpen(false)
@@ -51,7 +52,13 @@ export default function TopNav() {
           className={`mx-auto flex w-full items-center justify-between gap-6 px-4 ${pathname === '/' ? 'max-w-[1150px]' : ''}`}
         >
           <Link href="/">
-            <img className="w-[115px] min-w-[115px]" src="/images/tiktok-logo.png" />
+            <Image
+              width={115}
+              height={40}
+              alt="TikTok Logo"
+              className="w-[115px] min-w-[115px]"
+              src="/images/tiktok-logo.png"
+            />
           </Link>
 
           <div className="relative hidden w-full max-w-[430px] items-center justify-end rounded-full bg-[#F1F1F2] p-1 md:flex">
@@ -71,11 +78,17 @@ export default function TopNav() {
                       className="flex w-full cursor-pointer items-center justify-between p-1 px-2 hover:bg-[#F12B56] hover:text-white"
                     >
                       <div className="flex items-center">
-                        <img
-                          className="rounded-md"
-                          width="40"
-                          src={useCreateBucketUrl(profile?.image)}
-                        />
+                        {profile?.image ? (
+                          <Image
+                            alt="Profile Image"
+                            className="rounded-md"
+                            width={40}
+                            height={40}
+                            src={useCreateBucketUrl(profile.image)!}
+                          />
+                        ) : (
+                          <div className="h-[40px] w-[40px] rounded-md bg-gray-200" />
+                        )}
                         <div className="ml-2 truncate">{profile?.name}</div>
                       </div>
                     </Link>
@@ -115,10 +128,17 @@ export default function TopNav() {
                     onClick={() => setShowMenu((showMenu = !showMenu))}
                     className="mt-1 rounded-full border border-gray-200"
                   >
-                    <img
-                      className="h-[35px] w-[35px] rounded-full"
-                      src={useCreateBucketUrl(userContext?.user?.image || '')}
-                    />
+                    {userContext?.user?.image ? (
+                      <Image
+                        width={35}
+                        height={35}
+                        alt="Profile Image"
+                        className="h-[35px] w-[35px] rounded-full"
+                        src={useCreateBucketUrl(userContext.user.image)!}
+                      />
+                    ) : (
+                      <div className="h-[35px] w-[35px] rounded-full bg-gray-200" />
+                    )}
                   </button>
 
                   {showMenu ? (

@@ -1,18 +1,18 @@
 'use client'
 
+import ClientOnly from '@/app/components/ClientOnly'
 import Comments from '@/app/components/post/Comments'
 import CommentsHeader from '@/app/components/post/CommentsHeader'
+import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import { useCommentStore } from '@/app/stores/comment'
+import { useLikeStore } from '@/app/stores/like'
+import { usePostStore } from '@/app/stores/post'
+import { PostPageTypes } from '@/app/types'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
 import { BiChevronDown, BiChevronUp } from 'react-icons/bi'
-import { useRouter } from 'next/navigation'
-import ClientOnly from '@/app/components/ClientOnly'
-import { type Post, PostPageTypes } from '@/app/types'
-import { usePostStore } from '@/app/stores/post'
-import { useLikeStore } from '@/app/stores/like'
-import { useCommentStore } from '@/app/stores/comment'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
 
 export default async function Post({ params }: PostPageTypes) {
   const { postId, userId } = await params
@@ -73,9 +73,10 @@ export default async function Post({ params }: PostPageTypes) {
             </button>
           </div>
 
-          <img
+          <Image
+            alt="TikTok Logo Small"
             className="absolute left-[70px] top-[18px] z-20 mx-auto rounded-full lg:mx-0"
-            width="45"
+            width={45}
             src="/images/tiktok-logo-small.png"
           />
 
@@ -83,7 +84,7 @@ export default async function Post({ params }: PostPageTypes) {
             {postById?.video_url ? (
               <video
                 className="fixed z-[0] my-auto h-screen w-full object-cover"
-                src={useCreateBucketUrl(postById?.video_url)}
+                src={useCreateBucketUrl(postById.video_url)!}
               />
             ) : null}
 
@@ -95,7 +96,7 @@ export default async function Post({ params }: PostPageTypes) {
                   loop
                   muted
                   className="mx-auto h-screen"
-                  src={useCreateBucketUrl(postById.video_url)}
+                  src={useCreateBucketUrl(postById.video_url)!}
                 />
               ) : null}
             </div>
