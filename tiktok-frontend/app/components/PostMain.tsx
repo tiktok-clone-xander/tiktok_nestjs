@@ -72,7 +72,7 @@ export default function PostMain({ post }: PostMainCompTypes) {
                 controls
                 muted
                 className="mx-auto h-full rounded-xl object-cover"
-                src={useCreateBucketUrl(post?.video_url)}
+                src={useCreateBucketUrl(post?.videoUrl || '')!}
               />
               <Image
                 alt="TikTok Logo"
