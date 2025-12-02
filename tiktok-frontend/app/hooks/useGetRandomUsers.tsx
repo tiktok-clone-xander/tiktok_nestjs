@@ -1,10 +1,9 @@
-import { apiClient } from '@/libs/api-client'
-
 const useGetRandomUsers = async () => {
   try {
-    // This should be implemented in your backend to return suggested/random users
-    const users = await apiClient.searchUsers('')
-    return users
+    // TODO: Backend needs to implement /api/users/suggested or /api/users/random endpoint
+    // For now, return empty array since the endpoint doesn't exist
+    console.warn('Random users endpoint not yet implemented')
+    return []
   } catch (error) {
     console.error('Error fetching random users:', error)
     return []

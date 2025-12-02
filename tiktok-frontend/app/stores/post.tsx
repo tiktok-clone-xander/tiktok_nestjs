@@ -24,7 +24,7 @@ export const usePostStore = create<PostStore>()(
 
         setAllPosts: async () => {
           const result = await useGetAllPosts()
-          set({ allPosts: Array.isArray(result) ? result : [] })
+          set({ allPosts: result })
         },
         setPostsByUser: async (userId: string) => {
           const result = await useGetPostsByUser(userId)
