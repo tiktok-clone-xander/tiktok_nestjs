@@ -2,29 +2,62 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { AiFillHeart } from 'react-icons/ai'
 import { ImMusic } from 'react-icons/im'
 import useCreateBucketUrl from '../hooks/useCreateBucketUrl'
 import { PostMainCompTypes } from '../types'
 import PostMainLikes from './PostMainLikes'
 
-export default function PostMain({ post }: PostMainCompTypes) {
+// Memoized component to prevent unnecessary re-renders
+const PostMain = memo(function PostMain({ post }: PostMainCompTypes) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  // Memoize computed values
+  const profileImageUrl = useMemo(
+    () => (post?.profile?.image ? useCreateBucketUrl(post.profile.image) : null),
+    [post?.profile?.image]
+  )
+
+  const videoUrl = useMemo(
+    () => (post?.videoUrl ? useCreateBucketUrl(post.videoUrl) : ''),
+    [post?.videoUrl]
+  )
+
+  const profileLink = useMemo(
+    () => `/profile/${post?.profile?.user_id || 'unknown'}`,
+    [post?.profile?.user_id]
+  )
+
+  // Intersection Observer with cleanup
   useEffect(() => {
-    const video = document.getElementById(`video-${post?.id}`) as HTMLVideoElement
+    if (!videoRef.current) return
+
+    const video = videoRef.current
     const postMainElement = document.getElementById(`PostMain-${post.id}`)
 
     if (postMainElement) {
-      const observer = new IntersectionObserver(
+      observerRef.current = new IntersectionObserver(
         entries => {
-          entries[0].isIntersecting ? video.play() : video.pause()
+          if (entries[0].isIntersecting) {
+            video.play().catch(() => {}) // Handle autoplay errors
+          } else {
+            video.pause()
+          }
         },
         { threshold: [0.6] }
       )
 
-      observer.observe(postMainElement)
+      observerRef.current.observe(postMainElement)
     }
-  }, [])
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [post.id])
 
   return (
     <>
@@ -67,12 +100,15 @@ export default function PostMain({ post }: PostMainCompTypes) {
           <div className="mt-2.5 flex">
             <div className="relative flex max-h-[580px] min-h-[480px] max-w-[260px] cursor-pointer items-center rounded-xl bg-black">
               <video
+                ref={videoRef}
                 id={`video-${post.id}`}
                 loop
                 controls
                 muted
+                playsInline
+                preload="metadata"
                 className="mx-auto h-full rounded-xl object-cover"
-                src={useCreateBucketUrl(post?.videoUrl || '')!}
+                src={videoUrl}
               />
               <Image
                 alt="TikTok Logo"
@@ -80,6 +116,8 @@ export default function PostMain({ post }: PostMainCompTypes) {
                 width={90}
                 height={90}
                 src="/images/tiktok-logo-white.png"
+                priority={false}
+                loading="lazy"
               />
             </div>
 
@@ -89,4 +127,6 @@ export default function PostMain({ post }: PostMainCompTypes) {
       </div>
     </>
   )
-}
+})
+
+export default PostMain

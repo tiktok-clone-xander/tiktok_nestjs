@@ -1,46 +1,49 @@
+import {
+  AiOutlinePlus,
+  BiSearch,
+  BiUser,
+  BsThreeDotsVertical,
+  FiLogOut,
+} from '@/app/components/icons'
 import { useUser } from '@/app/context/user'
 import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
-import useSearchProfilesByName from '@/app/hooks/useSearchProfilesByName'
+import { useDebounce } from '@/app/hooks/useOptimizedHooks'
 import { useGeneralStore } from '@/app/stores/general'
-import { RandomUsers } from '@/app/types'
-import { debounce } from 'lodash'
+import { useSearchUsers } from '@/libs/swr-hooks'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { AiOutlinePlus, BiSearch, BiUser, BsThreeDotsVertical, FiLogOut } from '@/app/components/icons'
+import { memo, useCallback, useEffect, useState } from 'react'
 
-export default function TopNav() {
+const TopNav = memo(function TopNav() {
   const userContext = useUser()
   const router = useRouter()
   const pathname = usePathname()
 
-  const [searchProfiles, setSearchProfiles] = useState<RandomUsers[]>([])
-  let [showMenu, setShowMenu] = useState<boolean>(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showMenu, setShowMenu] = useState(false)
   const { setIsLoginOpen, setIsEditProfileOpen } = useGeneralStore()
+
+  // Debounce search query to prevent excessive API calls
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
+
+  // Use SWR for search with debounced query
+  const { users: searchProfiles = [], isLoading } = useSearchUsers(debouncedSearchQuery)
 
   useEffect(() => {
     setIsEditProfileOpen(false)
+  }, [setIsEditProfileOpen])
+
+  // Memoize search handler
+  const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value)
   }, [])
 
-  const handleSearchName = debounce(async (event: { target: { value: string } }) => {
-    if (event.target.value == '') return setSearchProfiles([])
-
-    try {
-      const result = await useSearchProfilesByName(event.target.value)
-      if (result) return setSearchProfiles(result as any)
-      setSearchProfiles([])
-    } catch (error) {
-      console.log(error)
-      setSearchProfiles([])
-      alert(error)
-    }
-  }, 500)
-
-  const goTo = () => {
+  // Memoize goTo handler
+  const goTo = useCallback(() => {
     if (!userContext?.user) return setIsLoginOpen(true)
     router.push('/upload')
-  }
+  }, [userContext?.user, setIsLoginOpen, router])
 
   return (
     <>
@@ -61,7 +64,8 @@ export default function TopNav() {
           <div className="relative hidden w-full max-w-[430px] items-center justify-end rounded-full bg-[#F1F1F2] p-1 md:flex">
             <input
               type="text"
-              onChange={handleSearchName}
+              value={searchQuery}
+              onChange={handleSearchChange}
               className="my-2 w-full bg-transparent pl-3 text-[15px] placeholder-[#838383] focus:outline-none"
               placeholder="Search accounts"
             />
@@ -170,4 +174,6 @@ export default function TopNav() {
       </div>
     </>
   )
-}
+})
+
+export default TopNav

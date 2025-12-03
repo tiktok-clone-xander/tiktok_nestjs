@@ -4,8 +4,23 @@ import useSWRMutation from 'swr/mutation'
 import { apiClient, apiEndpoints } from './api-client'
 import type { Comment, Notification, User, Video } from './store'
 
-// Generic fetcher function
-const fetcher = (url: string) => apiClient.get(url)
+// Optimized fetcher with error handling
+const fetcher = async (url: string) => {
+  const response = await apiClient.get(url)
+  return response.data
+}
+
+// SWR Global Config for performance
+export const swrConfig = {
+  revalidateOnFocus: false,
+  revalidateOnReconnect: true,
+  dedupingInterval: 2000, // Dedupe requests within 2s
+  focusThrottleInterval: 5000, // Throttle revalidation on focus
+  errorRetryCount: 2,
+  errorRetryInterval: 5000,
+  shouldRetryOnError: true,
+  keepPreviousData: true, // Keep old data while fetching new
+}
 
 // Mutation functions
 const mutationFetchers = {
@@ -21,13 +36,14 @@ export function useAuth() {
     apiClient.isTokenValid() ? apiEndpoints.auth.profile : null,
     fetcher,
     {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
+      ...swrConfig,
+      revalidateOnMount: true,
+      dedupingInterval: 60000, // User data rarely changes
     }
   )
 
   return {
-    user: data as User | undefined,
+    user: data?.data as User | undefined,
     isLoading,
     error,
     mutate,
@@ -93,11 +109,15 @@ export function useLogout() {
 export function useUser(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
     userId ? apiEndpoints.users.profile(userId) : null,
-    fetcher
+    fetcher,
+    {
+      ...swrConfig,
+      dedupingInterval: 30000, // Profile data doesn't change often
+    }
   )
 
   return {
-    user: data as User | undefined,
+    user: data?.data as User | undefined,
     isLoading,
     error,
     mutate,
@@ -159,10 +179,14 @@ export function useUnfollowUser(userId: string) {
 
 export function useSearchUsers(query: string) {
   const { data, error, isLoading } = useSWR(
-    query ? `${apiEndpoints.users.search}?q=${encodeURIComponent(query)}` : null,
+    query && query.length >= 2
+      ? `${apiEndpoints.users.search}?q=${encodeURIComponent(query)}`
+      : null,
     fetcher,
     {
-      dedupingInterval: 2000,
+      ...swrConfig,
+      dedupingInterval: 1000, // Prevent rapid requests
+      revalidateOnFocus: false,
     }
   )
 
@@ -173,7 +197,7 @@ export function useSearchUsers(query: string) {
   }
 }
 
-// Video hooks
+// Video hooks - Optimized for performance
 export function useVideos(page = 1, limit = 10) {
   const getKey = (pageIndex: number) =>
     `${apiEndpoints.videos.list}?page=${pageIndex + 1}&limit=${limit}`
@@ -182,7 +206,11 @@ export function useVideos(page = 1, limit = 10) {
     getKey,
     fetcher,
     {
+      ...swrConfig,
       revalidateFirstPage: false,
+      revalidateAll: false, // Don't revalidate all pages
+      persistSize: true, // Keep scroll position
+      parallel: false, // Load sequentially for better UX
     }
   )
 
@@ -197,6 +225,7 @@ export function useVideos(page = 1, limit = 10) {
     isLoading,
     isLoadingMore,
     isReachingEnd,
+    isValidating,
     error,
     loadMore: () => setSize(size + 1),
     mutate,
@@ -206,11 +235,15 @@ export function useVideos(page = 1, limit = 10) {
 export function useVideo(videoId: string) {
   const { data, error, isLoading, mutate } = useSWR(
     videoId ? apiEndpoints.videos.detail(videoId) : null,
-    fetcher
+    fetcher,
+    {
+      ...swrConfig,
+      dedupingInterval: 10000, // Video data doesn't change often
+    }
   )
 
   return {
-    video: data as Video | undefined,
+    video: data?.data as Video | undefined,
     isLoading,
     error,
     mutate,
@@ -246,10 +279,29 @@ export function useSearchVideos(query: string) {
   }
 }
 
+// Optimistic like/unlike with instant UI update
 export function useLikeVideo(videoId: string) {
   const { trigger, isMutating } = useSWRMutation(
     apiEndpoints.videos.like(videoId),
-    mutationFetchers.post
+    mutationFetchers.post,
+    {
+      optimisticData: (currentData: any) => {
+        // Instant UI update
+        if (currentData?.data) {
+          return {
+            ...currentData,
+            data: {
+              ...currentData.data,
+              likesCount: (currentData.data.likesCount || 0) + 1,
+              isLiked: true,
+            },
+          }
+        }
+        return currentData
+      },
+      populateCache: true,
+      revalidate: false, // Don't revalidate immediately
+    }
   )
 
   return {
@@ -261,7 +313,25 @@ export function useLikeVideo(videoId: string) {
 export function useUnlikeVideo(videoId: string) {
   const { trigger, isMutating } = useSWRMutation(
     apiEndpoints.videos.unlike(videoId),
-    mutationFetchers.delete
+    mutationFetchers.delete,
+    {
+      optimisticData: (currentData: any) => {
+        // Instant UI update
+        if (currentData?.data) {
+          return {
+            ...currentData,
+            data: {
+              ...currentData.data,
+              likesCount: Math.max((currentData.data.likesCount || 0) - 1, 0),
+              isLiked: false,
+            },
+          }
+        }
+        return currentData
+      },
+      populateCache: true,
+      revalidate: false,
+    }
   )
 
   return {
@@ -309,13 +379,15 @@ export function useDeleteVideo(videoId: string) {
   }
 }
 
-// Comment hooks
+// Comment hooks - Optimized
 export function useVideoComments(videoId: string) {
   const { data, error, isLoading, mutate } = useSWR(
     videoId ? apiEndpoints.comments.list(videoId) : null,
     fetcher,
     {
+      ...swrConfig,
       refreshInterval: 30000, // Refresh every 30 seconds
+      dedupingInterval: 5000,
     }
   )
 
