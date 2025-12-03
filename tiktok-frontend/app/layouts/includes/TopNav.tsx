@@ -6,9 +6,9 @@ import {
   FiLogOut,
 } from '@/app/components/icons'
 import { useUser } from '@/app/context/user'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
 import { useDebounce } from '@/app/hooks/useOptimizedHooks'
 import { useGeneralStore } from '@/app/stores/general'
+import createBucketUrl from '@/libs/createBucketUrl'
 import { useSearchUsers } from '@/libs/swr-hooks'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -85,7 +85,7 @@ const TopNav = memo(function TopNav() {
                             className="rounded-md"
                             width={40}
                             height={40}
-                            src={useCreateBucketUrl(profile.avatarUrl)!}
+                            src={createBucketUrl(profile.avatarUrl)!}
                           />
                         ) : (
                           <div className="h-[40px] w-[40px] rounded-md bg-gray-200" />
@@ -135,7 +135,7 @@ const TopNav = memo(function TopNav() {
                         height={35}
                         alt="Profile Image"
                         className="h-[35px] w-[35px] rounded-full"
-                        src={useCreateBucketUrl(userContext.user.image)!}
+                        src={createBucketUrl(userContext.user.image)!}
                       />
                     ) : (
                       <div className="h-[35px] w-[35px] rounded-full bg-gray-200" />

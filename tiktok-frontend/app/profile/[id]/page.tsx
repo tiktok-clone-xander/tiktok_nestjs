@@ -5,12 +5,12 @@ import FollowButton from '@/app/components/FollowButton'
 import { BsPencil } from '@/app/components/icons'
 import PostUser from '@/app/components/profile/PostUser'
 import { useUser } from '@/app/context/user'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
 import MainLayout from '@/app/layouts/MainLayout'
 import { useGeneralStore } from '@/app/stores/general'
 import { usePostStore } from '@/app/stores/post'
 import { useProfileStore } from '@/app/stores/profile'
 import { User } from '@/app/types'
+import createBucketUrl from '@/libs/createBucketUrl'
 import { useFollowers, useFollowing, useUser as useSWRUser } from '@/libs/swr-hooks'
 import Image from 'next/image'
 import React, { useEffect } from 'react'
@@ -42,7 +42,7 @@ export default function Profile({ params }: { params: Promise<{ id: string }> })
                 <Image
                   alt="Profile Image"
                   className="w-[120px] min-w-[120px] rounded-full"
-                  src={useCreateBucketUrl(currentProfile.image)!}
+                  src={createBucketUrl(currentProfile.image)!}
                 />
               ) : (
                 <div className="h-[120px] min-w-[150px] rounded-full bg-gray-200" />

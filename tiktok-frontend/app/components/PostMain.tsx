@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { AiFillHeart } from 'react-icons/ai'
 import { ImMusic } from 'react-icons/im'
-import useCreateBucketUrl from '../hooks/useCreateBucketUrl'
+import useCreateBucketUrl from '../../libs/createBucketUrl'
 import { PostMainCompTypes } from '../types'
 import PostMainLikes from './PostMainLikes'
 
@@ -14,16 +14,11 @@ const PostMain = memo(function PostMain({ post }: PostMainCompTypes) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
 
-  // Memoize computed values
-  const profileImageUrl = useMemo(
-    () => (post?.profile?.image ? useCreateBucketUrl(post.profile.image) : null),
-    [post?.profile?.image]
-  )
-
-  const videoUrl = useMemo(
-    () => (post?.videoUrl ? useCreateBucketUrl(post.videoUrl) : ''),
-    [post?.videoUrl]
-  )
+  // Compute URLs (useCreateBucketUrl is not a React hook, just a utility function)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const profileImageUrl = post?.profile?.image ? useCreateBucketUrl(post.profile.image) : null
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const videoUrl = post?.videoUrl ? useCreateBucketUrl(post.videoUrl) : ''
 
   const profileLink = useMemo(
     () => `/profile/${post?.profile?.user_id || 'unknown'}`,
@@ -63,12 +58,13 @@ const PostMain = memo(function PostMain({ post }: PostMainCompTypes) {
     <>
       <div id={`PostMain-${post.id}`} className="flex border-b py-6">
         <div className="cursor-pointer">
-          {post?.profile?.image ? (
+          {profileImageUrl ? (
             <Image
               alt="Profile Image"
               className="max-h-[60px] rounded-full"
               width="60"
-              src={useCreateBucketUrl(post.profile.image)!}
+              height="60"
+              src={profileImageUrl}
             />
           ) : (
             <div className="h-[60px] w-[60px] rounded-full bg-gray-200" />
@@ -88,7 +84,7 @@ const PostMain = memo(function PostMain({ post }: PostMainCompTypes) {
             </button>
           </div>
           <p className="max-w-[300px] break-words pb-0.5 text-[15px] md:max-w-[400px]">
-            {post.text}
+            {post.description}
           </p>
           <p className="pb-0.5 text-[14px] text-gray-500">#fun #cool #SuperAwesome</p>
           <p className="flex items-center pb-0.5 text-[14px] font-semibold">

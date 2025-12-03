@@ -1,8 +1,8 @@
 import { useUser } from '@/app/context/user'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
 import useDeleteComment from '@/app/hooks/useDeleteComment'
 import { useCommentStore } from '@/app/stores/comment'
 import { SingleCommentCompTypes } from '@/app/types'
+import createBucketUrl from '@/libs/createBucketUrl'
 import dayjs from 'dayjs'
 import calendar from 'dayjs/plugin/calendar'
 import Image from 'next/image'
@@ -43,7 +43,7 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
                 alt="Profile Image"
                 className="absolute top-0 mx-auto rounded-full lg:mx-0"
                 width="40"
-                src={useCreateBucketUrl(comment.profile.image)!}
+                src={createBucketUrl(comment.profile.image)!}
               />
             ) : (
               <div className="absolute top-0 h-[40px] w-[40px] rounded-full bg-gray-200" />

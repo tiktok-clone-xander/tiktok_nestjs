@@ -1,4 +1,4 @@
-const useCreateBucketUrl = (fileId: string) => {
+const createBucketUrl = (fileId: string) => {
   if (!fileId) return undefined
 
   // In local development, if fileId is already a full URL, use it directly
@@ -21,4 +21,4 @@ const useCreateBucketUrl = (fileId: string) => {
   return `${process.env.NEXT_PUBLIC_API_BASE_URL}/files/${fileId}`
 }
 
-export default useCreateBucketUrl
+export default createBucketUrl

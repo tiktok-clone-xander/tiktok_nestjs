@@ -1,15 +1,11 @@
 'use client'
 
 import { useUser } from '@/app/context/user'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
-import useCreateLike from '@/app/hooks/useCreateLike'
-import useDeleteLike from '@/app/hooks/useDeleteLike'
-import useDeletePostById from '@/app/hooks/useDeletePostById'
-import useIsLiked from '@/app/hooks/useIsLiked'
 import { useCommentStore } from '@/app/stores/comment'
 import { useGeneralStore } from '@/app/stores/general'
-import { useLikeStore } from '@/app/stores/like'
 import { CommentsHeaderCompTypes } from '@/app/types'
+import { apiClient } from '@/libs/api-client'
+import useCreateBucketUrl from '@/libs/createBucketUrl'
 import dayjs from 'dayjs'
 import calendar from 'dayjs/plugin/calendar'
 import Image from 'next/image'
@@ -26,7 +22,6 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
   // Initialize dayjs calendar plugin
   dayjs.extend(calendar)
 
-  const { setLikesByPost, likesByPost } = useLikeStore()
   const { commentsByPost, setCommentsByPost } = useCommentStore()
   const { setIsLoginOpen } = useGeneralStore()
 
@@ -35,29 +30,36 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
   const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
   const [isDeleteing, setIsDeleteing] = useState<boolean>(false)
   const [userLiked, setUserLiked] = useState<boolean>(false)
+  const [likesCount, setLikesCount] = useState<number>(0)
 
   useEffect(() => {
     setCommentsByPost(params?.postId)
-    setLikesByPost(params?.postId)
-  }, [post])
-  useEffect(() => {
-    hasUserLikedPost()
-  }, [likesByPost])
+    fetchLikeStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.postId])
 
-  const hasUserLikedPost = () => {
-    if (likesByPost.length < 1 || !contextUser?.user?.id) {
+  const fetchLikeStatus = async () => {
+    if (!contextUser?.user?.id) {
       setUserLiked(false)
+      setLikesCount(0)
       return
     }
-    const res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
-    setUserLiked(res ? true : false)
+    try {
+      const response = await apiClient.getLikeStatus(params.postId)
+      setUserLiked(response.hasLiked)
+      setLikesCount(response.likesCount)
+    } catch (error) {
+      console.error('Failed to fetch like status:', error)
+      setUserLiked(false)
+      setLikesCount(0)
+    }
   }
 
   const like = async () => {
     try {
       setHasClickedLike(true)
-      await useCreateLike(contextUser?.user?.id || '', params.postId)
-      setLikesByPost(params.postId)
+      await apiClient.createLike(params.postId)
+      await fetchLikeStatus()
       setHasClickedLike(false)
     } catch (error) {
       console.log(error)
@@ -66,11 +68,11 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     }
   }
 
-  const unlike = async (id: string) => {
+  const unlike = async () => {
     try {
       setHasClickedLike(true)
-      await useDeleteLike(contextUser?.user?.id || '', params.postId)
-      setLikesByPost(params.postId)
+      await apiClient.deleteLike(params.postId)
+      await fetchLikeStatus()
       setHasClickedLike(false)
     } catch (error) {
       console.log(error)
@@ -82,19 +84,10 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
   const likeOrUnlike = () => {
     if (!contextUser?.user) return setIsLoginOpen(true)
 
-    const res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
-    if (!res) {
+    if (!userLiked) {
       like()
     } else {
-      likesByPost.forEach(like => {
-        if (
-          contextUser?.user?.id &&
-          contextUser.user.id == like.user_id &&
-          like.post_id == params.postId
-        ) {
-          unlike(like.id)
-        }
-      })
+      unlike()
     }
   }
 
@@ -105,8 +98,10 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     setIsDeleteing(true)
 
     try {
-      await useDeletePostById(params?.postId, post?.video_url)
-      router.push(`/profile/${params.userId}`)
+      if (params?.postId) {
+        await apiClient.deletePost(params.postId)
+        router.push(`/profile/${params.userId}`)
+      }
       setIsDeleteing(false)
     } catch (error) {
       console.log(error)
@@ -114,16 +109,20 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
       alert(error)
     }
   }
+
+  const profileImageUrl = useCreateBucketUrl(post?.profile?.image || '')
+
   return (
     <>
       <div className="flex items-center justify-between px-8">
         <div className="flex items-center">
           <Link href={`/profile/${post?.user_id}`}>
-            {post?.profile.image ? (
+            {profileImageUrl ? (
               <Image
                 className="mx-auto rounded-full lg:mx-0"
                 width="40"
-                src={useCreateBucketUrl(post?.profile.image)}
+                height="40"
+                src={profileImageUrl}
                 alt={`${post?.profile.name}'s profile picture`}
               />
             ) : (
@@ -175,17 +174,12 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
               className="cursor-pointer rounded-full bg-gray-200 p-2"
             >
               {!hasClickedLike ? (
-                <AiFillHeart
-                  color={likesByPost.length > 0 && userLiked ? '#ff2626' : ''}
-                  size="25"
-                />
+                <AiFillHeart color={userLiked ? '#ff2626' : ''} size="25" />
               ) : (
                 <BiLoaderCircle className="animate-spin" size="25" />
               )}
             </button>
-            <span className="pl-2 pr-4 text-xs font-semibold text-gray-800">
-              {likesByPost.length}
-            </span>
+            <span className="pl-2 pr-4 text-xs font-semibold text-gray-800">{likesCount}</span>
           </div>
         </ClientOnly>
 

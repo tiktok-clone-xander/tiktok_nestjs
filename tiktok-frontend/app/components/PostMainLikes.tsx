@@ -1,89 +1,87 @@
 import { AiFillHeart } from '@/app/components/icons'
+import { apiClient } from '@/libs/api-client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { BiLoaderCircle } from 'react-icons/bi'
 import { FaCommentDots, FaShare } from 'react-icons/fa'
 import { useUser } from '../context/user'
-import useCreateLike from '../hooks/useCreateLike'
-import useDeleteLike from '../hooks/useDeleteLike'
-import useGetCommentsByPostId from '../hooks/useGetCommentsByPostId'
-import useGetLikesByPostId from '../hooks/useGetLikesByPostId'
-import useIsLiked from '../hooks/useIsLiked'
-import { useGeneralStore } from '../stores/general'
-import { Comment, Like, PostMainLikesCompTypes } from '../types'
+import { Comment, PostMainLikesCompTypes } from '../types'
 
 export default function PostMainLikes({ post }: PostMainLikesCompTypes) {
-  const { setIsLoginOpen } = useGeneralStore()
-
   const router = useRouter()
   const contextUser = useUser()
   const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
   const [userLiked, setUserLiked] = useState<boolean>(false)
+  const [likesCount, setLikesCount] = useState<number>(0)
   const [comments, setComments] = useState<Comment[]>([])
-  const [likes, setLikes] = useState<Like[]>([])
 
   useEffect(() => {
-    getAllLikesByPost()
+    fetchLikeStatus()
     getAllCommentsByPost()
-  }, [post])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.id])
 
-  useEffect(() => {
-    hasUserLikedPost()
-  }, [likes, contextUser])
-
-  const getAllCommentsByPost = async () => {
-    const result = await useGetCommentsByPostId(post?.id)
-    setComments((result as Comment[]) || [])
-  }
-
-  const getAllLikesByPost = async () => {
-    const result = await useGetLikesByPostId(post?.id)
-    setLikes((result as Like[]) || [])
-  }
-
-  const hasUserLikedPost = () => {
-    if (!contextUser) return
-
-    if (likes?.length < 1 || !contextUser?.user?.id) {
+  const fetchLikeStatus = async () => {
+    if (!contextUser?.user?.id || !post?.id) {
       setUserLiked(false)
+      setLikesCount(0)
       return
     }
-    const res = useIsLiked(contextUser?.user?.id, post?.id, likes)
-    setUserLiked(res ? true : false)
+    try {
+      const response = await apiClient.getLikeStatus(post.id)
+      setUserLiked(response.hasLiked)
+      setLikesCount(response.likesCount)
+    } catch (error) {
+      console.error('Failed to fetch like status:', error)
+      setUserLiked(false)
+      setLikesCount(0)
+    }
+  }
+
+  const getAllCommentsByPost = async () => {
+    if (!post?.id) return
+    try {
+      const result = await apiClient.getCommentsByPostId(post.id)
+      setComments((result as Comment[]) || [])
+    } catch (error) {
+      console.error('Failed to fetch comments:', error)
+      setComments([])
+    }
   }
 
   const like = async () => {
-    setHasClickedLike(true)
-    await useCreateLike(contextUser?.user?.id || '', post?.id)
-    await getAllLikesByPost()
-    hasUserLikedPost()
-    setHasClickedLike(false)
+    try {
+      setHasClickedLike(true)
+      await apiClient.createLike(post?.id || '')
+      await fetchLikeStatus()
+      setHasClickedLike(false)
+    } catch (error) {
+      console.error('Failed to like:', error)
+      setHasClickedLike(false)
+    }
   }
 
-  const unlike = async (id: string) => {
-    setHasClickedLike(true)
-    await useDeleteLike(contextUser?.user?.id || '', post?.id)
-    await getAllLikesByPost()
-    hasUserLikedPost()
-    setHasClickedLike(false)
+  const unlike = async () => {
+    try {
+      setHasClickedLike(true)
+      await apiClient.deleteLike(post?.id || '')
+      await fetchLikeStatus()
+      setHasClickedLike(false)
+    } catch (error) {
+      console.error('Failed to unlike:', error)
+      setHasClickedLike(false)
+    }
   }
 
   const likeOrUnlike = () => {
     if (!contextUser?.user?.id) {
-      setIsLoginOpen(true)
       return
     }
 
-    const res = useIsLiked(contextUser?.user?.id, post?.id, likes)
-
-    if (!res) {
+    if (!userLiked) {
       like()
     } else {
-      likes.forEach((like: Like) => {
-        if (contextUser?.user?.id == like?.user_id && like?.post_id == post?.id) {
-          unlike(like?.id)
-        }
-      })
+      unlike()
     }
   }
 
@@ -98,12 +96,12 @@ export default function PostMainLikes({ post }: PostMainLikesCompTypes) {
               className="cursor-pointer rounded-full bg-gray-200 p-2"
             >
               {!hasClickedLike ? (
-                <AiFillHeart color={likes?.length > 0 && userLiked ? '#ff2626' : ''} size="25" />
+                <AiFillHeart color={userLiked ? '#ff2626' : ''} size="25" />
               ) : (
                 <BiLoaderCircle className="animate-spin" size="25" />
               )}
             </button>
-            <span className="text-xs font-semibold text-gray-800">{likes?.length}</span>
+            <span className="text-xs font-semibold text-gray-800">{likesCount}</span>
           </div>
 
           <button

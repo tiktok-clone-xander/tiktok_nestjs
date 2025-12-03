@@ -1,8 +1,8 @@
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import { AiOutlineCheck } from '@/app/components/icons'
 import { MenuItemFollowCompTypes } from '@/app/types'
+import createBucketUrl from '@/libs/createBucketUrl'
 import Image from 'next/image'
 import Link from 'next/link'
-import { AiOutlineCheck } from '@/app/components/icons'
 
 export default function MenuItemFollow({ user }: MenuItemFollowCompTypes) {
   return (
@@ -16,7 +16,7 @@ export default function MenuItemFollow({ user }: MenuItemFollowCompTypes) {
             alt="Profile Image"
             className="mx-auto rounded-full lg:mx-0"
             width="35"
-            src={useCreateBucketUrl(user.image)!}
+            src={createBucketUrl(user.image)!}
           />
         ) : (
           <div className="h-[35px] w-[35px] rounded-full bg-gray-200" />

@@ -16,9 +16,10 @@ const createBucketUrl = (fileId: string | undefined) => {
   return `/uploads/images/${fileId}`
 }
 
-interface Comment {
+interface VideoComment {
   id: string
   userId: string
+  videoId: string
   content: string
   createdAt: string
   user?: {
@@ -112,10 +113,10 @@ export default function CommentsComponent({ videoId, className = '' }: CommentsC
           </div>
         ) : comments && comments.length > 0 ? (
           <>
-            {comments.map((comment: Comment) => (
+            {comments.map(comment => (
               <CommentItem
                 key={comment.id}
-                comment={comment}
+                comment={comment as unknown as VideoComment}
                 currentUserId={userContext?.user?.id}
                 onDelete={() => mutate()}
               />
@@ -150,7 +151,7 @@ export default function CommentsComponent({ videoId, className = '' }: CommentsC
 }
 
 interface CommentItemProps {
-  comment: Comment
+  comment: VideoComment
   currentUserId?: string
   onDelete: () => void
 }

@@ -1,8 +1,8 @@
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
+import { AiOutlineLoading3Quarters, BiErrorCircle, SiSoundcharts } from '@/app/components/icons'
 import { PostUserCompTypes } from '@/app/types'
+import createBucketUrl from '@/libs/createBucketUrl'
 import Link from 'next/link'
 import { useEffect } from 'react'
-import { AiOutlineLoading3Quarters, BiErrorCircle, SiSoundcharts } from '@/app/components/icons'
 
 export default function PostUser({ post }: PostUserCompTypes) {
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function PostUser({ post }: PostUserCompTypes) {
               muted
               loop
               className="aspect-[3/4] rounded-md object-cover"
-              src={useCreateBucketUrl(post.video_url)!}
+              src={createBucketUrl(post.video_url)!}
             />
           </Link>
         ) : (

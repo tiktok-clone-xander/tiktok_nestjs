@@ -338,27 +338,35 @@ class ApiClient {
 
   // Interaction methods
   async getCommentsByPostId(postId: string) {
-    return this.get(`api/interactions/${postId}/comments`)
+    return this.get(`api/interactions/comments/${postId}`)
   }
 
   async createComment(postId: string, comment: string) {
-    return this.post(`api/interactions/${postId}/comments`, { comment })
+    return this.post(`api/interactions/comment`, { videoId: postId, content: comment })
   }
 
   async deleteComment(commentId: string) {
-    return this.delete(`api/interactions/comments/${commentId}`)
+    return this.delete(`api/interactions/comment/${commentId}`)
   }
 
   async getLikesByPostId(postId: string) {
-    return this.get(`api/interactions/${postId}/likes`)
+    // This endpoint doesn't exist in backend, return video likes count from video detail
+    // For now, return empty array to prevent errors
+    return []
+  }
+
+  async getLikeStatus(videoId: string) {
+    return this.get<{ hasLiked: boolean; likesCount: number }>(
+      `api/interactions/like-status/${videoId}`
+    )
   }
 
   async createLike(postId: string) {
-    return this.post(`api/interactions/${postId}/likes`)
+    return this.post(`api/interactions/like`, { videoId: postId })
   }
 
   async deleteLike(postId: string) {
-    return this.delete(`api/interactions/${postId}/likes`)
+    return this.post(`api/interactions/unlike`, { videoId: postId })
   }
 }
 

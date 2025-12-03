@@ -136,11 +136,11 @@ export function useUserVideos(userId: string, page = 1, limit = 20) {
     }
   )
 
-  const videos = data ? data.flatMap((page: any) => page.data || []) : []
+  const videos = data ? data.flatMap((page: any) => page.data?.videos || page.videos || []) : []
   const isLoadingMore = isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
-  const isEmpty = (data as any)?.[0]?.data?.length === 0
+  const isEmpty = (data as any)?.[0]?.data?.videos?.length === 0
   const isReachingEnd =
-    isEmpty || (data && (data as any)[(data as any).length - 1]?.data?.length < limit)
+    isEmpty || (data && (data as any)[(data as any).length - 1]?.data?.videos?.length < limit)
 
   return {
     videos,
@@ -311,11 +311,11 @@ export function useVideos(page = 1, limit = 10) {
     }
   )
 
-  const videos = data ? data.flatMap((page: any) => page.data || []) : []
+  const videos = data ? data.flatMap((page: any) => page.data?.videos || page.videos || []) : []
   const isLoadingMore = isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
-  const isEmpty = (data as any)?.[0]?.data?.length === 0
+  const isEmpty = (data as any)?.[0]?.data?.videos?.length === 0
   const isReachingEnd =
-    isEmpty || (data && (data as any)[(data as any).length - 1]?.data?.length < limit)
+    isEmpty || (data && (data as any)[(data as any).length - 1]?.data?.videos?.length < limit)
 
   return {
     videos,
@@ -353,7 +353,7 @@ export function useTrendingVideos() {
   })
 
   return {
-    videos: (data as any)?.data as Video[] | undefined,
+    videos: ((data as any)?.data?.videos || (data as any)?.data || []) as Video[],
     isLoading,
     error,
     mutate,
@@ -370,7 +370,7 @@ export function useSearchVideos(query: string) {
   )
 
   return {
-    videos: (data as any)?.data as Video[] | undefined,
+    videos: ((data as any)?.data?.videos || (data as any)?.data || []) as Video[],
     isLoading,
     error,
   }

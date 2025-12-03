@@ -1,6 +1,7 @@
+import { AiOutlineClose, BiLoaderCircle, BsPencil } from '@/app/components/icons'
 import { useUser } from '@/app/context/user'
+import createBucketUrl from '@/libs/createBucketUrl'
 import useChangeUserImage from '@/app/hooks/useChangeUserImage'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
 import useUpdateProfile from '@/app/hooks/useUpdateProfile'
 import useUpdateProfileImage from '@/app/hooks/useUpdateProfileImage'
 import { useGeneralStore } from '@/app/stores/general'
@@ -10,7 +11,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Cropper } from 'react-advanced-cropper'
-import { AiOutlineClose, BiLoaderCircle, BsPencil } from '@/app/components/icons'
 import TextInput from '../TextInput'
 
 export default function EditProfileOverlay() {
@@ -143,7 +143,7 @@ export default function EditProfileOverlay() {
                           alt="Profile Image"
                           className="rounded-full"
                           width="95"
-                          src={useCreateBucketUrl(userImage)!}
+                          src={createBucketUrl(userImage)!}
                         />
                       ) : (
                         <div className="h-[95px] w-[95px] rounded-full bg-gray-200" />

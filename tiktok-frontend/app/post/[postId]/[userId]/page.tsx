@@ -1,24 +1,22 @@
 'use client'
 
 import ClientOnly from '@/app/components/ClientOnly'
+import { AiOutlineClose, BiChevronDown, BiChevronUp } from '@/app/components/icons'
 import Comments from '@/app/components/post/Comments'
 import CommentsHeader from '@/app/components/post/CommentsHeader'
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl'
 import { useCommentStore } from '@/app/stores/comment'
-import { useLikeStore } from '@/app/stores/like'
 import { usePostStore } from '@/app/stores/post'
 import { PostPageTypes } from '@/app/types'
+import createBucketUrl from '@/libs/createBucketUrl'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { use, useEffect } from 'react'
-import { AiOutlineClose, BiChevronDown, BiChevronUp } from '@/app/components/icons'
 
 export default function Post({ params }: PostPageTypes) {
   const { postId, userId } = use(params)
 
   const { postById, postsByUser, setPostById, setPostsByUser } = usePostStore()
-  const { setLikesByPost } = useLikeStore()
   const { setCommentsByPost } = useCommentStore()
 
   const router = useRouter()
@@ -26,8 +24,8 @@ export default function Post({ params }: PostPageTypes) {
   useEffect(() => {
     setPostById(postId)
     setCommentsByPost(postId)
-    setLikesByPost(postId)
     setPostsByUser(userId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loopThroughPostsUp = () => {
@@ -84,7 +82,7 @@ export default function Post({ params }: PostPageTypes) {
             {postById?.video_url ? (
               <video
                 className="fixed z-[0] my-auto h-screen w-full object-cover"
-                src={useCreateBucketUrl(postById.video_url)!}
+                src={createBucketUrl(postById.video_url)!}
               />
             ) : null}
 
@@ -96,7 +94,7 @@ export default function Post({ params }: PostPageTypes) {
                   loop
                   muted
                   className="mx-auto h-screen"
-                  src={useCreateBucketUrl(postById.video_url)!}
+                  src={createBucketUrl(postById.video_url)!}
                 />
               ) : null}
             </div>
