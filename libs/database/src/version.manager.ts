@@ -1,8 +1,8 @@
-import { DataSource, Repository } from 'typeorm';
+import { getVersionString } from '@app/common/config/version.config';
 import * as fs from 'fs';
 import * as path from 'path';
+import { DataSource, Repository } from 'typeorm';
 import { AppVersion } from './entities/app-version.entity';
-import { getVersionString } from '@app/common/config/version.config';
 
 export class VersionManager {
   private versionRepository: Repository<AppVersion>;

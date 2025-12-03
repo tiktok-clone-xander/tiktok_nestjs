@@ -75,6 +75,7 @@ export default function Post({ params }: PostPageTypes) {
             alt="TikTok Logo Small"
             className="absolute left-[70px] top-[18px] z-20 mx-auto rounded-full lg:mx-0"
             width={45}
+            height={45}
             src="/images/tiktok-logo-small.png"
           />
 
