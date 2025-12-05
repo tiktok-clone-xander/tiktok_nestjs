@@ -37,7 +37,7 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
     <>
       <div id="SingleComment" className="mt-4 flex items-center justify-between px-8">
         <div className="relative flex w-full items-center">
-          <Link href={`/profile/${comment.profile.user_id}`}>
+          <Link href={`/profile/${comment.user_id}`}>
             {comment.profile.image ? (
               <Image
                 alt="Profile Image"
@@ -58,7 +58,7 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
                 </span>
               </span>
 
-              {contextUser?.user?.id == comment.profile.user_id ? (
+              {contextUser?.user?.id == comment.user_id ? (
                 <button disabled={isDeleting} onClick={() => deleteThisComment()}>
                   {isDeleting ? (
                     <BiLoaderCircle className="animate-spin" color="#E91E62" size="20" />

@@ -1,12 +1,12 @@
-import { useState } from 'react'
-import SingleComment from './SingleComment'
 import { useUser } from '@/app/context/user'
-import { BiLoaderCircle } from 'react-icons/bi'
-import ClientOnly from '../ClientOnly'
-import { useCommentStore } from '@/app/stores/comment'
 import useCreateComment from '@/app/hooks/useCreateComment'
+import { useCommentStore } from '@/app/stores/comment'
 import { useGeneralStore } from '@/app/stores/general'
 import { CommentsCompTypes } from '@/app/types'
+import { useState } from 'react'
+import { BiLoaderCircle } from 'react-icons/bi'
+import ClientOnly from '../ClientOnly'
+import SingleComment from './SingleComment'
 
 export default function Comments({ params }: CommentsCompTypes) {
   let { commentsByPost, setCommentsByPost } = useCommentStore()
@@ -41,7 +41,7 @@ export default function Comments({ params }: CommentsCompTypes) {
         <div className="pt-2" />
 
         <ClientOnly>
-          {commentsByPost.length < 1 ? (
+          {!Array.isArray(commentsByPost) || commentsByPost.length < 1 ? (
             <div className="mt-6 text-center text-xl text-gray-500">No comments...</div>
           ) : (
             <div>

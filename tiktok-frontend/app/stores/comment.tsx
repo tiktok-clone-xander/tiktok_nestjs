@@ -20,7 +20,9 @@ export const useCommentStore = create<CommentStore>()(
             return
           }
           const result = await useGetCommentsByPostId(postId)
-          set({ commentsByPost: result as any })
+          // Extract comments array from response
+          const comments = (result as any)?.data?.comments || (result as any)?.comments || []
+          set({ commentsByPost: Array.isArray(comments) ? comments : [] })
         },
       }),
       {

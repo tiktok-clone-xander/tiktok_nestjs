@@ -8,6 +8,8 @@ service InteractionService {
   rpc AddComment (CommentRequest) returns (CommentResponse);
   rpc GetComments (GetCommentsRequest) returns (CommentsListResponse);
   rpc RecordView (ViewRequest) returns (ViewResponse);
+  rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse);
+  rpc GetLikeStatus (GetLikeStatusRequest) returns (LikeStatusResponse);
   rpc FollowUser (FollowRequest) returns (FollowResponse);
   rpc UnfollowUser (UnfollowRequest) returns (FollowResponse);
   rpc GetFollowStatus (FollowStatusRequest) returns (FollowStatusResponse);
@@ -22,7 +24,7 @@ message LikeRequest {
 
 message LikeResponse {
   bool success = 1;
-  int32 totalLikes = 2;
+  int32 likesCount = 2;
 }
 
 message UnlikeRequest {
@@ -32,7 +34,7 @@ message UnlikeRequest {
 
 message UnlikeResponse {
   bool success = 1;
-  int32 totalLikes = 2;
+  int32 likesCount = 2;
 }
 
 message CommentRequest {
@@ -47,6 +49,10 @@ message CommentResponse {
   string videoId = 3;
   string content = 4;
   string createdAt = 5;
+  int32 likesCount = 6;
+  int32 repliesCount = 7;
+  UserSummary user = 8;
+  int32 commentsCount = 9;
 }
 
 message GetCommentsRequest {
@@ -57,7 +63,10 @@ message GetCommentsRequest {
 
 message CommentsListResponse {
   repeated CommentResponse comments = 1;
-  int32 total = 2;
+  int32 page = 2;
+  int32 limit = 3;
+  int32 total = 4;
+  bool hasMore = 5;
 }
 
 message ViewRequest {
@@ -67,7 +76,27 @@ message ViewRequest {
 
 message ViewResponse {
   bool success = 1;
-  int64 totalViews = 2;
+  int64 views = 2;
+}
+
+message DeleteCommentRequest {
+  string commentId = 1;
+  string userId = 2;
+}
+
+message DeleteCommentResponse {
+  bool success = 1;
+}
+
+message GetLikeStatusRequest {
+  string userId = 1;
+  string videoId = 2;
+}
+
+message LikeStatusResponse {
+  bool hasLiked = 1;
+  string videoId = 2;
+  string userId = 3;
 }
 
 message FollowRequest {
@@ -123,4 +152,12 @@ message FollowingListResponse {
   int32 limit = 3;
   int32 total = 4;
   bool hasMore = 5;
+}
+
+message UserSummary {
+  string id = 1;
+  string username = 2;
+  string fullName = 3;
+  string avatar = 4;
+  string email = 5;
 }

@@ -1,19 +1,19 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  Inject,
-} from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@app/common/guards/jwt-auth.guard';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
 import { CreateCommentDto, LikeVideoDto, ViewVideoDto } from '@app/common/dto/interaction.dto';
+import { JwtAuthGuard } from '@app/common/guards/jwt-auth.guard';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom, Observable } from 'rxjs';
 import { WebsocketGateway } from '../websocket/websocket.gateway';
 
@@ -28,23 +28,37 @@ interface UserInfo {
   username: string;
   fullName: string;
   avatar?: string;
+  email?: string;
 }
 
 interface LikeResponse {
   likesCount: number;
-  isLiked: boolean;
+  success?: boolean;
 }
 
 interface CommentResponse {
-  comment: {
-    id: string;
-    user: UserInfo;
-  };
+  id: string;
+  userId: string;
+  videoId: string;
+  content: string;
+  createdAt: string;
+  likesCount: number;
+  repliesCount: number;
+  user: UserInfo;
   commentsCount: number;
+}
+
+interface CommentsListResponse {
+  comments: CommentResponse[];
+  page: number;
+  limit: number;
+  total: number;
+  hasMore: boolean;
 }
 
 interface ViewResponse {
   views: number;
+  success?: boolean;
 }
 
 interface LikeVideoRequest {
@@ -78,10 +92,10 @@ interface InteractionServiceClient {
   likeVideo(data: LikeVideoRequest): Observable<LikeResponse>;
   unlikeVideo(data: LikeVideoRequest): Observable<LikeResponse>;
   addComment(data: AddCommentRequest): Observable<CommentResponse>;
-  getComments(data: GetCommentsRequest): Observable<unknown>;
+  getComments(data: GetCommentsRequest): Observable<CommentsListResponse>;
   recordView(data: RecordViewRequest): Observable<ViewResponse>;
-  deleteComment(data: DeleteCommentRequest): Observable<unknown>;
-  getLikeStatus(data: LikeVideoRequest): Observable<unknown>;
+  deleteComment(data: DeleteCommentRequest): Observable<{ success: boolean }>;
+  getLikeStatus(data: LikeVideoRequest): Observable<{ hasLiked: boolean }>;
 }
 
 @ApiTags('Interactions')
@@ -174,10 +188,10 @@ export class InteractionController {
 
     // Broadcast via WebSocket
     this.websocketGateway.broadcastComment(dto.videoId, {
-      commentId: result.comment.id,
+      commentId: result.id,
       userId: user.sub,
       content: dto.content,
-      user: result.comment.user,
+      user: result.user,
       totalComments: result.commentsCount,
     });
 
