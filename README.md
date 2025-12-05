@@ -166,43 +166,21 @@ cd tiktok_nestjs
 
 ## 🛠️ Công nghệ
 
+**📋 See [TECH_STACK.md](TECH_STACK.md) for complete technology stack overview**
+
+Quick highlights:
+
 ### Backend
 
-- **Framework**: NestJS 10.x (Monorepo)
-- **Language**: TypeScript 5.x
-- **Database**: PostgreSQL 15
-- **ORM**: TypeORM
-- **Cache**: Redis 7 ⚡ (Multi-layer caching)
-- **Message Queue**: Apache Kafka 3.5+
-- **Communication**: gRPC, REST API
-- **Authentication**: JWT (Access + Refresh Token)
-- **WebSocket**: Socket.io
-- **Validation**: class-validator, class-transformer
-- **Documentation**: Swagger/OpenAPI
-- **Testing**: Jest
-- **Logging**: Winston, Sentry
-- **Monitoring**: Prometheus, Grafana
-- **Performance**: DataLoader, Compression, HTTP Cache
+- NestJS 10.x, TypeScript, PostgreSQL, Redis, Kafka, gRPC, JWT, Socket.io
 
 ### Frontend
 
-- **Framework**: Next.js 15 (App Router, Turbo Mode) ⚡
-- **Language**: TypeScript
-- **Data Fetching**: React Query (TanStack Query)
-- **State Management**: Zustand
-- **Image Optimization**: AVIF/WebP support
-- **Styling**: TailwindCSS, ShadcnUI
-- **State Management**: Zustand / React Query
-- **Video Player**: react-player
-- **WebSocket**: socket.io-client
-- **HTTP Client**: Axios
+- Next.js 15, React 19, TypeScript, TailwindCSS, Axios
 
 ### DevOps
 
-- **Containerization**: Docker, Docker Compose
-- **CI/CD**: GitHub Actions
-- **Cloud**: AWS EC2
-- **Reverse Proxy**: Nginx (optional)
+- Docker, Docker Compose, GitHub Actions, AWS EC2
 
 ## 📦 Yêu cầu hệ thống
 
@@ -683,29 +661,17 @@ tiktok_nestjs/
 
 ## 📚 Documentation
 
-All detailed documentation has been organized in the `/docs` folder:
-
-- 📘 **[QUICKSTART.md](docs/QUICKSTART.md)** - Quick setup guide
-- 📗 **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Development workflow
-- 📕 **[MONOREPO_ARCHITECTURE.md](docs/MONOREPO_ARCHITECTURE.md)** - Architecture details
-- 📙 **[AI_PROMPT_GUIDE.md](docs/AI_PROMPT_GUIDE.md)** - AI coding patterns
-- 📓 **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Contribution guidelines
-- 📔 **[COMMIT_CONVENTION.md](docs/COMMIT_CONVENTION.md)** - Commit standards
-- 📒 **[SECURITY.md](docs/SECURITY.md)** - Security best practices
-- 📖 **[CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md)** - Community guidelines
-- 📄 **[KAFKA_MIGRATION.md](docs/KAFKA_MIGRATION.md)** - Kafka migration notes
-- 📃 **[DATABASE_MIGRATION.md](docs/DATABASE_MIGRATION.md)** - Database migration & seeding
-- 📃 **[PORT_Mapping.md](docs/PORT_Mapping.md)** - Service port mapping
+- 📋 **[TECH_STACK.md](TECH_STACK.md)** - Complete technology stack overview
+- ✅ **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Implementation status
+- 📖 **[docs/](docs/)** - Additional documentation
 
 ## 🤝 Contributing
 
 1. Fork the project
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes following [docs/COMMIT_CONVENTION.md](docs/COMMIT_CONVENTION.md)
+3. Commit your changes
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-Read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 ## 📝 License
 
