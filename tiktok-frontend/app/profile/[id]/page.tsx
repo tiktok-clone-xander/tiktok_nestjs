@@ -28,8 +28,10 @@ export default function Profile({ params }: { params: Promise<{ id: string }> })
   const { following, total: followingCount } = useFollowing(id, 1, 1)
 
   useEffect(() => {
-    setCurrentProfile(id)
-    setPostsByUser(id)
+    if (id) {
+      setCurrentProfile(id)
+      setPostsByUser(id)
+    }
   }, [id, setCurrentProfile, setPostsByUser])
 
   return (

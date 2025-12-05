@@ -27,6 +27,10 @@ export const usePostStore = create<PostStore>()(
       set({ allPosts: result })
     },
     setPostsByUser: async (userId: string) => {
+      if (!userId) {
+        set({ postsByUser: [] })
+        return
+      }
       const result = await useGetPostsByUser(userId)
       set({ postsByUser: result })
     },

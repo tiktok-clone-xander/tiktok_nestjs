@@ -22,9 +22,11 @@ export default function Post({ params }: PostPageTypes) {
   const router = useRouter()
 
   useEffect(() => {
-    setPostById(postId)
-    setCommentsByPost(postId)
-    setPostsByUser(userId)
+    if (postId && userId) {
+      setPostById(postId)
+      setCommentsByPost(postId)
+      setPostsByUser(userId)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
