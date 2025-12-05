@@ -4,6 +4,7 @@ export interface UserContextTypes {
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   checkUser: () => Promise<void>
+  isLoading: boolean
 }
 
 export interface User {

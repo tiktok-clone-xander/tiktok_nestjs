@@ -45,6 +45,9 @@ const TopNav = memo(function TopNav() {
     router.push('/upload')
   }, [userContext?.user, setIsLoginOpen, router])
 
+  // Check if user is authenticated (not loading and has user data)
+  const isAuthenticated = !userContext?.isLoading && userContext?.user?.id
+
   return (
     <>
       <div id="TopNav" className="fixed z-30 flex h-[60px] w-full items-center border-b bg-white">
@@ -112,7 +115,7 @@ const TopNav = memo(function TopNav() {
               <span className="px-2 text-[15px] font-medium">Upload</span>
             </button>
 
-            {!userContext?.user?.id ? (
+            {!isAuthenticated ? (
               <div className="flex items-center">
                 <button
                   onClick={() => setIsLoginOpen(true)}

@@ -10,25 +10,35 @@ const UserContext = createContext<UserContextTypes | null>(null)
 const UserProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const checkUser = async () => {
     try {
-      // Check if user is authenticated via cookies (HttpOnly)
-      // The backend sets cookies automatically
+      setIsLoading(true)
+      console.log('🔍 Checking user authentication...')
+      // Check if user is authenticated via the API
+      // This will use the access token sent in Authorization header and cookies
       const response = (await apiClient.get('api/auth/me')) as any
 
-      if (response && response.id) {
+      console.log('✅ Auth check response:', response)
+
+      if (response && response.data.id) {
+        console.log('✅ User is authenticated:', response.data)
         setUser({
-          id: response.id,
-          name: response.username || response.fullName || '',
-          bio: response.bio || '',
-          image: response.avatar || '',
+          id: response.data.id,
+          name: response.data.username || response.data.fullName || '',
+          bio: response.data.bio || '',
+          image: response.data.avatar || '',
         })
       } else {
+        console.log('❌ No user data in response')
         setUser(null)
       }
     } catch (error) {
+      console.log('❌ User not authenticated or session expired:', error)
       setUser(null)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -40,10 +50,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = (await apiClient.register({ username: name, email, password })) as any
 
-      // Cookies are set by backend automatically (HttpOnly)
       // Response contains user data and tokens
       if (response.success && response.data?.user) {
         const userData = response.data.user
+        const { accessToken, refreshToken } = response.data
+
+        // Store tokens if provided
+        if (accessToken && refreshToken) {
+          apiClient.setTokens(accessToken, refreshToken)
+        }
+
         setUser({
           id: userData.id,
           name: userData.username || userData.fullName || '',
@@ -62,10 +78,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       // Backend expects 'username' field, but we can use email as username
       const response = (await apiClient.login({ username: email, password })) as any
 
-      // Cookies are set by backend automatically (HttpOnly)
       // Response contains user data and tokens
       if (response.success && response.data?.user) {
         const userData = response.data.user
+        const { accessToken, refreshToken } = response.data
+
+        // Store tokens if provided - this makes them available for future requests
+        if (accessToken && refreshToken) {
+          apiClient.setTokens(accessToken, refreshToken)
+        }
+
         setUser({
           id: userData.id,
           name: userData.username || userData.fullName || '',
@@ -82,19 +104,22 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       await apiClient.logout()
-      // Cookies are cleared by backend
+      // Clear tokens from client side
+      apiClient.clearTokens()
+      // Clear user state
       setUser(null)
       router.push('/')
     } catch (error) {
       console.error(error)
-      // Clear user even if API call fails
+      // Clear user and tokens even if API call fails
+      apiClient.clearTokens()
       setUser(null)
       router.push('/')
     }
   }
 
   return (
-    <UserContext.Provider value={{ user, register, login, logout, checkUser }}>
+    <UserContext.Provider value={{ user, register, login, logout, checkUser, isLoading }}>
       {children}
     </UserContext.Provider>
   )

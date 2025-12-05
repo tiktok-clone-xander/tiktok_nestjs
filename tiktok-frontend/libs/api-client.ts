@@ -34,9 +34,20 @@ class ApiClient {
   }
 
   private setupInterceptors() {
-    // Request interceptor - cookies are sent automatically with withCredentials
+    // Request interceptor - add access token to Authorization header
     this.instance.interceptors.request.use(
-      config => config,
+      config => {
+        const token = Cookies.get(TOKEN_KEY)
+        if (token) {
+          if (config.headers) {
+            config.headers.Authorization = `Bearer ${token}`
+            console.log('🔐 Authorization header set with token')
+          }
+        } else {
+          console.log('⚠️  No token found in cookies, will rely on HttpOnly cookies from backend')
+        }
+        return config
+      },
       error => Promise.reject(error)
     )
 
@@ -138,16 +149,20 @@ class ApiClient {
   }
 
   public setTokens(accessToken: string, refreshToken: string) {
+    // Store tokens in accessible cookies so they can be added to Authorization header
+    // Backend also sets HttpOnly cookies, but we need accessible cookies for Authorization header
+    console.log('💾 Storing access token and refresh token in cookies')
     Cookies.set(TOKEN_KEY, accessToken, {
       expires: 7, // 7 days
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Allow cross-site requests
     })
     Cookies.set(REFRESH_TOKEN_KEY, refreshToken, {
       expires: 30, // 30 days
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Allow cross-site requests
     })
+    console.log('✅ Tokens stored successfully')
   }
 
   public clearTokens() {
@@ -285,7 +300,7 @@ class ApiClient {
   }
 
   async logout() {
-    return this.post('/auth/logout')
+    return this.post('api/auth/logout')
   }
 
   // User/Profile methods

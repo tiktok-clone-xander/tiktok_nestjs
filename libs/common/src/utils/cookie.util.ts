@@ -1,7 +1,7 @@
 export const generateCookieOptions = (secure = false) => ({
   httpOnly: true,
   secure,
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const, // Changed from 'strict' to 'lax' to allow cookies to be sent with requests
   path: '/',
 });
 
