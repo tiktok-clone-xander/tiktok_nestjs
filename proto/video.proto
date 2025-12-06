@@ -72,6 +72,8 @@ message VideoResponse {
   int32 comments = 10;
   string createdAt = 11;
   UserSummary user = 12;
+  bool isLiked = 13;
+  int32 likesCount = 14;
 }
 
 message UserSummary {

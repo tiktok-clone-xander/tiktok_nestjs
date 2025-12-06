@@ -22,7 +22,7 @@ export class VideoController {
 
   @GrpcMethod('VideoService', 'GetVideo')
   async getVideo(data: GetVideoDto) {
-    return this.videoService.getVideo(data.videoId);
+    return this.videoService.getVideo(data.videoId, data.userId);
   }
 
   @GrpcMethod('VideoService', 'GetFeed')

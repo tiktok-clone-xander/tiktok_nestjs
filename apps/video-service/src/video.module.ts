@@ -1,11 +1,13 @@
+import { KafkaModule } from '@app/kafka';
+import { RedisModule } from '@app/redis';
+import { VideoDbModule } from '@app/video-db';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
+import { HealthController } from './health.controller';
 import { VideoController } from './video.controller';
 import { VideoService } from './video.service';
-import { VideoDbModule } from '@app/video-db';
-import { RedisModule } from '@app/redis';
-import { KafkaModule } from '@app/kafka';
-import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -16,6 +18,17 @@ import { HealthController } from './health.controller';
     VideoDbModule,
     RedisModule,
     KafkaModule.register({ name: 'video-service' }),
+    ClientsModule.register([
+      {
+        name: 'INTERACTION_SERVICE',
+        transport: Transport.GRPC,
+        options: {
+          url: process.env.INTERACTION_SERVICE_URL || 'localhost:5003',
+          package: 'interaction',
+          protoPath: join(__dirname, '../../../proto/interaction.proto'),
+        },
+      },
+    ]),
   ],
   controllers: [VideoController, HealthController],
   providers: [VideoService],

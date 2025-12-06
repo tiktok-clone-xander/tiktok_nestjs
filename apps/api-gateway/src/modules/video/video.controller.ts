@@ -44,6 +44,7 @@ interface CreateVideoRequest {
 
 interface GetVideoRequest {
   videoId: string;
+  userId?: string;
 }
 
 interface GetFeedRequest {
@@ -97,9 +98,10 @@ export class VideoController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('userId') userId?: string,
+    @CurrentUser() user?: JwtPayload,
   ) {
     const feedData = {
-      userId,
+      userId: user?.sub || userId,
       page: page || 1,
       limit: limit || 10,
     };
@@ -219,8 +221,10 @@ export class VideoController {
   @ApiOperation({ summary: 'Get video by ID' })
   @ApiResponse({ status: 200, description: 'Video retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Video not found' })
-  async getVideo(@Param('id') id: string) {
-    const result: any = await lastValueFrom(this.videoService.getVideo({ videoId: id }));
+  async getVideo(@Param('id') id: string, @CurrentUser() user?: JwtPayload) {
+    const result: any = await lastValueFrom(
+      this.videoService.getVideo({ videoId: id, userId: user?.sub }),
+    );
     // Unwrap gRPC response: { video: {...} } -> return video object
     return result?.video || result;
   }

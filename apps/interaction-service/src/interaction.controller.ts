@@ -48,6 +48,11 @@ export class InteractionController {
     return this.interactionService.getLikeStatus(data.userId, data.videoId);
   }
 
+  @GrpcMethod('InteractionService', 'GetMultipleLikeStatus')
+  async getMultipleLikeStatus(data: { userId: string; videoIds: string[] }) {
+    return this.interactionService.getMultipleLikeStatus(data.userId, data.videoIds);
+  }
+
   @GrpcMethod('InteractionService', 'FollowUser')
   async followUser(data: { followerId: string; followingId: string }) {
     return this.interactionService.followUser(data.followerId, data.followingId);

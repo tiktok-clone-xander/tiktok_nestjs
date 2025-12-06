@@ -348,6 +348,28 @@ export class InteractionService implements OnModuleInit {
     }
   }
 
+  async getMultipleLikeStatus(userId: string, videoIds: string[]) {
+    try {
+      const likeInfos = await Promise.all(
+        videoIds.map(async (videoId) => {
+          const hasLiked = await this.redisService.hasUserLiked(userId, videoId);
+          const likesCount = await this.redisService.getLikes(videoId);
+
+          return {
+            videoId,
+            hasLiked,
+            likesCount: likesCount || 0,
+          };
+        }),
+      );
+
+      return { likeInfos };
+    } catch (error) {
+      logger.error('Error getting multiple like status:', error);
+      throw new RpcException(error.message || 'Failed to get like status');
+    }
+  }
+
   async followUser(followerId: string, followingId: string) {
     try {
       // Check if already following

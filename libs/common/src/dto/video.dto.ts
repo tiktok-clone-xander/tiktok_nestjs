@@ -42,6 +42,11 @@ export class GetVideoDto {
   @IsString()
   @IsNotEmpty()
   videoId: string;
+
+  @ApiProperty({ example: 'user-uuid', required: false })
+  @IsString()
+  @IsOptional()
+  userId?: string;
 }
 
 export class GetFeedDto {

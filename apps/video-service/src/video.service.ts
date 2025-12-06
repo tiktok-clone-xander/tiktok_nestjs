@@ -2,13 +2,20 @@ import { CreateVideoDto } from '@app/common/dto/video.dto';
 import { KafkaService } from '@app/kafka';
 import { RedisService } from '@app/redis';
 import { Video, VideoView } from '@app/video-db';
-import { Injectable } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc, RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 
+interface InteractionServiceClient {
+  getMultipleLikeStatus(data: { userId: string; videoIds: string[] }): any;
+}
+
 @Injectable()
-export class VideoService {
+export class VideoService implements OnModuleInit {
+  private interactionService: InteractionServiceClient;
+
   constructor(
     @InjectRepository(Video)
     private readonly videoRepository: Repository<Video>,
@@ -16,7 +23,13 @@ export class VideoService {
     private readonly videoViewRepository: Repository<VideoView>,
     private readonly redisService: RedisService,
     private readonly kafkaService: KafkaService,
+    @Inject('INTERACTION_SERVICE') private readonly interactionClient: ClientGrpc,
   ) {}
+
+  onModuleInit() {
+    this.interactionService =
+      this.interactionClient.getService<InteractionServiceClient>('InteractionService');
+  }
 
   async createVideo(data: CreateVideoDto) {
     try {
@@ -39,7 +52,7 @@ export class VideoService {
     }
   }
 
-  async getVideo(videoId: string) {
+  async getVideo(videoId: string, userId?: string) {
     try {
       const video = await this.videoRepository.findOne({
         where: { id: videoId },
@@ -47,6 +60,28 @@ export class VideoService {
 
       if (!video) {
         throw new RpcException('Video not found');
+      }
+
+      let isLiked = false;
+      let likesCount = video.likesCount;
+
+      // Get like status from interaction service if userId provided
+      if (userId) {
+        try {
+          const likeStatus = await lastValueFrom(
+            this.interactionService.getMultipleLikeStatus({
+              userId,
+              videoIds: [videoId],
+            }),
+          );
+          if (likeStatus?.likeInfos?.[0]) {
+            isLiked = likeStatus.likeInfos[0].hasLiked;
+            likesCount = likeStatus.likeInfos[0].likesCount;
+          }
+        } catch (error) {
+          // If interaction service fails, use database likes count
+          console.warn('Failed to get like status from interaction service:', error);
+        }
       }
 
       return {
@@ -58,9 +93,11 @@ export class VideoService {
         thumbnailUrl: video.thumbnailUrl,
         duration: video.duration,
         views: video.views,
-        likes: video.likesCount,
+        likes: likesCount,
         comments: video.commentsCount,
         createdAt: video.createdAt.toISOString(),
+        isLiked,
+        likesCount,
         // User object for proto
         user: {
           id: video.userId,
@@ -103,25 +140,57 @@ export class VideoService {
         order: { createdAt: 'DESC' },
       });
 
-      const enrichedVideos = videos.map((video) => ({
-        id: video.id,
-        title: video.title,
-        description: video.description,
-        videoUrl: video.videoUrl,
-        thumbnailUrl: video.thumbnailUrl,
-        duration: video.duration,
-        views: video.views,
-        likesCount: video.likesCount,
-        commentsCount: video.commentsCount,
-        createdAt: video.createdAt.toISOString(),
-        // TODO: Get user data via gRPC call
-        user: {
-          id: video.userId,
-          username: 'Unknown',
-          fullName: 'Unknown',
-          avatar: null,
-        },
-      }));
+      // Get like status for all videos if userId provided
+      let likeMap: Map<string, { hasLiked: boolean; likesCount: number }> = new Map();
+      if (userId && videos.length > 0) {
+        try {
+          const videoIds = videos.map((v) => v.id);
+          const likeStatus = await lastValueFrom(
+            this.interactionService.getMultipleLikeStatus({
+              userId,
+              videoIds,
+            }),
+          );
+          if ((likeStatus as any)?.likeInfos) {
+            (likeStatus as any).likeInfos.forEach((info: any) => {
+              likeMap.set(info.videoId, {
+                hasLiked: info.hasLiked,
+                likesCount: info.likesCount,
+              });
+            });
+          }
+        } catch (error) {
+          console.warn('Failed to get like status from interaction service:', error);
+        }
+      }
+
+      const enrichedVideos = videos.map((video) => {
+        const likeInfo = likeMap.get(video.id) || {
+          hasLiked: false,
+          likesCount: video.likesCount,
+        };
+        return {
+          id: video.id,
+          title: video.title,
+          description: video.description,
+          videoUrl: video.videoUrl,
+          thumbnailUrl: video.thumbnailUrl,
+          duration: video.duration,
+          views: video.views,
+          likes: likeInfo.likesCount,
+          likesCount: likeInfo.likesCount,
+          isLiked: likeInfo.hasLiked,
+          commentsCount: video.commentsCount,
+          createdAt: video.createdAt.toISOString(),
+          // TODO: Get user data via gRPC call
+          user: {
+            id: video.userId,
+            username: 'Unknown',
+            fullName: 'Unknown',
+            avatar: null,
+          },
+        };
+      });
 
       const result = {
         videos: enrichedVideos,

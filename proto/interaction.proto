@@ -10,6 +10,7 @@ service InteractionService {
   rpc RecordView (ViewRequest) returns (ViewResponse);
   rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse);
   rpc GetLikeStatus (GetLikeStatusRequest) returns (LikeStatusResponse);
+  rpc GetMultipleLikeStatus (GetMultipleLikeStatusRequest) returns (GetMultipleLikeStatusResponse);
   rpc FollowUser (FollowRequest) returns (FollowResponse);
   rpc UnfollowUser (UnfollowRequest) returns (FollowResponse);
   rpc GetFollowStatus (FollowStatusRequest) returns (FollowStatusResponse);
@@ -97,6 +98,21 @@ message LikeStatusResponse {
   bool hasLiked = 1;
   string videoId = 2;
   string userId = 3;
+}
+
+message GetMultipleLikeStatusRequest {
+  string userId = 1;
+  repeated string videoIds = 2;
+}
+
+message LikeInfo {
+  string videoId = 1;
+  bool hasLiked = 2;
+  int32 likesCount = 3;
+}
+
+message GetMultipleLikeStatusResponse {
+  repeated LikeInfo likeInfos = 1;
 }
 
 message FollowRequest {
