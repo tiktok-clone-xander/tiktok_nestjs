@@ -70,7 +70,7 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
               ) : null}
             </div>
 
-            <p className="text-[15px] font-light">{comment.text}</p>
+            <p className="text-[15px] font-light">{comment.content}</p>
           </div>
         </div>
       </div>

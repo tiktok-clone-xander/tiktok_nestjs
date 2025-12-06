@@ -71,7 +71,7 @@ export interface PostWithProfile {
   thumbnailUrl?: string
   duration?: number
   views?: ViewsCount
-  text?: string
+  content?: string
   created_at?: string
   createdAt?: string
   user: {
@@ -95,7 +95,7 @@ export interface CommentWithProfile {
   id: string
   user_id: string
   post_id: string
-  text: string
+  content: string
   created_at: string
   user: {
     id: string
