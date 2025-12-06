@@ -50,24 +50,23 @@ export class VideoService {
       }
 
       return {
-        video: {
-          id: video.id,
-          title: video.title,
-          description: video.description,
-          videoUrl: video.videoUrl,
-          thumbnailUrl: video.thumbnailUrl,
-          duration: video.duration,
-          views: video.views,
-          likesCount: video.likesCount,
-          commentsCount: video.commentsCount,
-          createdAt: video.createdAt.toISOString(),
-          // TODO: Get user data via gRPC call
-          user: {
-            id: video.userId,
-            username: 'Unknown',
-            fullName: 'Unknown',
-            avatar: null,
-          },
+        id: video.id,
+        userId: video.userId,
+        title: video.title,
+        description: video.description,
+        videoUrl: video.videoUrl,
+        thumbnailUrl: video.thumbnailUrl,
+        duration: video.duration,
+        views: video.views,
+        likes: video.likesCount,
+        comments: video.commentsCount,
+        createdAt: video.createdAt.toISOString(),
+        // User object for proto
+        user: {
+          id: video.userId,
+          username: 'Unknown',
+          fullName: 'Unknown',
+          avatar: null,
         },
       };
     } catch (error) {

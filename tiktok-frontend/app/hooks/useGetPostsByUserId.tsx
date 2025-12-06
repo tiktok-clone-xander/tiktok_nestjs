@@ -9,7 +9,7 @@ const useGetPostsByUserId = async (userId: string): Promise<PostWithProfile[]> =
     if (videos && Array.isArray(videos)) {
       // Map API response to PostWithProfile type
       return videos.map((video: any) => {
-        const userId = video.user?.id || video.userId || 'unknown'
+        const userId = video.user?.id || video.userId
         return {
           id: video.id,
           user_id: userId,

@@ -57,6 +57,14 @@ message VideoResponse {
   int32 likes = 9;
   int32 comments = 10;
   string createdAt = 11;
+  UserSummary user = 12;
+}
+
+message UserSummary {
+  string id = 1;
+  string username = 2;
+  string fullName = 3;
+  string avatar = 4;
 }
 
 message FeedResponse {

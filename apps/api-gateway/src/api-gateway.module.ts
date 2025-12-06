@@ -1,8 +1,6 @@
-import { HttpCacheInterceptor } from '@app/common/interceptors';
 import { RedisModule } from '@app/redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { HealthController } from './health.controller';
@@ -61,10 +59,11 @@ import { WebsocketModule } from './modules/websocket/websocket.module';
   ],
   controllers: [HealthController],
   providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: HttpCacheInterceptor,
-    },
+    // Disabled HTTP cache interceptor to ensure fresh data
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: HttpCacheInterceptor,
+    // },
   ],
 })
 export class ApiGatewayModule {}

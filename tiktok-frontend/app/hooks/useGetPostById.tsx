@@ -4,14 +4,18 @@ import { apiClient } from '@/libs/api-client'
 const useGetPostById = async (id: string): Promise<PostWithProfile | null> => {
   try {
     const response = (await apiClient.getPostById(id)) as any
-    const video = response?.data?.video || response?.video
+    const video = response?.data
 
     if (video) {
-      const userId = video.user?.id || video.userId || 'unknown'
+      // userId can come from video.user.id or video.userId
+      const userId = video.user?.id || video.userId
+      if (!userId) {
+        console.warn('Warning: No userId found for video:', video.id)
+      }
       // Map API response to PostWithProfile type
       return {
         id: video.id,
-        user_id: userId,
+        user_id: userId || '',
         video_url: video.videoUrl || video.video_url || '',
         text: video.description || video.text || '',
         created_at: video.createdAt || video.created_at || '',
@@ -24,7 +28,7 @@ const useGetPostById = async (id: string): Promise<PostWithProfile | null> => {
         createdAt: video.createdAt,
         // Always provide profile with fallback values
         profile: {
-          user_id: userId,
+          user_id: userId || '',
           name: video.user?.fullName || video.user?.username || 'Unknown User',
           image: video.user?.avatar || '',
         },

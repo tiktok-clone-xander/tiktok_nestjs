@@ -220,8 +220,9 @@ export class VideoController {
   @ApiResponse({ status: 200, description: 'Video retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Video not found' })
   async getVideo(@Param('id') id: string) {
-    const result = await lastValueFrom(this.videoService.getVideo({ videoId: id }));
-    return result;
+    const result: any = await lastValueFrom(this.videoService.getVideo({ videoId: id }));
+    // Unwrap gRPC response: { video: {...} } -> return video object
+    return result?.video || result;
   }
 
   @Delete(':id')
