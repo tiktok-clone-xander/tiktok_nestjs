@@ -1,13 +1,15 @@
+import {
+  CreateVideoDto,
+  DeleteVideoDto,
+  GetFeedDto,
+  GetUserVideosDto,
+  GetVideoDto,
+  SearchVideosDto,
+  UpdateVideoStatsDto,
+} from '@app/common/dto/video.dto';
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { VideoService } from './video.service';
-import {
-  CreateVideoDto,
-  GetVideoDto,
-  GetFeedDto,
-  UpdateVideoStatsDto,
-  DeleteVideoDto,
-} from '@app/common/dto/video.dto';
 
 @Controller()
 export class VideoController {
@@ -39,12 +41,12 @@ export class VideoController {
   }
 
   @GrpcMethod('VideoService', 'GetUserVideos')
-  async getUserVideos(data: { userId: string; page: number; limit: number }) {
+  async getUserVideos(data: GetUserVideosDto) {
     return this.videoService.getUserVideos(data.userId, data.page, data.limit);
   }
 
   @GrpcMethod('VideoService', 'SearchVideos')
-  async searchVideos(data: { query: string; page: number; limit: number }) {
+  async searchVideos(data: SearchVideosDto) {
     return this.videoService.searchVideos(data.query, data.page, data.limit);
   }
 }

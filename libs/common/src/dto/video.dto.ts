@@ -1,6 +1,6 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, Min, Max } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class CreateVideoDto {
   @ApiProperty({ example: 'user-uuid' })
@@ -120,4 +120,48 @@ export class GetVideoFeedDto {
   @IsString()
   @IsOptional()
   userId?: string;
+}
+
+export class GetUserVideosDto {
+  @ApiProperty({ example: 'user-uuid' })
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
+
+  @ApiProperty({ example: 1, default: 1 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  page?: number;
+
+  @ApiProperty({ example: 10, default: 10 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(50)
+  @IsOptional()
+  limit?: number;
+}
+
+export class SearchVideosDto {
+  @ApiProperty({ example: 'dance challenge' })
+  @IsString()
+  @IsNotEmpty()
+  query: string;
+
+  @ApiProperty({ example: 1, default: 1 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  page?: number;
+
+  @ApiProperty({ example: 10, default: 10 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(50)
+  @IsOptional()
+  limit?: number;
 }

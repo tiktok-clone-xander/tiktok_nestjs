@@ -73,10 +73,10 @@ interface VideoServiceClient {
   createVideo(data: CreateVideoRequest): Observable<unknown>;
   getVideo(data: GetVideoRequest): Observable<unknown>;
   getFeed(data: GetFeedRequest): Observable<unknown>;
-  updateVideoStats(data: unknown): Observable<unknown>;
-  deleteVideo(data: DeleteVideoRequest): Observable<unknown>;
   getUserVideos(data: GetUserVideosRequest): Observable<unknown>;
   searchVideos(data: SearchVideosRequest): Observable<unknown>;
+  updateVideoStats(data: unknown): Observable<unknown>;
+  deleteVideo(data: DeleteVideoRequest): Observable<unknown>;
 }
 
 @ApiTags('Videos')

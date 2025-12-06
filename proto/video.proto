@@ -6,6 +6,8 @@ service VideoService {
   rpc CreateVideo (CreateVideoRequest) returns (VideoResponse);
   rpc GetVideo (GetVideoRequest) returns (VideoResponse);
   rpc GetFeed (GetFeedRequest) returns (FeedResponse);
+  rpc GetUserVideos (GetUserVideosRequest) returns (FeedResponse);
+  rpc SearchVideos (SearchVideosRequest) returns (FeedResponse);
   rpc UpdateVideoStats (UpdateVideoStatsRequest) returns (VideoResponse);
   rpc DeleteVideo (DeleteVideoRequest) returns (DeleteVideoResponse);
 }
@@ -43,6 +45,18 @@ message DeleteVideoRequest {
 
 message DeleteVideoResponse {
   bool success = 1;
+}
+
+message GetUserVideosRequest {
+  string userId = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message SearchVideosRequest {
+  string query = 1;
+  int32 page = 2;
+  int32 limit = 3;
 }
 
 message VideoResponse {
