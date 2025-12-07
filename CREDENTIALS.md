@@ -27,8 +27,10 @@ Tài liệu này tổng hợp tất cả các thông tin đăng nhập và truy 
 
 ### Redis (Cache & Session Store)
 
-- **Host:** `redis` (Docker) / `localhost` (Host)
+- **Host:** `redis`
+- **Database Alias:** `TikTok Redis`
 - **Port:** `6379`
+
 - **Password:** _(no password)_
 - **Container:** `tiktok_redis`
 - **Reference:** `docker-compose.yml` - Line 22-35
