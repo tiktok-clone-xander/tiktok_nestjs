@@ -95,7 +95,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
     ports:
       - '9200:9200'
     volumes:
@@ -131,61 +131,7 @@ services:
     volumes:
       - ./monitoring/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
-      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
-    ports:
-      - '5000:5000'
-      - '9600:9600'
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    networks:
-      - tiktok_network
-    restart: unless-stopped
-
-  # Elasticsearch
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    container_name: tiktok_elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - '9200:9200'
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - tiktok_network
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -s http://localhost:9200 >/dev/null || exit 1']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-
-  # Kibana
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.0
-    container_name: tiktok_kibana
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-    ports:
-      - '5601:5601'
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    networks:
-      - tiktok_network
-    restart: unless-stopped
-
-  # Logstash
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.11.0
-    container_name: tiktok_logstash
-    volumes:
-      - ./monitoring/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    environment:
-      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+      - 'LS_JAVA_OPTS=-Xmx256m -Xms256m'
     ports:
       - '5000:5000'
       - '9600:9600'
@@ -241,7 +187,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin123
       GF_INSTALL_PLUGINS: 'grafana-piechart-panel'
     ports:
-      - '3050:3000'
+      - '3005:3000'
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
@@ -481,62 +427,6 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-    networks:
-      - tiktok_network
-    restart: unless-stopped
-
-  # Prometheus (Monitoring)
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: tiktok_prometheus
-    ports:
-      - '9090:9090'
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.enable-lifecycle'
-    networks:
-      - tiktok_network
-    restart: unless-stopped
-
-  # Alertmanager
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: tiktok_alertmanager
-    ports:
-      - '9093:9093'
-    volumes:
-      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-      - alertmanager_data:/alertmanager
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--storage.path=/alertmanager'
-    networks:
-      - tiktok_network
-    restart: unless-stopped
-
-  # Grafana (Visualization)
-  grafana:
-    image: grafana/grafana:latest
-    container_name: tiktok_grafana
-    ports:
-      - '3005:3000'
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin123
-      GF_INSTALL_PLUGINS: 'grafana-piechart-panel'
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
-      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
-    depends_on:
-      - prometheus
-      - elasticsearch
-      - loki
     networks:
       - tiktok_network
     restart: unless-stopped
