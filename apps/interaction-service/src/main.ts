@@ -37,7 +37,7 @@ async function bootstrap() {
   logger.info(`Interaction gRPC service is listening on port ${grpcPort}`);
 
   const port = configService.get('INTERACTION_HTTP_PORT', 4003);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   logger.info(`Interaction HTTP server is running on port ${port}`);
 }
 

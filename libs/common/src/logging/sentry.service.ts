@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
+// import { ProfilingIntegration } from '@sentry/profiling-node';
 
 @Injectable()
 export class SentryService implements OnModuleInit {
@@ -19,9 +19,9 @@ export class SentryService implements OnModuleInit {
         new Sentry.Integrations.OnUnhandledRejection(),
       ];
 
-      if (enableProfiling) {
-        integrations.push(new ProfilingIntegration());
-      }
+      // if (enableProfiling) {
+      //   integrations.push(new ProfilingIntegration());
+      // }
 
       Sentry.init({
         dsn: sentryDsn,

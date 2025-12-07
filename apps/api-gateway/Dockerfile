@@ -40,8 +40,9 @@ COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nestjs:nodejs /app/proto ./proto
 
-# Create logs directory and set ownership so non-root user can write logs
-RUN mkdir -p /app/logs && chown -R 1001:1001 /app/logs
+# Create logs and uploads directories and set ownership so non-root user can write
+RUN mkdir -p /app/logs /app/uploads/videos /app/uploads/images /app/uploads/thumbnails && \
+    chown -R 1001:1001 /app/logs /app/uploads
 
 # Switch to non-root user
 USER nestjs

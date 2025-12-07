@@ -41,7 +41,7 @@ async function bootstrap() {
 
   // Start HTTP server for health checks
   const port = configService.get('VIDEO_HTTP_PORT', 4002);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   logger.info(`Video HTTP server is running on port ${port}`);
 }
 

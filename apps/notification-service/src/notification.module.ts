@@ -1,5 +1,4 @@
 import { LoggerModule } from '@app/common/logging';
-import { MetricsController } from '@app/common/logging/metrics.controller';
 import { KafkaModule, KafkaService } from '@app/kafka';
 import { NotificationDbModule } from '@app/notification-db';
 import { Module, OnModuleInit } from '@nestjs/common';
@@ -18,7 +17,7 @@ import { NotificationService } from './notification.service';
     KafkaModule.register({ name: 'notification-service' }),
     LoggerModule,
   ],
-  controllers: [NotificationController, HealthController, MetricsController],
+  controllers: [NotificationController, HealthController],
   providers: [NotificationService],
 })
 export class NotificationModule implements OnModuleInit {

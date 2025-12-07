@@ -7,7 +7,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { LoggerModule } from '@app/common/logging';
-import { MetricsController } from '@app/common/logging/metrics.controller';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { HealthController } from './health.controller';
@@ -36,7 +35,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
     LoggerModule,
   ],
-  controllers: [AuthController, HealthController, MetricsController],
+  controllers: [AuthController, HealthController],
   providers: [AuthService, JwtStrategy, LocalStrategy],
 })
 export class AuthModule {}

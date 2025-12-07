@@ -40,9 +40,9 @@ export default function Profile({ params }: { params: Promise<{ id: string }> })
   }, [params])
 
   // Fetch user data with SWR (only if id is ready)
-  const { user: profileUser } = useSWRUser(isReady && id ? id : null)
-  const { followers, total: followersCount } = useFollowers(isReady && id ? id : null, 1, 1)
-  const { following, total: followingCount } = useFollowing(isReady && id ? id : null, 1, 1)
+  const { user: profileUser } = useSWRUser((isReady && id) || '')
+  const { followers, total: followersCount } = useFollowers((isReady && id) || '', 1, 1)
+  const { following, total: followingCount } = useFollowing((isReady && id) || '', 1, 1)
 
   useEffect(() => {
     if (isReady && id) {
@@ -62,9 +62,11 @@ export default function Profile({ params }: { params: Promise<{ id: string }> })
                   alt="Profile Image"
                   className="w-[120px] min-w-[120px] rounded-full"
                   src={createBucketUrl(currentProfile.image)!}
+                  width={120}
+                  height={120}
                 />
               ) : (
-                <div className="h-[120px] min-w-[150px] rounded-full bg-gray-200" />
+                <div className="h-[120px] min-w-[120px] rounded-full bg-gray-200" />
               )}
             </ClientOnly>
 
@@ -80,16 +82,16 @@ export default function Profile({ params }: { params: Promise<{ id: string }> })
                 )}
               </ClientOnly>
 
-              {contextUser?.user?.id == id ? (
+              {contextUser?.user?.id === id ? (
                 <button
-                  onClick={() => setIsEditProfileOpen((isEditProfileOpen = !isEditProfileOpen))}
+                  onClick={() => setIsEditProfileOpen(!isEditProfileOpen)}
                   className="item-center mt-3 flex rounded-md border px-3.5 py-1.5 text-[15px] font-semibold hover:bg-gray-100"
                 >
                   <BsPencil className="mr-1 mt-0.5" size="18" />
                   <span>Edit profile</span>
                 </button>
               ) : (
-                <FollowButton userId={id} size="md" />
+                id && <FollowButton userId={id} size="md" />
               )}
             </div>
           </div>

@@ -8,18 +8,23 @@ import { extname, join } from 'path';
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
 
-// Ensure upload directories exist
+// Upload directories
 const uploadDirs = {
   videos: join(process.cwd(), 'uploads', 'videos'),
   thumbnails: join(process.cwd(), 'uploads', 'thumbnails'),
   images: join(process.cwd(), 'uploads', 'images'),
 };
 
-Object.values(uploadDirs).forEach((dir) => {
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
+// Helper function to ensure directory exists with error handling
+const ensureDir = (dir: string) => {
+  try {
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+  } catch (error) {
+    console.warn(`Warning: Could not create directory ${dir}:`, error.message);
   }
-});
+};
 
 @Module({
   imports: [
@@ -41,6 +46,8 @@ Object.values(uploadDirs).forEach((dir) => {
             uploadPath = uploadDirs.thumbnails;
           }
 
+          // Ensure directory exists before saving file
+          ensureDir(uploadPath);
           cb(null, uploadPath);
         },
         filename: (req, file, cb) => {

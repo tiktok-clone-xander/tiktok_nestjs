@@ -5,7 +5,6 @@ import { useCommentStore } from '@/app/stores/comment'
 import { useGeneralStore } from '@/app/stores/general'
 import { CommentsHeaderCompTypes } from '@/app/types'
 import { apiClient } from '@/libs/api-client'
-import useCreateBucketUrl from '@/libs/createBucketUrl'
 import dayjs from 'dayjs'
 import calendar from 'dayjs/plugin/calendar'
 import Image from 'next/image'
@@ -110,20 +109,20 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     }
   }
 
-  const profileImageUrl = useCreateBucketUrl(post?.profile?.image || '')
+  const profileImageUrl = '../../../public/images/default-avatar.png'
 
   return (
     <>
       <div className="flex items-center justify-between px-8">
         <div className="flex items-center">
-          <Link href={`/profile/${post?.user_id}`}>
+          <Link href={`/profile/${post?.user?.id}`}>
             {profileImageUrl ? (
               <Image
                 className="mx-auto rounded-full lg:mx-0"
                 width="40"
                 height="40"
                 src={profileImageUrl}
-                alt={`${post?.profile.name}'s profile picture`}
+                alt={`${post?.user?.fullName}'s profile picture`}
               />
             ) : (
               <div className="h-[40px] w-[40px] rounded-full bg-gray-200"></div>
@@ -131,21 +130,21 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
           </Link>
           <div className="ml-3 pt-0.5">
             <Link
-              href={`/profile/${post?.user_id}`}
+              href={`/profile/${post?.user?.id}`}
               className="relative z-10 text-[17px] font-semibold hover:underline"
             >
-              {post?.profile.name}
+              {post?.user?.fullName}
             </Link>
 
             <div className="relative z-0 -mt-5 text-[13px] font-light">
-              {post?.profile.name}
+              {post?.user?.fullName}
               <span className="relative -top-[2px] pl-1 pr-0.5 text-[30px]">.</span>
               <span className="font-medium">{dayjs(post?.created_at).calendar()}</span>
             </div>
           </div>
         </div>
 
-        {contextUser?.user?.id == post?.user_id ? (
+        {contextUser?.user?.id == post?.user?.id ? (
           <div>
             {isDeleteing ? (
               <BiLoaderCircle className="animate-spin" size="25" />
@@ -158,11 +157,11 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
         ) : null}
       </div>
 
-      <p className="mt-4 px-8 text-sm">{post?.text}</p>
+      <p className="mt-4 px-8 text-sm">{post?.content}</p>
 
       <p className="item-center mt-4 flex gap-2 px-8 text-sm font-bold">
         <ImMusic size="17" />
-        original sound - {post?.profile.name}
+        original sound - {post?.user?.fullName}
       </p>
 
       <div className="mt-8 flex items-center px-8">

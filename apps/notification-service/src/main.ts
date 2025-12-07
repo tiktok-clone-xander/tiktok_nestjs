@@ -37,7 +37,7 @@ async function bootstrap() {
   logger.info(`Notification gRPC service is listening on port ${grpcPort}`);
 
   const port = configService.get('NOTIFICATION_HTTP_PORT', 4004);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   logger.info(`Notification HTTP server is running on port ${port}`);
 }
 

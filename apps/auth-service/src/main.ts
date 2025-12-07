@@ -35,7 +35,7 @@ async function bootstrap() {
 
   // Also start HTTP for health checks
   const port = configService.get('AUTH_HTTP_PORT', 4001);
-  await app.listen(port, 'localhost');
+  await app.listen(port, '0.0.0.0');
   logger.log(`🚀 Auth Service HTTP is running on port ${port}`);
 }
 

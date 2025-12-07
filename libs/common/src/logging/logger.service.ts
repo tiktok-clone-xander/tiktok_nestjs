@@ -2,7 +2,8 @@ import { Injectable, LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as winston from 'winston';
 import * as DailyRotateFile from 'winston-daily-rotate-file';
-import ElasticsearchTransport from 'winston-elasticsearch';
+// Disable Elasticsearch transport due to incompatibility issues
+// import ElasticsearchTransport from 'winston-elasticsearch';
 
 @Injectable()
 export class CustomLoggerService implements LoggerService {
@@ -66,31 +67,31 @@ export class CustomLoggerService implements LoggerService {
       }),
     );
 
-    // Elasticsearch transport
-    if (elasticsearchNode) {
-      transports.push(
-        new ElasticsearchTransport({
-          level: logLevel,
-          clientOpts: {
-            node: elasticsearchNode,
-            auth: {
-              username: this.configService.get('ELASTICSEARCH_USER', 'elastic'),
-              password: this.configService.get('ELASTICSEARCH_PASSWORD', 'changeme'),
-            },
-          },
-          index: 'logs-tiktok',
-          dataStream: true,
-          transformer: (logData) => {
-            return {
-              '@timestamp': new Date().toISOString(),
-              message: logData.message,
-              severity: logData.level,
-              fields: logData.meta,
-            };
-          },
-        } as any),
-      );
-    }
+    // Elasticsearch transport - disabled due to incompatibility
+    // if (elasticsearchNode) {
+    //   transports.push(
+    //     new ElasticsearchTransport({
+    //       level: logLevel,
+    //       clientOpts: {
+    //         node: elasticsearchNode,
+    //         auth: {
+    //           username: this.configService.get('ELASTICSEARCH_USER', 'elastic'),
+    //           password: this.configService.get('ELASTICSEARCH_PASSWORD', 'changeme'),
+    //         },
+    //       },
+    //       index: 'logs-tiktok',
+    //       dataStream: true,
+    //       transformer: (logData) => {
+    //         return {
+    //           '@timestamp': new Date().toISOString(),
+    //           message: logData.message,
+    //           severity: logData.level,
+    //           fields: logData.meta,
+    //         };
+    //       },
+    //     } as any),
+    //   );
+    // }
 
     return winston.createLogger({
       level: logLevel,

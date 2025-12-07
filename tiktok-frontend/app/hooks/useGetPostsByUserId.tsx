@@ -14,7 +14,7 @@ const useGetPostsByUserId = async (userId: string): Promise<PostWithProfile[]> =
           id: video.id,
           user_id: userId,
           video_url: video.videoUrl || video.video_url || '',
-          text: video.description || video.text || '',
+          content: video.content,
           created_at: video.createdAt || video.created_at || '',
           title: video.title,
           description: video.description,
@@ -24,10 +24,10 @@ const useGetPostsByUserId = async (userId: string): Promise<PostWithProfile[]> =
           views: video.views,
           createdAt: video.createdAt,
           // Always provide profile with fallback values
-          profile: {
-            user_id: userId,
-            name: video.user?.fullName || video.user?.username || 'Unknown User',
-            image: video.user?.avatar || '',
+          user: {
+            id: userId || 'unknown',
+            fullName: video.user?.fullName || 'Unknown User',
+            username: video.user?.username || 'unknown',
           },
         }
       })

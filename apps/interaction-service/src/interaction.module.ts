@@ -7,7 +7,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
 import { LoggerModule } from '@app/common/logging';
-import { MetricsController } from '@app/common/logging/metrics.controller';
 import { HealthController } from './health.controller';
 import { InteractionController } from './interaction.controller';
 import { InteractionService } from './interaction.service';
@@ -35,7 +34,7 @@ import { InteractionService } from './interaction.service';
     ]),
     LoggerModule,
   ],
-  controllers: [InteractionController, HealthController, MetricsController],
+  controllers: [InteractionController, HealthController],
   providers: [InteractionService],
 })
 export class InteractionModule {}

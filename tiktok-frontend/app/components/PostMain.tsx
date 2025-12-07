@@ -16,14 +16,11 @@ const PostMain = memo(function PostMain({ post }: PostMainCompTypes) {
 
   // Compute URLs (useCreateBucketUrl is not a React hook, just a utility function)
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const profileImageUrl = post?.profile?.image ? useCreateBucketUrl(post.profile.image) : null
+  const profileImageUrl = post?.user?.id ? '../../public/images/default-avatar.png' : null
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const videoUrl = post?.videoUrl ? useCreateBucketUrl(post.videoUrl) : ''
 
-  const profileLink = useMemo(
-    () => `/profile/${post?.profile?.user_id || 'unknown'}`,
-    [post?.profile?.user_id]
-  )
+  const profileLink = useMemo(() => `/profile/${post?.user?.id || 'unknown'}`, [post?.user?.id])
 
   // Intersection Observer with cleanup
   useEffect(() => {
@@ -73,9 +70,9 @@ const PostMain = memo(function PostMain({ post }: PostMainCompTypes) {
 
         <div className="w-full px-4 pl-3">
           <div className="flex items-center justify-between pb-0.5">
-            <Link href={`/profile/${post?.profile?.user_id || 'unknown'}`}>
+            <Link href={`/profile/${post?.user?.id || 'unknown'}`}>
               <span className="cursor-pointer font-bold hover:underline">
-                {post?.profile?.name || 'Unknown User'}
+                {post?.user?.fullName || 'Unknown User'}
               </span>
             </Link>
 
