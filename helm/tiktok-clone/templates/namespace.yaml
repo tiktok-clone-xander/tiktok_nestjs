@@ -1,0 +1,11 @@
+{{- if .Values.postgresql.enabled }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    environment: {{ .Values.global.environment }}
+{{- end }}

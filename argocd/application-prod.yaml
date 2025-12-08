@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tiktok-clone-prod
+  namespace: argocd
+spec:
+  project: tiktok-clone
+
+  source:
+    repoURL: https://github.com/betuanminh22032003/tiktok_nestjs.git
+    path: helm/tiktok-clone
+    targetRevision: main
+
+    helm:
+      releaseName: tiktok-clone
+      valueFiles:
+        - values-prod.yaml
+      values: |
+        replicaCount: 5
+        environment: prod
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tiktok-clone-prod
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+
+    syncOptions:
+      - CreateNamespace=true
+
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  revisionHistoryLimit: 10

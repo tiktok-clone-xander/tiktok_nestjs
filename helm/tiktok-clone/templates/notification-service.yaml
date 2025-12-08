@@ -1,0 +1,112 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.notification.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.services.notification.name }}
+spec:
+  selector:
+    app: {{ .Values.services.notification.name }}
+  ports:
+    - port: {{ .Values.services.notification.port }}
+      targetPort: {{ .Values.services.notification.port }}
+      name: http
+    - port: {{ .Values.services.notification.grpcPort }}
+      targetPort: {{ .Values.services.notification.grpcPort }}
+      name: grpc
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.notification.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.services.notification.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.notification.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.notification.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.notification.name }}
+          image: "{{ .Values.services.notification.image.repository }}:{{ .Values.services.notification.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.notification.port }}
+              name: http
+            - containerPort: {{ .Values.services.notification.grpcPort }}
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: tiktok-db-config
+            - secretRef:
+                name: tiktok-db-secrets
+          env:
+            - name: PORT
+              value: {{ .Values.services.notification.port | quote }}
+            - name: NOTIFICATION_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_HOST
+            - name: NOTIFICATION_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_PORT
+            - name: NOTIFICATION_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_NAME
+            - name: NOTIFICATION_DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_USER
+            - name: GRPC_NOTIFICATION_URL
+              value: "0.0.0.0:{{ .Values.services.notification.grpcPort }}"
+          resources:
+{{ toYaml .Values.services.notification.resources | indent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.notification.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.notification.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+{{- if .Values.services.notification.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.services.notification.name }}-hpa
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.services.notification.name }}
+  minReplicas: {{ .Values.services.notification.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.services.notification.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.services.notification.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

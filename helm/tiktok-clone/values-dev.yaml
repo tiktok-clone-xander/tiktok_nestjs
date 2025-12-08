@@ -1,0 +1,53 @@
+# Development environment values
+# Override these in values-dev.yaml for local development
+
+global:
+  environment: development
+
+postgresql:
+  auth:
+    password: 'postgres-dev'
+  resources:
+    requests:
+      memory: '128Mi'
+      cpu: '100m'
+    limits:
+      memory: '256Mi'
+      cpu: '250m'
+
+services:
+  auth:
+    replicas: 1
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 2
+
+  video:
+    replicas: 1
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 2
+
+  interaction:
+    replicas: 1
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 2
+
+  notification:
+    replicas: 1
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 2
+
+  gateway:
+    replicas: 1
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 2
+
+  frontend:
+    replicas: 1
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 2

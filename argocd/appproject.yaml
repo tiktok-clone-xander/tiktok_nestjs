@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tiktok-clone
+  namespace: argocd
+spec:
+  # Allow deployments to any cluster or namespace (default policy)
+  sourceRepos:
+    - '*'
+
+  destinations:
+    - namespace: tiktok-clone
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+
+  # Allow all cluster-scoped resources
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  # Deny some resources
+  clusterResourceBlacklist:
+    - group: ''
+      kind: ResourceQuota
+    - group: ''
+      kind: LimitRange
+    - group: ''
+      kind: NetworkPolicy
+
+  # Allow namespaced resources
+  namespaceResourceBlacklist:
+    - group: ''
+      kind: ResourceQuota
+    - group: ''
+      kind: LimitRange
+    - group: ''
+      kind: NetworkPolicy
+
+  # Define roles within this project
+  roles:
+    - name: developer
+      policies:
+        - p, proj:tiktok-clone:developer, applications, get, tiktok-clone/*, allow
+        - p, proj:tiktok-clone:developer, applications, sync, tiktok-clone/*, allow
+
+    - name: admin
+      policies:
+        - p, proj:tiktok-clone:admin, applications, *, tiktok-clone/*, allow
+        - p, proj:tiktok-clone:admin, repositories, *, *, allow

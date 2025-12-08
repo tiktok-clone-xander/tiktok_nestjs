@@ -1,0 +1,114 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.auth.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.services.auth.name }}
+spec:
+  selector:
+    app: {{ .Values.services.auth.name }}
+  ports:
+    - port: {{ .Values.services.auth.port }}
+      targetPort: {{ .Values.services.auth.port }}
+      name: http
+    - port: {{ .Values.services.auth.grpcPort }}
+      targetPort: {{ .Values.services.auth.grpcPort }}
+      name: grpc
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.auth.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.services.auth.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.auth.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.auth.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.auth.name }}
+          image: "{{ .Values.services.auth.image.repository }}:{{ .Values.services.auth.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.auth.port }}
+              name: http
+            - containerPort: {{ .Values.services.auth.grpcPort }}
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: tiktok-db-config
+            - secretRef:
+                name: tiktok-db-secrets
+            - secretRef:
+                name: tiktok-jwt-secrets
+          env:
+            - name: PORT
+              value: {{ .Values.services.auth.port | quote }}
+            - name: AUTH_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_HOST
+            - name: AUTH_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_PORT
+            - name: AUTH_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_NAME
+            - name: AUTH_DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_USER
+            - name: GRPC_AUTH_URL
+              value: "0.0.0.0:{{ .Values.services.auth.grpcPort }}"
+          resources:
+{{ toYaml .Values.services.auth.resources | indent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.auth.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.auth.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+{{- if .Values.services.auth.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.services.auth.name }}-hpa
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.services.auth.name }}
+  minReplicas: {{ .Values.services.auth.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.services.auth.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.services.auth.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

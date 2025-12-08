@@ -1,0 +1,10 @@
+---
+# Namespace cho TikTok Clone application
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tiktok-clone
+  labels:
+    app.kubernetes.io/name: tiktok-clone
+    app.kubernetes.io/managed-by: helm
+    environment: production

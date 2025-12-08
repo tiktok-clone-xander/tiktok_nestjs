@@ -1,0 +1,50 @@
+# Production environment values
+
+global:
+  environment: production
+
+postgresql:
+  persistence:
+    size: 50Gi
+  auth:
+    password: 'CHANGE-THIS-SECURE-PASSWORD'
+
+services:
+  auth:
+    replicas: 3
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 10
+
+  video:
+    replicas: 3
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 10
+
+  interaction:
+    replicas: 3
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 10
+
+  notification:
+    replicas: 3
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 8
+
+  gateway:
+    replicas: 3
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 10
+
+  frontend:
+    replicas: 3
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 8
+
+monitoring:
+  enabled: true

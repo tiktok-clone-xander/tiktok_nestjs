@@ -1,0 +1,24 @@
+# Staging environment values
+
+global:
+  environment: staging
+
+postgresql:
+  persistence:
+    size: 20Gi
+  auth:
+    password: 'staging-password-change-me'
+
+services:
+  auth:
+    replicas: 2
+  video:
+    replicas: 2
+  interaction:
+    replicas: 2
+  notification:
+    replicas: 2
+  gateway:
+    replicas: 2
+  frontend:
+    replicas: 2

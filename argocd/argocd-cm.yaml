@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  # General ArgoCD configuration
+  url: https://argocd.localhost
+
+  # Dex configuration (OIDC provider)
+  dex.config: |
+    connectors:
+      - type: github
+        id: github
+        name: GitHub
+        config:
+          clientID: $GITHUB_CLIENT_ID
+          clientSecret: $GITHUB_CLIENT_SECRET
+          redirectURI: https://argocd.localhost/api/dex/callback
+
+  # Webhook configuration for Git push triggers
+  webhook.github.secret: $GITHUB_WEBHOOK_SECRET
+  webhook.gitlab.secret: $GITLAB_WEBHOOK_SECRET
+
+  # Application defaults
+  application.instanceLabelKey: argocd.argoproj.io/instance
+
+  # Enable local user authentication
+  accounts.admin: apiKey, login
+  accounts.developer: apiKey
+
+  # Admin password policy
+  accounts.admin.enabled: 'true'
+
+  # Redis configuration
+  redis.server: redis.argocd:6379

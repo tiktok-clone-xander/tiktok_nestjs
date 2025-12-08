@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.gateway.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.services.gateway.name }}
+spec:
+  selector:
+    app: {{ .Values.services.gateway.name }}
+  ports:
+    - port: {{ .Values.services.gateway.port }}
+      targetPort: {{ .Values.services.gateway.port }}
+      name: http
+  type: {{ .Values.services.gateway.serviceType }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.gateway.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.services.gateway.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.gateway.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.gateway.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.gateway.name }}
+          image: "{{ .Values.services.gateway.image.repository }}:{{ .Values.services.gateway.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.gateway.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: tiktok-db-config
+            - configMapRef:
+                name: api-gateway-config
+            - secretRef:
+                name: tiktok-jwt-secrets
+          env:
+            - name: PORT
+              value: {{ .Values.services.gateway.port | quote }}
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: REDIS_PORT
+            - name: GRPC_AUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: GRPC_AUTH_URL
+            - name: GRPC_VIDEO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: GRPC_VIDEO_URL
+            - name: GRPC_INTERACTION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: GRPC_INTERACTION_URL
+            - name: GRPC_NOTIFICATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: GRPC_NOTIFICATION_URL
+          resources:
+{{ toYaml .Values.services.gateway.resources | indent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.gateway.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.gateway.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+{{- if .Values.services.gateway.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.services.gateway.name }}-hpa
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.services.gateway.name }}
+  minReplicas: {{ .Values.services.gateway.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.services.gateway.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.services.gateway.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

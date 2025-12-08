@@ -1,0 +1,118 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.video.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.services.video.name }}
+spec:
+  selector:
+    app: {{ .Values.services.video.name }}
+  ports:
+    - port: {{ .Values.services.video.port }}
+      targetPort: {{ .Values.services.video.port }}
+      name: http
+    - port: {{ .Values.services.video.grpcPort }}
+      targetPort: {{ .Values.services.video.grpcPort }}
+      name: grpc
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.video.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.services.video.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.video.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.video.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.video.name }}
+          image: "{{ .Values.services.video.image.repository }}:{{ .Values.services.video.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.video.port }}
+              name: http
+            - containerPort: {{ .Values.services.video.grpcPort }}
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: tiktok-db-config
+            - secretRef:
+                name: tiktok-db-secrets
+          env:
+            - name: PORT
+              value: {{ .Values.services.video.port | quote }}
+            - name: VIDEO_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_HOST
+            - name: VIDEO_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_PORT
+            - name: VIDEO_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_NAME
+            - name: VIDEO_DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: tiktok-db-config
+                  key: DB_USER
+            - name: GRPC_VIDEO_URL
+              value: "0.0.0.0:{{ .Values.services.video.grpcPort }}"
+          resources:
+{{ toYaml .Values.services.video.resources | indent 12 }}
+          volumeMounts:
+            - name: upload-storage
+              mountPath: /app/uploads
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.video.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.services.video.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: upload-storage
+          emptyDir: {}
+
+{{- if .Values.services.video.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.services.video.name }}-hpa
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.services.video.name }}
+  minReplicas: {{ .Values.services.video.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.services.video.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.services.video.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

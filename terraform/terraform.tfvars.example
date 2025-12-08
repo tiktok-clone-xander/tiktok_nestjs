@@ -1,0 +1,81 @@
+# Terraform Variables Example
+# Copy this file to terraform.tfvars and edit with your values
+# IMPORTANT: DO NOT COMMIT terraform.tfvars to Git!
+
+# Environment Configuration
+environment             = "dev"
+namespace               = "tiktok-clone"
+
+# Kubernetes Configuration
+kubeconfig_path         = "~/.kube/config"
+kube_context            = "docker-desktop"
+
+# ArgoCD Configuration
+argocd_version          = "5.27.1"
+argocd_admin_password   = "ChangeMe123!@#"  # Change this!
+argocd_domain           = "argocd.localhost"
+argocd_service_type     = "LoadBalancer"
+argocd_replicas         = 1
+
+# Enable features
+enable_ingress          = false
+
+# Git Configuration
+git_repo_url            = "https://github.com/betuanminh22032003/tiktok_nestjs.git"
+git_branch              = "main"
+
+# PostgreSQL Configuration
+deploy_postgresql       = true
+postgresql_version      = "12.1.2"
+db_username             = "tiktok"
+db_password             = "ChangeMe123!@#"  # Change this!
+db_name                 = "tiktok_db"
+postgresql_storage_size = "10Gi"
+postgresql_memory       = "512Mi"
+postgresql_cpu          = "500m"
+postgresql_memory_request = "256Mi"
+postgresql_cpu_request  = "250m"
+
+# Redis Configuration
+deploy_redis            = true
+redis_version           = "17.3.4"
+redis_password          = "ChangeMe123!@#"  # Change this!
+redis_storage_size      = "5Gi"
+redis_memory            = "256Mi"
+redis_cpu               = "200m"
+redis_memory_request    = "128Mi"
+redis_cpu_request       = "100m"
+
+# Kafka Configuration
+deploy_kafka            = true
+kafka_version           = "21.4.3"
+kafka_username          = "tiktok"
+kafka_password          = "ChangeMe123!@#"  # Change this!
+kafka_storage_size      = "10Gi"
+
+# Application Deployment
+deploy_with_helm        = false  # Let ArgoCD handle it
+
+# Uncomment for staging
+# environment             = "staging"
+# argocd_admin_password   = "StagingPassword123!@#"
+# db_password             = "StagingDBPassword123!@#"
+# redis_password          = "StagingRedisPassword123!@#"
+# kafka_password          = "StagingKafkaPassword123!@#"
+# argocd_replicas         = 2
+# postgresql_memory       = "512Mi"
+# redis_memory            = "256Mi"
+
+# Uncomment for production
+# environment             = "prod"
+# argocd_admin_password   = "ProdPassword123!@#"
+# db_password             = "ProdDBPassword123!@#"
+# redis_password          = "ProdRedisPassword123!@#"
+# kafka_password          = "ProdKafkaPassword123!@#"
+# argocd_replicas         = 3
+# postgresql_storage_size = "100Gi"
+# postgresql_memory       = "1Gi"
+# postgresql_cpu          = "1000m"
+# redis_storage_size      = "50Gi"
+# redis_memory            = "512Mi"
+# kafka_storage_size      = "100Gi"
