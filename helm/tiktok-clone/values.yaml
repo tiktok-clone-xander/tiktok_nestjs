@@ -177,28 +177,6 @@ services:
       maxReplicas: 5
       targetCPUUtilizationPercentage: 75
 
-  # Frontend
-  frontend:
-    name: frontend
-    replicas: 2
-    image:
-      repository: tiktok-frontend
-      tag: latest
-    port: 3000
-    serviceType: LoadBalancer
-    resources:
-      requests:
-        memory: '256Mi'
-        cpu: '200m'
-      limits:
-        memory: '512Mi'
-        cpu: '500m'
-    autoscaling:
-      enabled: true
-      minReplicas: 2
-      maxReplicas: 4
-      targetCPUUtilizationPercentage: 75
-
 # Secrets
 secrets:
   # Database

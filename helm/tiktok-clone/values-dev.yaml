@@ -45,9 +45,3 @@ services:
     autoscaling:
       minReplicas: 1
       maxReplicas: 2
-
-  frontend:
-    replicas: 1
-    autoscaling:
-      minReplicas: 1
-      maxReplicas: 2

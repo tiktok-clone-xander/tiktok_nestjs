@@ -40,11 +40,5 @@ services:
       minReplicas: 3
       maxReplicas: 10
 
-  frontend:
-    replicas: 3
-    autoscaling:
-      minReplicas: 3
-      maxReplicas: 8
-
 monitoring:
   enabled: true

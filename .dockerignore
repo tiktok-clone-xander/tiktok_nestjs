@@ -1,12 +1,9 @@
 # Dependencies
 node_modules
-tiktok-frontend/node_modules
 
 # Build outputs
 dist
 .next
-tiktok-frontend/.next
-tiktok-frontend/out
 
 # Git
 .git

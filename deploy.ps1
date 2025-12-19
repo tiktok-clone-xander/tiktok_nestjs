@@ -59,8 +59,7 @@ $images = @(
     @{tag="tiktok-video-service:latest"; dockerfile="apps/video-service/Dockerfile"},
     @{tag="tiktok-interaction-service:latest"; dockerfile="apps/interaction-service/Dockerfile"},
     @{tag="tiktok-notification-service:latest"; dockerfile="apps/notification-service/Dockerfile"},
-    @{tag="tiktok-api-gateway:latest"; dockerfile="apps/api-gateway/Dockerfile"},
-    @{tag="tiktok-frontend:latest"; dockerfile="tiktok-frontend/Dockerfile"; context="tiktok-frontend"}
+    @{tag="tiktok-api-gateway:latest"; dockerfile="apps/api-gateway/Dockerfile"}
 )
 
 foreach ($image in $images) {

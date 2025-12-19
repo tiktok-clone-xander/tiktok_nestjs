@@ -365,73 +365,6 @@ try {
     Start-Sleep -Seconds 3
 }
 
-# Start frontend if not skipped
-if (-not $SkipFrontend) {
-    Write-Header "Starting Frontend with Hot Reload"
-
-    if (Test-Path "tiktok-frontend") {
-        # Kill existing frontend process
-        Get-Process -Name node -ErrorAction SilentlyContinue | ForEach-Object {
-            try {
-                $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)" -Property CommandLine).CommandLine
-                if ($cmdLine -match "next dev") {
-                    Write-Host "  - Stopping existing frontend (PID: $($_.Id))" -ForegroundColor Yellow
-                    Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
-                }
-            } catch {
-                # Ignore errors
-            }
-        }
-
-        Start-Sleep -Seconds 2
-        Write-Info "Starting Next.js frontend with hot reload..."
-
-        # Create a PowerShell script for frontend
-        $scriptFile = "$env:TEMP\start-frontend.ps1"
-        $scriptContent = @"
-`$Host.UI.RawUI.WindowTitle = "TIKTOK-FRONTEND"
-Set-Location "$PWD\tiktok-frontend"
-Write-Host "Starting TikTok Frontend..." -ForegroundColor Green
-Write-Host "Port: 3000" -ForegroundColor Cyan
-Write-Host "Framework: Next.js" -ForegroundColor Cyan
-Write-Host "Hot Reload: ENABLED" -ForegroundColor Yellow
-Write-Host "URL: http://localhost:3000" -ForegroundColor Cyan
-Write-Host "`n" + "="*50 + "`n" -ForegroundColor Magenta
-
-# Check if node_modules exists in frontend
-if (-not (Test-Path "node_modules")) {
-    Write-Host "Installing frontend dependencies..." -ForegroundColor Yellow
-    npm install
-}
-
-try {
-    npm run dev
-} catch {
-    Write-Host "Error starting frontend: `$_" -ForegroundColor Red
-    Write-Host "Press any key to exit..." -ForegroundColor Yellow
-    `$null = `$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-}
-"@
-        Set-Content -Path $scriptFile -Value $scriptContent -Encoding UTF8
-
-        $startInfo = New-Object System.Diagnostics.ProcessStartInfo
-        $startInfo.FileName = "powershell.exe"
-        $startInfo.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptFile`""
-        $startInfo.WorkingDirectory = "$PWD\tiktok-frontend"
-        $startInfo.UseShellExecute = $true
-        $startInfo.CreateNoWindow = $false
-
-        $process = New-Object System.Diagnostics.Process
-        $process.StartInfo = $startInfo
-        $null = $process.Start()
-
-        Write-Success "Frontend started in new PowerShell window"
-        Write-Host "  → http://localhost:3000" -ForegroundColor White
-    } else {
-        Write-Warning "Frontend directory not found, skipping..."
-    }
-}
-
 Write-Header "All Services Started Successfully!"
 
 Write-Info "Infrastructure Services (Docker):"
@@ -452,16 +385,10 @@ Write-Host "  - Interaction Service: http://localhost:4003 (gRPC: localhost:5005
 Write-Host "  - Notification Service: http://localhost:4004 (gRPC: localhost:50054)" -ForegroundColor White
 Write-Host "  - API Gateway: http://localhost:5555" -ForegroundColor White
 
-if (-not $SkipFrontend) {
-    Write-Info "`nFrontend (Next.js with Hot Reload):"
-    Write-Host "  - TikTok App: http://localhost:3000" -ForegroundColor White
-}
-
 Write-Info "`nQuick Commands:"
 Write-Host "  - Stop all services: .\run-native.ps1 -StopOnly" -ForegroundColor Yellow
 Write-Host "  - Start only infrastructure: .\run-native.ps1 -InfraOnly" -ForegroundColor Yellow
 Write-Host "  - Skip infrastructure: .\run-native.ps1 -SkipInfra" -ForegroundColor Yellow
-Write-Host "  - Skip frontend: .\run-native.ps1 -SkipFrontend" -ForegroundColor Yellow
 
 Write-Info "`nDebug Commands:"
 Write-Host "  - Infrastructure logs: docker-compose -f docker-compose.infra.yml logs -f" -ForegroundColor Gray

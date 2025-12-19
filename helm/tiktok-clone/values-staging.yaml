@@ -20,5 +20,3 @@ services:
     replicas: 2
   gateway:
     replicas: 2
-  frontend:
-    replicas: 2

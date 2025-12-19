@@ -10,9 +10,6 @@
     "libs/*"
   ],
   "scripts": {
-    "install:all": "npm install && cd tiktok-frontend && npm install",
-    "dev:frontend": "cd tiktok-frontend && npm run dev",
-    "build:frontend": "cd tiktok-frontend && npm run build",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",

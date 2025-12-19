@@ -217,18 +217,7 @@ Tài liệu này tổng hợp tất cả các thông tin đăng nhập và truy 
 - **Container:** `tiktok_api_gateway`
 - **Reference:** `docker-compose.yml` - Line 351-378
 - **Dependencies:** Auth Service, Video Service, Interaction Service, Redis
-- **CORS Origins:** `http://localhost:3006`, `http://localhost:4000`, `http://localhost:3000`
-
----
-
-## 🌐 FRONTEND
-
-### Next.js Frontend
-
-- **Port:** `3006` (development)
-- **Container:** `tiktok_frontend`
-- **Reference:** `docker-compose.yml` - Line 380+
-- **Note:** Check `tiktok-frontend/package.json` for dev port configuration
+- **CORS Origins:** `http://localhost:3006`, `http://localhost:4000`
 
 ---
 

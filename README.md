@@ -1,10 +1,9 @@
 # TikTok Clone - Microservices Monorepo Architecture
 
-> Dự án TikTok Clone được xây dựng với kiến trúc Microservices Monorepo sử dụng NestJS, NextJS và các công nghệ hiện đại nhất. **Shared Dependencies Architecture** giúp tiết kiệm 75% dung lượng và tăng tốc build 67%.
+> Dự án TikTok Clone được xây dựng với kiến trúc Microservices Monorepo sử dụng NestJS và các công nghệ hiện đại nhất. **Shared Dependencies Architecture** giúp tiết kiệm 75% dung lượng và tăng tốc build 67%.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
@@ -23,7 +22,6 @@ cd tiktok_nestjs
 
 **Sau 5-10 phút, truy cập:**
 
-- 🌐 Frontend: http://localhost:5555
 - 🔌 API: http://localhost:5555
 - 📚 Swagger: http://localhost:5555/api/docs
 
@@ -72,14 +70,6 @@ cd tiktok_nestjs
 - ✅ **Security**: Helmet, CORS, Rate Limiting, Input Validation
 - ✅ **Monitoring**: Prometheus + Grafana
 - ✅ **Logging**: Winston với Sentry integration
-
-### Frontend (NextJS - Đang phát triển)
-
-- 🔄 Video feed với vertical scroll
-- 🔄 Auto-play video khi hiển thị
-- 🔄 Real-time likes và comments
-- 🔄 Video upload với preview
-- 🔄 Responsive design
 
 ## 🏗️ Kiến trúc
 
@@ -173,10 +163,6 @@ Quick highlights:
 ### Backend
 
 - NestJS 10.x, TypeScript, PostgreSQL, Redis, Kafka, gRPC, JWT, Socket.io
-
-### Frontend
-
-- Next.js 15, React 19, TypeScript, TailwindCSS, Axios
 
 ### DevOps
 

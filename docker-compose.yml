@@ -400,8 +400,7 @@ services:
       GRPC_INTERACTION_URL: interaction-service:50053
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-your-secret-key-please-change-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-refresh-key-please-change-in-production}
-      # Allow host/browser access to frontend (localhost:3000) and gateway
-      CORS_ORIGIN: http://localhost:3006,http://localhost:4000,http://localhost:3000
+      CORS_ORIGIN: http://localhost:3006,http://localhost:4000
     ports:
       - '4000:4000'
     depends_on:
@@ -445,31 +444,6 @@ services:
     networks:
       - tiktok_network
     restart: unless-stopped
-
-  # Frontend (Next.js)
-  frontend:
-    build:
-      # Use the frontend folder as build context so Dockerfile's `COPY . .`
-      # will copy the Next.js app files (same behavior as `docker build` run
-      # inside the `tiktok-frontend` directory).
-      context: ./tiktok-frontend
-      dockerfile: Dockerfile
-      cache_from:
-        - tiktok-frontend:latest
-    container_name: tiktok_frontend
-    environment:
-      NODE_ENV: production
-      # Use container name for internal Docker network communication
-      NEXT_PUBLIC_API_URL: http://api-gateway:4000
-      # The app expects NEXT_PUBLIC_SOCKET_URL (used by libs/socket-manager.ts)
-      NEXT_PUBLIC_SOCKET_URL: ws://api-gateway:4000
-    ports:
-      - '3000:3000'
-    depends_on:
-      - api-gateway
-    networks:
-      - tiktok_network
-    restart: always
 
 volumes:
   postgres_data:
