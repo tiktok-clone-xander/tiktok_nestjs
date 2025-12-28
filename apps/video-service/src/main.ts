@@ -1,5 +1,6 @@
 import { AllExceptionsFilter } from '@app/common/filters';
 import { LoggingInterceptor } from '@app/common/interceptors';
+import { SentryExceptionFilter, SentryInterceptor, SentryService } from '@app/common/sentry';
 import { logger } from '@app/common/utils';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +13,10 @@ async function bootstrap() {
   // Create hybrid application (gRPC + HTTP)
   const app = await NestFactory.create(VideoModule);
   const configService = app.get(ConfigService);
+
+  // Initialize Sentry
+  const sentryService = app.get(SentryService);
+  sentryService.initialize('video-service');
 
   // Setup gRPC microservice
   app.connectMicroservice<MicroserviceOptions>({
@@ -31,8 +36,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  app.useGlobalFilters(new AllExceptionsFilter());
-  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalFilters(new SentryExceptionFilter(sentryService), new AllExceptionsFilter());
+  app.useGlobalInterceptors(new SentryInterceptor(sentryService), new LoggingInterceptor());
 
   // Start all microservices
   await app.startAllMicroservices();
@@ -43,6 +48,14 @@ async function bootstrap() {
   const port = configService.get('VIDEO_HTTP_PORT', 4002);
   await app.listen(port, '0.0.0.0');
   logger.info(`Video HTTP server is running on port ${port}`);
+  logger.info(`Sentry error tracking: ${sentryService.isInitialized() ? 'enabled' : 'disabled'}`);
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    logger.info('SIGTERM signal received');
+    await sentryService.flush();
+    await app.close();
+  });
 }
 
 bootstrap();

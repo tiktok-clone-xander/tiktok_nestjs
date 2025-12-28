@@ -1,3 +1,4 @@
+import { SentryExceptionFilter, SentryInterceptor, SentryService } from '@app/common/sentry';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -10,6 +11,10 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AuthModule);
   const configService = app.get(ConfigService);
+
+  // Initialize Sentry
+  const sentryService = app.get(SentryService);
+  sentryService.initialize('auth-service');
 
   // gRPC Microservice
   app.connectMicroservice<MicroserviceOptions>({
@@ -29,6 +34,9 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalFilters(new SentryExceptionFilter(sentryService));
+  app.useGlobalInterceptors(new SentryInterceptor(sentryService));
+
   await app.startAllMicroservices();
   const grpcPort = configService.get('AUTH_GRPC_PORT', 50051);
   logger.log(`🚀 Auth Service is running on gRPC port ${grpcPort}`);
@@ -37,6 +45,14 @@ async function bootstrap() {
   const port = configService.get('AUTH_HTTP_PORT', 4001);
   await app.listen(port, '0.0.0.0');
   logger.log(`🚀 Auth Service HTTP is running on port ${port}`);
+  logger.log(`🐛 Sentry error tracking: ${sentryService.isInitialized() ? 'enabled' : 'disabled'}`);
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    logger.log('SIGTERM signal received');
+    await sentryService.flush();
+    await app.close();
+  });
 }
 
 bootstrap();

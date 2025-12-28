@@ -7,6 +7,7 @@ export * from './guards';
 export * from './interceptors';
 export * from './interfaces';
 export * from './middleware';
+export * from './sentry';
 export * from './services/database-setup.service';
 export * from './services/dataloader.service';
 export * from './utils';

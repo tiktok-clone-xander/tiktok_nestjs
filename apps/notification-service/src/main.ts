@@ -1,5 +1,6 @@
 import { AllExceptionsFilter } from '@app/common/filters';
 import { LoggingInterceptor } from '@app/common/interceptors';
+import { SentryExceptionFilter, SentryInterceptor, SentryService } from '@app/common/sentry';
 import { logger } from '@app/common/utils';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +12,10 @@ import { NotificationModule } from './notification.module';
 async function bootstrap() {
   const app = await NestFactory.create(NotificationModule);
   const configService = app.get(ConfigService);
+
+  // Initialize Sentry
+  const sentryService = app.get(SentryService);
+  sentryService.initialize('notification-service');
 
   // Setup gRPC microservice
   app.connectMicroservice<MicroserviceOptions>({
@@ -29,8 +34,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  app.useGlobalFilters(new AllExceptionsFilter());
-  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalFilters(new SentryExceptionFilter(sentryService), new AllExceptionsFilter());
+  app.useGlobalInterceptors(new SentryInterceptor(sentryService), new LoggingInterceptor());
 
   await app.startAllMicroservices();
   const grpcPort = configService.get('NOTIFICATION_GRPC_PORT', 50054);
@@ -39,6 +44,14 @@ async function bootstrap() {
   const port = configService.get('NOTIFICATION_HTTP_PORT', 4004);
   await app.listen(port, '0.0.0.0');
   logger.info(`Notification HTTP server is running on port ${port}`);
+  logger.info(`Sentry error tracking: ${sentryService.isInitialized() ? 'enabled' : 'disabled'}`);
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    logger.info('SIGTERM signal received');
+    await sentryService.flush();
+    await app.close();
+  });
 }
 
 bootstrap();
