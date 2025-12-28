@@ -162,7 +162,7 @@ export class VersionManager {
     applied: string[];
   }> {
     // Use TypeORM's built-in migration methods
-    const pendingMigrations = await this.dataSource.showMigrations();
+    const _pendingMigrations = await this.dataSource.showMigrations();
     const executedMigrations = await this.dataSource.query(
       'SELECT * FROM "migrations" ORDER BY "timestamp" ASC',
     );

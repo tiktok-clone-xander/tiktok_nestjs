@@ -198,7 +198,7 @@ export class AuthService {
   }
 
   private sanitizeUser(user: User) {
-    const { password, ...result } = user;
+    const { password: _password, ...result } = user;
     return {
       ...result,
       avatar: user.avatar || null, // Ensure avatar is always present

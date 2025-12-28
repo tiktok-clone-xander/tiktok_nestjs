@@ -6,10 +6,10 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { join } from 'path';
 import { ApiGatewayModule } from './api-gateway.module';
-const cookieParser = require('cookie-parser');
 
 async function bootstrap() {
   const logger = new Logger('APIGateway');

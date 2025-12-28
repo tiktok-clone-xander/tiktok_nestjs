@@ -5,7 +5,7 @@ import { ApiGatewayModule } from './../src/api-gateway.module';
 
 describe('Auth API (e2e)', () => {
   let app: INestApplication;
-  let accessToken: string;
+  let _accessToken: string;
   let cookies: string[];
 
   beforeAll(async () => {

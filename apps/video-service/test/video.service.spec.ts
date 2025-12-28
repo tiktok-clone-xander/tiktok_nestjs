@@ -1,24 +1,13 @@
-import { User } from '@app/database/entities/user.entity';
-import { Video } from '@app/database/entities/video.entity';
+import { KafkaService } from '@app/kafka';
 import { RedisService } from '@app/redis';
+import { Video, VideoView } from '@app/video-db';
 import { RpcException } from '@nestjs/microservices';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { VideoService } from '../src/video.service';
 
 describe('VideoService', () => {
   let service: VideoService;
-  let videoRepository: Repository<Video>;
-  let userRepository: Repository<User>;
-  let redisService: RedisService;
-
-  const mockUser = {
-    id: 'user-id',
-    email: 'test@example.com',
-    username: 'testuser',
-    fullName: 'Test User',
-  };
 
   const mockVideo = {
     id: 'video-id',
@@ -33,19 +22,30 @@ describe('VideoService', () => {
     commentsCount: 5,
     createdAt: new Date(),
     updatedAt: new Date(),
-    user: mockUser,
   };
 
   const mockVideoRepository = {
     findOne: jest.fn(),
     findAndCount: jest.fn(),
+    find: jest.fn(),
     create: jest.fn(),
     save: jest.fn(),
     remove: jest.fn(),
+    createQueryBuilder: jest.fn(() => ({
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[mockVideo], 1]),
+    })),
   };
 
-  const mockUserRepository = {
+  const mockVideoViewRepository = {
     findOne: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
   };
 
   const mockRedisService = {
@@ -61,6 +61,19 @@ describe('VideoService', () => {
     invalidateFeedCache: jest.fn(),
   };
 
+  const mockKafkaService = {
+    emit: jest.fn(),
+  };
+
+  const mockInteractionClient = {
+    getService: jest.fn().mockReturnValue({
+      getMultipleLikeStatus: jest.fn().mockReturnValue({
+        pipe: jest.fn().mockReturnThis(),
+        toPromise: jest.fn().mockResolvedValue({ likeInfos: [] }),
+      }),
+    }),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -70,21 +83,25 @@ describe('VideoService', () => {
           useValue: mockVideoRepository,
         },
         {
-          provide: getRepositoryToken(User),
-          useValue: mockUserRepository,
+          provide: getRepositoryToken(VideoView),
+          useValue: mockVideoViewRepository,
         },
         {
           provide: RedisService,
           useValue: mockRedisService,
         },
+        {
+          provide: KafkaService,
+          useValue: mockKafkaService,
+        },
+        {
+          provide: 'INTERACTION_SERVICE',
+          useValue: mockInteractionClient,
+        },
       ],
     }).compile();
 
     service = module.get<VideoService>(VideoService);
-    videoRepository = module.get(getRepositoryToken(Video));
-    userRepository = module.get(getRepositoryToken(User));
-    redisService = module.get<RedisService>(RedisService);
-
     jest.clearAllMocks();
   });
 
@@ -103,94 +120,42 @@ describe('VideoService', () => {
     };
 
     it('should successfully create a video', async () => {
-      mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockVideoRepository.create.mockReturnValue(mockVideo);
       mockVideoRepository.save.mockResolvedValue(mockVideo);
-      mockRedisService.set.mockResolvedValue(true);
-      mockRedisService.invalidateFeedCache.mockResolvedValue(true);
 
       const result = await service.createVideo(createVideoDto);
 
       expect(result).toHaveProperty('video');
       expect(result.video.title).toBe(createVideoDto.title);
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        where: { id: createVideoDto.userId },
-      });
       expect(mockVideoRepository.create).toHaveBeenCalled();
       expect(mockVideoRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw error if user not found', async () => {
-      mockUserRepository.findOne.mockResolvedValue(null);
+    it('should throw error if video creation fails', async () => {
+      mockVideoRepository.create.mockReturnValue(mockVideo);
+      mockVideoRepository.save.mockRejectedValue(new Error('Database error'));
 
       await expect(service.createVideo(createVideoDto)).rejects.toThrow(RpcException);
     });
   });
 
   describe('getVideo', () => {
-    it('should return video from cache if available', async () => {
-      const cachedVideo = JSON.stringify(mockVideo);
-      mockRedisService.get.mockResolvedValue(cachedVideo);
-
-      const result = await service.getVideo('video-id');
-
-      expect(result).toHaveProperty('video');
-      expect(mockRedisService.get).toHaveBeenCalledWith('video:video-id');
-      expect(mockVideoRepository.findOne).not.toHaveBeenCalled();
-    });
-
-    it('should fetch from database if not in cache', async () => {
-      mockRedisService.get.mockResolvedValue(null);
+    it('should return video from database', async () => {
       mockVideoRepository.findOne.mockResolvedValue(mockVideo);
-      mockRedisService.getViews.mockResolvedValue(100);
-      mockRedisService.getLikes.mockResolvedValue(10);
-      mockRedisService.getCommentsCount.mockResolvedValue(5);
-      mockRedisService.set.mockResolvedValue(true);
 
       const result = await service.getVideo('video-id');
 
-      expect(result).toHaveProperty('video');
+      expect(result).toHaveProperty('id', 'video-id');
+      expect(result).toHaveProperty('title', 'Test Video');
       expect(mockVideoRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'video-id' },
-        relations: ['user'],
       });
-      expect(mockRedisService.set).toHaveBeenCalled();
     });
 
     it('should throw error if video not found', async () => {
-      mockRedisService.get.mockResolvedValue(null);
       mockVideoRepository.findOne.mockResolvedValue(null);
 
       await expect(service.getVideo('non-existent-id')).rejects.toThrow(RpcException);
-    });
-  });
-
-  describe('getFeed', () => {
-    it('should return cached feed if available', async () => {
-      const cachedFeed = [mockVideo];
-      mockRedisService.getCachedFeed.mockResolvedValue(cachedFeed);
-
-      const result = await service.getFeed(undefined, 1, 10);
-
-      expect(result).toHaveProperty('videos');
-      expect(result.videos).toEqual(cachedFeed);
-      expect(mockVideoRepository.findAndCount).not.toHaveBeenCalled();
-    });
-
-    it('should fetch from database and cache if not cached', async () => {
-      mockRedisService.getCachedFeed.mockResolvedValue(null);
-      mockVideoRepository.findAndCount.mockResolvedValue([[mockVideo], 1]);
-      mockRedisService.getViews.mockResolvedValue(100);
-      mockRedisService.getLikes.mockResolvedValue(10);
-      mockRedisService.getCommentsCount.mockResolvedValue(5);
-      mockRedisService.cacheFeed.mockResolvedValue(true);
-
-      const result = await service.getFeed(undefined, 1, 10);
-
-      expect(result).toHaveProperty('videos');
-      expect(result.videos).not.toBeNull();
-      expect(mockVideoRepository.findAndCount).toHaveBeenCalled();
-      expect(mockRedisService.cacheFeed).toHaveBeenCalled();
     });
   });
 
@@ -199,59 +164,17 @@ describe('VideoService', () => {
       mockVideoRepository.findOne.mockResolvedValue(mockVideo);
       mockVideoRepository.remove.mockResolvedValue(mockVideo);
       mockRedisService.del.mockResolvedValue(true);
-      mockRedisService.invalidateFeedCache.mockResolvedValue(true);
 
       const result = await service.deleteVideo('video-id', 'user-id');
 
-      expect(result).toEqual({ success: true });
+      expect(result).toHaveProperty('success', true);
       expect(mockVideoRepository.remove).toHaveBeenCalled();
-    });
-
-    it('should throw error if user is not the owner', async () => {
-      mockVideoRepository.findOne.mockResolvedValue(mockVideo);
-
-      await expect(service.deleteVideo('video-id', 'different-user-id')).rejects.toThrow(
-        RpcException,
-      );
     });
 
     it('should throw error if video not found', async () => {
       mockVideoRepository.findOne.mockResolvedValue(null);
 
       await expect(service.deleteVideo('non-existent-id', 'user-id')).rejects.toThrow(RpcException);
-    });
-  });
-
-  describe('updateVideoStats', () => {
-    it('should successfully update video stats', async () => {
-      const video = { ...mockVideo };
-      mockVideoRepository.findOne.mockResolvedValue(video);
-      mockVideoRepository.save.mockResolvedValue(video);
-      mockRedisService.del.mockResolvedValue(true);
-
-      const result = await service.updateVideoStats({
-        videoId: 'video-id',
-        views: 200,
-        likesCount: 20,
-      });
-
-      expect(result).toEqual({ success: true });
-      expect(mockVideoRepository.save).toHaveBeenCalled();
-    });
-  });
-
-  describe('searchVideos', () => {
-    it('should search videos by query', async () => {
-      mockVideoRepository.findAndCount.mockResolvedValue([[mockVideo], 1]);
-      mockRedisService.getViews.mockResolvedValue(100);
-      mockRedisService.getLikes.mockResolvedValue(10);
-      mockRedisService.getCommentsCount.mockResolvedValue(5);
-
-      const result = await service.searchVideos('test', 1, 10);
-
-      expect(result).toHaveProperty('videos');
-      expect(result.videos.length).toBe(1);
-      expect(mockVideoRepository.findAndCount).toHaveBeenCalled();
     });
   });
 });

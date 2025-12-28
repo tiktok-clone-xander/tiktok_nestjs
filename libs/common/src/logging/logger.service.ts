@@ -17,7 +17,7 @@ export class CustomLoggerService implements LoggerService {
   private createLogger(): winston.Logger {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
     const logLevel = this.configService.get('LOG_LEVEL', isProduction ? 'info' : 'debug');
-    const elasticsearchNode = this.configService.get('ELASTICSEARCH_NODE');
+    const _elasticsearchNode = this.configService.get('ELASTICSEARCH_NODE');
 
     const transports: winston.transport[] = [];
 
