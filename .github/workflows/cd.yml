@@ -295,6 +295,10 @@ jobs:
     needs: [prepare, build]
     if: needs.prepare.outputs.should_deploy == 'true'
 
+    # Permissions cần thiết để push changes
+    permissions:
+      contents: write
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
