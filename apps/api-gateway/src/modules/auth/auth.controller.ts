@@ -180,7 +180,7 @@ export class AuthController implements OnModuleInit {
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh access token' })
   async refresh(@Req() req: Request, @Res() res: Response) {
-    const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE];
+    const refreshToken = req.cookies ? req.cookies[REFRESH_TOKEN_COOKIE] : undefined;
 
     if (!refreshToken) {
       return res.status(HttpStatus.UNAUTHORIZED).json({

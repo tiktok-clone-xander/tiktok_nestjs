@@ -37,8 +37,10 @@ export class LoggingInterceptor implements NestInterceptor {
           ip: request.ip,
         });
 
-        transaction.setStatus('ok');
-        transaction.finish();
+        if (transaction) {
+          transaction.setStatus('ok');
+          transaction.finish();
+        }
       }),
       catchError((error) => {
         const duration = Date.now() - startTime;
@@ -61,8 +63,10 @@ export class LoggingInterceptor implements NestInterceptor {
           duration,
         });
 
-        transaction.setStatus('error');
-        transaction.finish();
+        if (transaction) {
+          transaction.setStatus('error');
+          transaction.finish();
+        }
 
         throw error;
       }),
