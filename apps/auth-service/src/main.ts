@@ -14,7 +14,7 @@ async function bootstrap() {
 
   // Initialize Sentry
   const sentryService = app.get(SentryService);
-  sentryService.initialize('auth-service');
+  await sentryService.initialize('auth-service');
 
   // gRPC Microservice
   app.connectMicroservice<MicroserviceOptions>({

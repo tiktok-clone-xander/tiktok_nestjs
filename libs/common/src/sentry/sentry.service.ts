@@ -2,23 +2,28 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Sentry from '@sentry/node';
 import { Integration } from '@sentry/types';
+import { KmsService } from '../kms/kms.service';
 
 @Injectable()
 export class SentryService {
   private readonly logger = new Logger(SentryService.name);
   private initialized = false;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly kmsService: KmsService,
+  ) {}
 
   /**
    * Initialize Sentry SDK
+   * Only runs on staging and production environments
    */
-  initialize(serviceName: string): void {
-    const dsn = this.configService.get<string>('SENTRY_DSN');
+  async initialize(serviceName: string): Promise<void> {
     const environment = this.configService.get<string>('NODE_ENV', 'development');
 
-    if (!dsn) {
-      this.logger.warn('Sentry DSN not configured. Error tracking is disabled.');
+    // Only enable Sentry on staging and production
+    if (environment === 'development' || environment === 'local') {
+      this.logger.log('Sentry disabled in local/development environment');
       return;
     }
 
@@ -27,7 +32,28 @@ export class SentryService {
       return;
     }
 
+    const encryptedDsn = this.configService.get<string>('SENTRY_DSN');
+    if (!encryptedDsn) {
+      this.logger.error(
+        'Sentry DSN not configured for ' +
+          environment +
+          ' environment. This is required for staging/production!',
+      );
+      return;
+    }
+
     try {
+      // Decrypt DSN using KMS
+      let dsn: string;
+      if (this.kmsService.isEnabled()) {
+        this.logger.log('Decrypting Sentry DSN with KMS...');
+        dsn = await this.kmsService.getDecryptedValue(encryptedDsn);
+        this.logger.log('Sentry DSN decrypted successfully');
+      } else {
+        // Fallback for staging without KMS (not recommended for production)
+        this.logger.warn('KMS not enabled, using DSN as plaintext (not recommended)');
+        dsn = encryptedDsn;
+      }
       const integrations: Integration[] = [
         // Automatic instrumentation
         new Sentry.Integrations.Http({ tracing: true }),
@@ -64,15 +90,6 @@ export class SentryService {
 
         // Error filtering
         beforeSend(event, hint) {
-          // Don't send errors in development
-          if (environment === 'development') {
-            console.error(
-              'Sentry Event (development):',
-              hint?.originalException || hint?.syntheticException,
-            );
-            return null;
-          }
-
           // Filter out common non-critical errors
           const error = hint?.originalException;
           if (error instanceof Error) {

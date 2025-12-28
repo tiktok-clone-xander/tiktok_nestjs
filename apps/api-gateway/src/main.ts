@@ -9,7 +9,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import { join } from 'path';
 import { ApiGatewayModule } from './api-gateway.module';
 
 async function bootstrap() {
@@ -20,14 +19,9 @@ async function bootstrap() {
 
   // Initialize Sentry
   const sentryService = app.get(SentryService);
-  sentryService.initialize('api-gateway');
+  await sentryService.initialize('api-gateway');
 
   // Serve static files (uploaded videos, images)
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-  });
-
-  // Security
   app.use(helmet());
   app.use(compression());
   app.use(cookieParser());

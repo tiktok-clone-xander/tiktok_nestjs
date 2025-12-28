@@ -6,6 +6,7 @@ export * from './filters';
 export * from './guards';
 export * from './interceptors';
 export * from './interfaces';
+export * from './kms';
 export * from './middleware';
 export * from './sentry';
 export * from './services/database-setup.service';
