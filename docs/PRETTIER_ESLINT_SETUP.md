@@ -12,6 +12,7 @@ Make sure these VS Code extensions are installed:
 2. **ESLint** (`dbaeumer.vscode-eslint`)
 
 Install via:
+
 ```bash
 code --install-extension esbenp.prettier-vscode
 code --install-extension dbaeumer.vscode-eslint
@@ -20,6 +21,7 @@ code --install-extension dbaeumer.vscode-eslint
 ## ⚙️ How It Works
 
 ### On Save (Auto-Format):
+
 1. **Prettier** formats code (spacing, quotes, semicolons, line length)
 2. **Organize Imports** sorts import statements
 3. **ESLint** fixes auto-fixable issues (unused imports, etc.)
@@ -27,6 +29,7 @@ code --install-extension dbaeumer.vscode-eslint
 ### Configuration Files:
 
 #### `.prettierrc` - Prettier Rules
+
 ```json
 {
   "singleQuote": true,
@@ -38,11 +41,13 @@ code --install-extension dbaeumer.vscode-eslint
 ```
 
 #### `.eslintrc.js` - ESLint Rules
+
 - Extends `plugin:prettier/recommended` (integrates Prettier with ESLint)
 - Uses `eslint-plugin-unused-imports` to auto-remove unused code
 - Validates TypeScript code
 
 #### `.vscode/settings.json` - VS Code Settings
+
 - `editor.formatOnSave: true` - Auto-format on save
 - `editor.defaultFormatter: "esbenp.prettier-vscode"` - Use Prettier
 - `editor.codeActionsOnSave` - Run organize imports + ESLint fixes
@@ -50,6 +55,7 @@ code --install-extension dbaeumer.vscode-eslint
 - `eslint.format.enable: false` - Use Prettier for formatting, ESLint for linting
 
 #### `.editorconfig` - Editor Config
+
 - Ensures consistent line endings (LF)
 - Sets indent size (2 spaces)
 - Trims trailing whitespace
@@ -81,23 +87,25 @@ npm run lint
 
 1. Open any `.ts` file
 2. Add some messy code:
+
 ```typescript
-import {  Injectable  } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SomeUnusedImport } from 'somewhere';
 
 @Injectable()
 export class TestService {
-constructor(private config: ConfigService) {}
+  constructor(private config: ConfigService) {}
 
-  getHello(  ): string{
-      return "hello"
+  getHello(): string {
+    return 'hello';
   }
 }
 ```
 
 3. Save the file (Ctrl+S / Cmd+S)
 4. The code should auto-format to:
+
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -113,6 +121,7 @@ export class TestService {
 ```
 
 Notice:
+
 - ✅ Unused import removed
 - ✅ Spacing normalized
 - ✅ Single quotes applied
@@ -122,19 +131,25 @@ Notice:
 ## 🚨 Common Issues
 
 ### Issue: Nothing happens on save
+
 **Solution:** Check that extensions are installed and enabled:
+
 ```bash
 code --list-extensions | grep -E 'prettier|eslint'
 ```
 
 ### Issue: Format conflicts between Prettier and ESLint
+
 **Solution:** Already configured! `.eslintrc.js` extends `plugin:prettier/recommended` which:
+
 - Disables ESLint formatting rules that conflict with Prettier
 - Runs Prettier as an ESLint rule
 - Shows Prettier issues as ESLint errors
 
 ### Issue: Different line endings (CRLF vs LF)
+
 **Solution:** `.editorconfig` forces LF everywhere. If you still see CRLF:
+
 ```bash
 # Convert all files to LF
 git config core.autocrlf false
@@ -143,7 +158,9 @@ git reset --hard HEAD
 ```
 
 ### Issue: Format on save not working for specific file type
+
 **Solution:** Check `.vscode/settings.json` has formatter set for that language:
+
 ```json
 "[typescript]": {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -154,24 +171,30 @@ git reset --hard HEAD
 ## 📝 Key Settings Explained
 
 ### Why disable TypeScript formatter?
+
 ```json
 "typescript.format.enable": false
 ```
+
 Prettier handles all formatting. Built-in TS formatter conflicts with Prettier rules.
 
 ### Why disable ESLint formatter?
+
 ```json
 "eslint.format.enable": false
 ```
+
 ESLint is for linting (finding errors), Prettier is for formatting (style). Keep them separate.
 
 ### Why organize imports before ESLint?
+
 ```json
 "editor.codeActionsOnSave": {
   "source.organizeImports": "explicit",  // First
   "source.fixAll.eslint": "explicit"     // Second
 }
 ```
+
 Organize imports first, then ESLint removes unused ones.
 
 ## ✨ Benefits

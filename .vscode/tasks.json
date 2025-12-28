@@ -13,9 +13,7 @@
         "reveal": "always",
         "panel": "dedicated"
       },
-      "problemMatcher": [
-        "$tsc"
-      ]
+      "problemMatcher": ["$tsc"]
     },
     {
       "label": "Watch Auth Service",
@@ -139,10 +137,7 @@
     },
     {
       "label": "Clean and Build",
-      "dependsOn": [
-        "Clean",
-        "Build All"
-      ],
+      "dependsOn": ["Clean", "Build All"],
       "dependsOrder": "sequence",
       "problemMatcher": []
     },
@@ -179,9 +174,7 @@
         "reveal": "always",
         "panel": "shared"
       },
-      "problemMatcher": [
-        "$eslint-stylish"
-      ]
+      "problemMatcher": ["$eslint-stylish"]
     },
     {
       "label": "Format Code",

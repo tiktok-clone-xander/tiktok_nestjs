@@ -6,135 +6,85 @@
       "request": "launch",
       "name": "Debug Auth Service",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:auth:debug"
-      ],
+      "runtimeArgs": ["run", "start:auth:debug"],
       "console": "integratedTerminal",
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "env": {
         "NODE_ENV": "development"
       },
       "internalConsoleOptions": "neverOpen",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Video Service",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:video:debug"
-      ],
+      "runtimeArgs": ["run", "start:video:debug"],
       "console": "integratedTerminal",
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "env": {
         "NODE_ENV": "development"
       },
       "internalConsoleOptions": "neverOpen",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Interaction Service",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:interaction:debug"
-      ],
+      "runtimeArgs": ["run", "start:interaction:debug"],
       "console": "integratedTerminal",
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "env": {
         "NODE_ENV": "development"
       },
       "internalConsoleOptions": "neverOpen",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Notification Service",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:notification:debug"
-      ],
+      "runtimeArgs": ["run", "start:notification:debug"],
       "console": "integratedTerminal",
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "env": {
         "NODE_ENV": "development"
       },
       "internalConsoleOptions": "neverOpen",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug API Gateway",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:gateway:debug"
-      ],
+      "runtimeArgs": ["run", "start:gateway:debug"],
       "console": "integratedTerminal",
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "env": {
         "NODE_ENV": "development"
       },
       "internalConsoleOptions": "neverOpen",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
       "type": "node",
@@ -142,9 +92,7 @@
       "name": "Attach to Auth Service",
       "port": 9229,
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "type": "node",
@@ -152,9 +100,7 @@
       "name": "Attach to Video Service",
       "port": 9230,
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "type": "node",
@@ -162,9 +108,7 @@
       "name": "Attach to Interaction Service",
       "port": 9231,
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "type": "node",
@@ -172,9 +116,7 @@
       "name": "Attach to Notification Service",
       "port": 9232,
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "type": "node",
@@ -182,73 +124,49 @@
       "name": "Attach to API Gateway",
       "port": 9233,
       "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Current File",
       "program": "${file}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "preLaunchTask": "Build All",
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ]
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Jest Tests",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "--runInBand",
-        "--no-cache",
-        "--watchAll=false"
-      ],
+      "args": ["--runInBand", "--no-cache", "--watchAll=false"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Jest Current File",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "${fileBasenameNoExtension}",
-        "--runInBand",
-        "--no-cache",
-        "--watchAll=false"
-      ],
+      "args": ["${fileBasenameNoExtension}", "--runInBand", "--no-cache", "--watchAll=false"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug E2E Tests",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "test:e2e"
-      ],
+      "runtimeArgs": ["run", "test:e2e"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     }
   ],
   "compounds": [

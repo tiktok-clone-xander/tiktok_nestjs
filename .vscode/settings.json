@@ -40,11 +40,7 @@
   "prettier.requireConfig": true,
   "prettier.useEditorConfig": false,
   // ESLint: validate TypeScript files as well
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "typescript", "typescriptreact"],
   "eslint.format.enable": false,
   "debug.console.fontSize": 14,
   "debug.console.lineHeight": 20,
@@ -54,9 +50,7 @@
   "debug.allowBreakpointsEverywhere": true,
   "debug.javascript.autoAttachFilter": "smart",
   "debug.javascript.terminalOptions": {
-    "skipFiles": [
-      "<node_internals>/**"
-    ]
+    "skipFiles": ["<node_internals>/**"]
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.importModuleSpecifier": "relative",
