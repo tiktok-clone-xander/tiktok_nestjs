@@ -49,6 +49,9 @@ CHANGELOG.md
 .DS_Store
 Thumbs.db
 
+**/templates/**
+
+
 # IDE
 .vscode/*
 !.vscode/settings.json
