@@ -1,0 +1,291 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: tiktok_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tiktok_clone
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tiktok_network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: tiktok_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - tiktok_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RedisInsight (Redis UI)
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: tiktok_redis_insight
+    ports:
+      - '5540:5540'
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # pgAdmin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: tiktok_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@tiktok.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Kafka (KRaft mode - no ZooKeeper required)
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: tiktok_kafka
+    ports:
+      - '9092:9092'
+      - '9093:9093'
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - tiktok_network
+    healthcheck:
+      test: ['CMD', 'kafka-broker-api-versions', '--bootstrap-server', 'localhost:9092']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: tiktok_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+    ports:
+      - '9200:9200'
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - tiktok_network
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -s http://localhost:9200 >/dev/null || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: tiktok_kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - '5601:5601'
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Logstash
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: tiktok_logstash
+    volumes:
+      - ./monitoring/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - 'LS_JAVA_OPTS=-Xmx256m -Xms256m'
+    ports:
+      - '5000:5000'
+      - '9600:9600'
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Prometheus (Updated)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: tiktok_prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - '9090:9090'
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Alertmanager
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: tiktok_alertmanager
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    ports:
+      - '19093:9093'
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Grafana (Updated)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: tiktok_grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+      GF_INSTALL_PLUGINS: 'grafana-piechart-panel'
+    ports:
+      - '3005:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+      - elasticsearch
+      - loki
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: tiktok_loki
+    ports:
+      - '3100:3100'
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Promtail
+  promtail:
+    image: grafana/promtail:latest
+    container_name: tiktok_promtail
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./logs:/logs:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Postgres Exporter
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: tiktok_postgres_exporter
+    environment:
+      DATA_SOURCE_NAME: 'postgresql://postgres:postgres@postgres:5432/tiktok_clone?sslmode=disable'
+    ports:
+      - '9187:9187'
+    depends_on:
+      - postgres
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+  # Redis Exporter
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: tiktok_redis_exporter
+    ports:
+      - '9121:9121'
+    command: -redis.addr=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - tiktok_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  redisinsight_data:
+  kafka_data:
+  upload_data:
+  prometheus_data:
+  grafana_data:
+  pgadmin_data:
+  elasticsearch_data:
+  kibana_data:
+  loki_data:
+  alertmanager_data:
+
+networks:
+  tiktok_network:
+    driver: bridge
