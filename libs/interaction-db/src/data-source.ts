@@ -1,12 +1,12 @@
-import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Like, Comment, CommentLike, Follow, Share } from './entities';
+import { DataSource } from 'typeorm';
+import { Comment, CommentLike, Follow, Like, Share } from './entities';
 
 export const createInteractionDataSource = (configService: ConfigService) => {
   return new DataSource({
     type: 'postgres',
     host: configService.get('INTERACTION_DB_HOST', 'localhost'),
-    port: configService.get('INTERACTION_DB_PORT', 5434),
+    port: configService.get('INTERACTION_DB_PORT', 5432),
     username: configService.get('INTERACTION_DB_USERNAME', 'postgres'),
     password: configService.get('INTERACTION_DB_PASSWORD', 'postgres'),
     database: configService.get('INTERACTION_DB_NAME', 'tiktok_interaction'),

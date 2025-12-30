@@ -60,7 +60,13 @@
     "migration:interaction:run": "npm run typeorm -- migration:run -d libs/interaction-db/src/migrations/data-source.ts",
     "migration:notification:generate": "npm run typeorm -- migration:generate -d libs/notification-db/src/migrations/data-source.ts",
     "migration:notification:run": "npm run typeorm -- migration:run -d libs/notification-db/src/migrations/data-source.ts",
-    "migration:all:run": "npm run migration:auth:run && npm run migration:video:run && npm run migration:interaction:run && npm run migration:notification:run"
+    "migration:all:run": "npm run migration:auth:run && npm run migration:video:run && npm run migration:interaction:run && npm run migration:notification:run",
+    "seed:all": "ts-node -r tsconfig-paths/register scripts/seeders/seed-all.ts",
+    "seed:auth": "ts-node -r tsconfig-paths/register scripts/seeders/seed-auth.ts",
+    "seed:video": "ts-node -r tsconfig-paths/register scripts/seeders/seed-video.ts",
+    "seed:interaction": "ts-node -r tsconfig-paths/register scripts/seeders/seed-interaction.ts",
+    "db:sync": "ts-node -r tsconfig-paths/register scripts/seeders/sync-schemas.ts",
+    "db:reset:all": "npm run db:sync && npm run seed:all"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.12.0",

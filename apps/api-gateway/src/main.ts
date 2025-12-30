@@ -7,7 +7,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
-import cookieParser from 'cookie-parser';
+
 import helmet from 'helmet';
 import { ApiGatewayModule } from './api-gateway.module';
 
@@ -24,7 +24,6 @@ async function bootstrap() {
   // Serve static files (uploaded videos, images)
   app.use(helmet());
   app.use(compression());
-  app.use(cookieParser());
 
   // CORS
   const isProduction = configService.get('NODE_ENV') === 'production';

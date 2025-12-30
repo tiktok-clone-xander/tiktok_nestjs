@@ -8,7 +8,7 @@ import { Share } from '../entities/share.entity';
 export const InteractionDataSource = new DataSource({
   type: 'postgres',
   host: process.env.INTERACTION_DB_HOST || 'localhost',
-  port: parseInt(process.env.INTERACTION_DB_PORT) || 5434,
+  port: parseInt(process.env.INTERACTION_DB_PORT) || 5432,
   username: process.env.INTERACTION_DB_USERNAME || 'postgres',
   password: process.env.INTERACTION_DB_PASSWORD || 'postgres',
   database: process.env.INTERACTION_DB_NAME || 'tiktok_interaction',
