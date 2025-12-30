@@ -60,12 +60,14 @@ export class VideoSeeder {
   }
 
   private async seedVideos(users: SeededUser[]): Promise<SeededVideo[]> {
+    // Using publicly accessible sample videos from various sources
     const videosData = [
       {
         title: 'My First TikTok!',
         description: 'Welcome to my channel! #firstpost #newcreator',
-        videoUrl: 'https://storage.example.com/videos/sample1.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample1.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video1/720/1280',
         duration: 15,
         fileSize: 5242880, // 5MB
         quality: VideoQuality.HD,
@@ -82,8 +84,9 @@ export class VideoSeeder {
       {
         title: 'Amazing Travel Destination',
         description: 'Check out this beautiful place! #travel #adventure #nature',
-        videoUrl: 'https://storage.example.com/videos/sample2.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample2.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video2/720/1280',
         duration: 30,
         fileSize: 10485760, // 10MB
         quality: VideoQuality.FHD,
@@ -100,8 +103,9 @@ export class VideoSeeder {
       {
         title: 'Quick Workout Routine',
         description: '5-minute morning workout | #fitness #health #workout',
-        videoUrl: 'https://storage.example.com/videos/sample3.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample3.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video3/720/1280',
         duration: 45,
         fileSize: 15728640, // 15MB
         quality: VideoQuality.HD,
@@ -118,8 +122,9 @@ export class VideoSeeder {
       {
         title: 'Easy Pasta Recipe',
         description: 'Cook this delicious pasta in 15 minutes! #cooking #recipe #food',
-        videoUrl: 'https://storage.example.com/videos/sample4.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample4.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video4/720/1280',
         duration: 60,
         fileSize: 20971520, // 20MB
         quality: VideoQuality.FHD,
@@ -136,8 +141,9 @@ export class VideoSeeder {
       {
         title: 'Behind The Music',
         description: 'Studio session vibes 🎶 #music #producer #studio',
-        videoUrl: 'https://storage.example.com/videos/sample5.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample5.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video5/720/1280',
         duration: 20,
         fileSize: 8388608, // 8MB
         quality: VideoQuality.HD,
@@ -154,8 +160,8 @@ export class VideoSeeder {
       {
         title: 'Fashion Week Highlights',
         description: 'Best moments from this season! #fashion #style #runway',
-        videoUrl: 'https://storage.example.com/videos/sample6.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample6.jpg',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video6/720/1280',
         duration: 45,
         fileSize: 15728640, // 15MB
         quality: VideoQuality.FHD,
@@ -172,8 +178,9 @@ export class VideoSeeder {
       {
         title: 'Gaming Highlights - Epic Wins!',
         description: 'Check out these insane plays! #gaming #esports #clips',
-        videoUrl: 'https://storage.example.com/videos/sample7.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample7.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video7/720/1280',
         duration: 35,
         fileSize: 12582912, // 12MB
         quality: VideoQuality.FHD,
@@ -190,8 +197,9 @@ export class VideoSeeder {
       {
         title: 'DIY Home Decor Ideas',
         description: 'Transform your space on a budget! #diy #homedecor #crafts',
-        videoUrl: 'https://storage.example.com/videos/sample8.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample8.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video8/720/1280',
         duration: 55,
         fileSize: 18874368, // 18MB
         quality: VideoQuality.HD,
@@ -208,8 +216,9 @@ export class VideoSeeder {
       {
         title: 'Cute Pets Compilation',
         description: 'The cutest pets on the internet! 🐾 #pets #cute #animals',
-        videoUrl: 'https://storage.example.com/videos/sample9.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample9.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video9/720/1280',
         duration: 40,
         fileSize: 14680064, // 14MB
         quality: VideoQuality.HD,
@@ -226,8 +235,9 @@ export class VideoSeeder {
       {
         title: 'Learn JavaScript in 60 Seconds',
         description: 'Quick coding tips! #coding #javascript #programming #tech',
-        videoUrl: 'https://storage.example.com/videos/sample10.mp4',
-        thumbnailUrl: 'https://storage.example.com/thumbnails/sample10.jpg',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+        thumbnailUrl: 'https://picsum.photos/seed/video10/720/1280',
         duration: 60,
         fileSize: 20971520, // 20MB
         quality: VideoQuality.FHD,
