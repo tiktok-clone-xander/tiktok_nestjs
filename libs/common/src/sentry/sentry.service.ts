@@ -127,7 +127,11 @@ export class SentryService {
    */
   captureException(exception: any, context?: Record<string, any>): string | undefined {
     if (!this.initialized) {
-      this.logger.error('Sentry not initialized', exception);
+      // Just log locally when Sentry is disabled - don't log error for expected behavior
+      this.logger.debug(
+        'Sentry disabled, logging exception locally',
+        exception?.message || exception,
+      );
       return;
     }
 
@@ -203,7 +207,8 @@ export class SentryService {
   /**
    * Start a transaction for performance monitoring
    */
-  startTransaction(name: string, op: string): Sentry.Transaction {
+  startTransaction(name: string, op: string): Sentry.Transaction | null {
+    if (!this.initialized) return null;
     return Sentry.startTransaction({ name, op });
   }
 

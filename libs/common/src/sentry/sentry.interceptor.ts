@@ -5,12 +5,18 @@ import { SentryService } from './sentry.service';
 
 /**
  * Interceptor to automatically capture exceptions and track performance
+ * Safely handles cases where Sentry is disabled (development/local environment)
  */
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
   constructor(private readonly sentryService: SentryService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    // Skip Sentry operations if not initialized
+    if (!this.sentryService.isInitialized()) {
+      return next.handle();
+    }
+
     const request = context.switchToHttp().getRequest();
     const { method, url, user } = request;
 
@@ -42,8 +48,14 @@ export class SentryInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(() => {
         // Successful response
-        transaction.setStatus('ok');
-        transaction.finish();
+        if (transaction) {
+          try {
+            transaction.setStatus?.('ok');
+            transaction.finish?.();
+          } catch {
+            // Ignore errors when finishing transaction
+          }
+        }
       }),
       catchError((error) => {
         // Capture exception in Sentry
@@ -55,8 +67,14 @@ export class SentryInterceptor implements NestInterceptor {
           },
         });
 
-        transaction.setStatus('internal_error');
-        transaction.finish();
+        if (transaction) {
+          try {
+            transaction.setStatus?.('internal_error');
+            transaction.finish?.();
+          } catch {
+            // Ignore errors when finishing transaction
+          }
+        }
 
         return throwError(() => error);
       }),

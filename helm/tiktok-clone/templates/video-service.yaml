@@ -51,6 +51,10 @@ spec:
           env:
             - name: PORT
               value: {{ .Values.services.video.port | quote }}
+            - name: VIDEO_HTTP_PORT
+              value: {{ .Values.services.video.port | quote }}
+            - name: VIDEO_GRPC_PORT
+              value: {{ .Values.services.video.grpcPort | quote }}
             - name: VIDEO_DB_HOST
               valueFrom:
                 configMapKeyRef:

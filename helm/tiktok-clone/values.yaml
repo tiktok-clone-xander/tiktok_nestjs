@@ -2,9 +2,9 @@
 # This values file is used as the base configuration
 
 global:
-  environment: production
+  environment: development
   domain: tiktok-clone.local
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Never
 
 # Namespace
 namespace: tiktok-clone
@@ -73,7 +73,7 @@ services:
     replicas: 2
     image:
       repository: tiktok-auth-service
-      tag: latest
+      tag: v2
     port: 4001
     grpcPort: 50051
     resources:
@@ -95,7 +95,7 @@ services:
     replicas: 2
     image:
       repository: tiktok-video-service
-      tag: latest
+      tag: v2
     port: 4002
     grpcPort: 50052
     resources:
@@ -117,7 +117,7 @@ services:
     replicas: 2
     image:
       repository: tiktok-interaction-service
-      tag: latest
+      tag: v2
     port: 4003
     grpcPort: 50053
     resources:
@@ -139,7 +139,7 @@ services:
     replicas: 2
     image:
       repository: tiktok-notification-service
-      tag: latest
+      tag: v2
     port: 4004
     grpcPort: 50054
     resources:
@@ -161,7 +161,7 @@ services:
     replicas: 2
     image:
       repository: tiktok-api-gateway
-      tag: latest
+      tag: v2
     port: 4000
     serviceType: LoadBalancer
     resources:

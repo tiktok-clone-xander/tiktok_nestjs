@@ -53,6 +53,10 @@ spec:
           env:
             - name: PORT
               value: {{ .Values.services.auth.port | quote }}
+            - name: AUTH_HTTP_PORT
+              value: {{ .Values.services.auth.port | quote }}
+            - name: AUTH_GRPC_PORT
+              value: {{ .Values.services.auth.grpcPort | quote }}
             - name: AUTH_DB_HOST
               valueFrom:
                 configMapKeyRef:

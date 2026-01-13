@@ -51,6 +51,10 @@ spec:
           env:
             - name: PORT
               value: {{ .Values.services.notification.port | quote }}
+            - name: NOTIFICATION_HTTP_PORT
+              value: {{ .Values.services.notification.port | quote }}
+            - name: NOTIFICATION_GRPC_PORT
+              value: {{ .Values.services.notification.grpcPort | quote }}
             - name: NOTIFICATION_DB_HOST
               valueFrom:
                 configMapKeyRef:

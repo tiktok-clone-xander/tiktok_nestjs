@@ -95,12 +95,18 @@ export class ExampleMonitoringService {
       // Your long-running operation
       await this.processData();
 
-      transaction.setStatus('ok');
+      if (transaction) {
+        transaction.setStatus('ok');
+      }
     } catch (error) {
-      transaction.setStatus('error');
+      if (transaction) {
+        transaction.setStatus('error');
+      }
       this.sentry.captureException(error);
     } finally {
-      transaction.finish();
+      if (transaction) {
+        transaction.finish();
+      }
     }
   }
 

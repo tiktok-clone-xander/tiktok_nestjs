@@ -4,7 +4,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: kafka-pv
-  namespace: {{ .Values.namespace }}
 spec:
   capacity:
     storage: {{ .Values.kafka.persistence.size }}
@@ -44,9 +43,6 @@ spec:
     - port: 9093
       targetPort: 9093
       name: controller
-    - port: 29092
-      targetPort: 29092
-      name: kafka-internal
   clusterIP: None
 
 ---
@@ -75,19 +71,17 @@ spec:
               name: kafka-client
             - containerPort: 9093
               name: controller
-            - containerPort: 29092
-              name: kafka-internal
           env:
             - name: KAFKA_NODE_ID
               value: "1"
             - name: KAFKA_PROCESS_ROLES
               value: "broker,controller"
             - name: KAFKA_LISTENERS
-              value: "PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+              value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka-0.kafka.{{ .Values.namespace }}.svc.cluster.local:29092,PLAINTEXT_HOST://kafka.{{ .Values.namespace }}.svc.cluster.local:9092"
+              value: "PLAINTEXT://kafka.{{ .Values.namespace }}.svc.cluster.local:9092"
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-              value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT"
+              value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
             - name: KAFKA_CONTROLLER_QUORUM_VOTERS
               value: "1@kafka-0.kafka.{{ .Values.namespace }}.svc.cluster.local:9093"
             - name: KAFKA_CONTROLLER_LISTENER_NAMES
@@ -106,19 +100,29 @@ spec:
               value: "/var/lib/kafka/data"
             - name: CLUSTER_ID
               value: "MkU3OEVBNTcwNTJENDM2Qk"
+            - name: KAFKA_LOG_RETENTION_HOURS
+              value: "168"
+            - name: KAFKA_LOG_SEGMENT_BYTES
+              value: "1073741824"
           resources:
 {{ toYaml .Values.kafka.resources | indent 12 }}
           volumeMounts:
             - name: kafka-storage
               mountPath: /var/lib/kafka/data
-          livenessProbe:
-            exec:
-              command:
-                - kafka-broker-api-versions
-                - --bootstrap-server
-                - localhost:9092
-            initialDelaySeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 20
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
       volumes:
         - name: kafka-storage
           persistentVolumeClaim:

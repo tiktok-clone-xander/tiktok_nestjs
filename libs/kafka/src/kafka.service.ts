@@ -1,6 +1,6 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Kafka, Producer, Consumer, EachMessagePayload } from 'kafkajs';
+import { Consumer, EachMessagePayload, Kafka, Producer } from 'kafkajs';
 
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
@@ -21,25 +21,50 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
         clientId,
         brokers,
         retry: {
-          initialRetryTime: 300,
-          retries: 10,
+          initialRetryTime: 100,
+          retries: 3,
+          multiplier: 2,
+          maxRetryTime: 3000,
+        },
+        connectionTimeout: 3000,
+        requestTimeout: 3000,
+      });
+
+      this.producer = this.kafka.producer({
+        retry: {
+          initialRetryTime: 100,
+          retries: 3,
         },
       });
 
-      this.producer = this.kafka.producer();
-      await this.producer.connect();
+      // Connect with timeout
+      await Promise.race([
+        this.producer.connect(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Kafka producer connection timeout')), 10000),
+        ),
+      ]);
       this.logger.log('Kafka producer connected successfully');
 
       // Create consumer with unique group ID per service
       const groupId = this.configService.get<string>('KAFKA_GROUP_ID', `${clientId}-group`);
       this.consumer = this.kafka.consumer({ groupId });
-      await this.consumer.connect();
+
+      await Promise.race([
+        this.consumer.connect(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Kafka consumer connection timeout')), 10000),
+        ),
+      ]);
       this.logger.log('Kafka consumer connected successfully');
 
       this.kafka.logger().setLogLevel(1); // ERROR level
     } catch (error) {
       this.logger.error('Failed to connect to Kafka', error);
-      throw error;
+      this.logger.warn('Application will continue without Kafka functionality');
+      // Don't throw - allow app to start without Kafka
+      this.producer = null;
+      this.consumer = null;
     }
   }
 
@@ -60,6 +85,10 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
    * @param message - Message payload
    */
   async publish(topic: string, message: unknown): Promise<void> {
+    if (!this.producer) {
+      this.logger.warn(`Kafka not connected, skipping publish to topic ${topic}`);
+      return;
+    }
     try {
       await this.producer.send({
         topic,
@@ -108,6 +137,10 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
    * @param callback - Function to handle received messages
    */
   async subscribe(topic: string, callback: (message: unknown) => Promise<void>): Promise<void> {
+    if (!this.consumer) {
+      this.logger.warn(`Kafka not connected, skipping subscription to topic ${topic}`);
+      return;
+    }
     try {
       // Store the callback
       this.consumerCallbacks.set(topic, callback);
@@ -116,7 +149,10 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       await this.consumer.subscribe({ topic, fromBeginning: false });
 
       // Start consuming (consumer will handle multiple subscriptions)
-      await this.startConsumer();
+      // Only start if not already running
+      if (!this.consumerRunning) {
+        await this.startConsumer();
+      }
 
       this.logger.log(`Subscribed to topic ${topic}`);
     } catch (error) {

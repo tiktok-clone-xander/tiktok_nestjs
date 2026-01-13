@@ -11,6 +11,7 @@ import { SentryService } from './sentry.service';
 
 /**
  * Global exception filter that captures all exceptions and sends them to Sentry
+ * Safely handles cases where Sentry is disabled (development/local environment)
  */
 @Catch()
 export class SentryExceptionFilter implements ExceptionFilter {
@@ -29,11 +30,13 @@ export class SentryExceptionFilter implements ExceptionFilter {
     const message =
       exception instanceof HttpException ? exception.message : 'Internal server error';
 
-    // Log error locally
-    this.logger.error(`${request.method} ${request.url}`, exception.stack, 'SentryExceptionFilter');
-
-    // Capture exception in Sentry (only for server errors)
+    // Log error locally (only for server errors to reduce noise)
     if (status >= 500) {
+      this.logger.error(`${request.method} ${request.url}`, exception.stack);
+    }
+
+    // Capture exception in Sentry (only for server errors and when Sentry is initialized)
+    if (status >= 500 && this.sentryService.isInitialized()) {
       this.sentryService.captureException(exception, {
         request: {
           method: request.method,

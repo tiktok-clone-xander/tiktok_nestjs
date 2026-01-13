@@ -1,4 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { CustomLoggerService } from './logger.service';
@@ -19,7 +20,13 @@ export class LoggingInterceptor implements NestInterceptor {
     const startTime = Date.now();
     const { method, url, headers } = request;
 
-    const transaction = this.sentryService.startTransaction(`${method} ${url}`, 'http.request');
+    // Only create transaction if Sentry DSN is configured
+    let transaction: Sentry.Transaction | null = null;
+    try {
+      transaction = this.sentryService.startTransaction(`${method} ${url}`, 'http.request');
+    } catch {
+      // Sentry not initialized, skip transaction
+    }
 
     return next.handle().pipe(
       tap(() => {
@@ -38,8 +45,12 @@ export class LoggingInterceptor implements NestInterceptor {
         });
 
         if (transaction) {
-          transaction.setStatus('ok');
-          transaction.finish();
+          try {
+            transaction.setStatus('ok');
+            transaction.finish();
+          } catch {
+            // Ignore transaction finish errors
+          }
         }
       }),
       catchError((error) => {
@@ -57,15 +68,24 @@ export class LoggingInterceptor implements NestInterceptor {
           ip: request.ip,
         });
 
-        this.sentryService.captureException(error, {
-          method,
-          url,
-          duration,
-        });
+        // Only capture if Sentry is configured
+        try {
+          this.sentryService.captureException(error, {
+            method,
+            url,
+            duration,
+          });
+        } catch {
+          // Sentry not initialized, skip capture
+        }
 
         if (transaction) {
-          transaction.setStatus('error');
-          transaction.finish();
+          try {
+            transaction.setStatus('error');
+            transaction.finish();
+          } catch {
+            // Ignore transaction finish errors
+          }
         }
 
         throw error;
