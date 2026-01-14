@@ -66,7 +66,16 @@
     "seed:video": "ts-node -r tsconfig-paths/register scripts/seeders/seed-video.ts",
     "seed:interaction": "ts-node -r tsconfig-paths/register scripts/seeders/seed-interaction.ts",
     "db:sync": "ts-node -r tsconfig-paths/register scripts/seeders/sync-schemas.ts",
-    "db:reset:all": "npm run db:sync && npm run seed:all"
+    "db:reset:all": "npm run db:sync && npm run seed:all",
+    "k8s:build": "powershell -ExecutionPolicy Bypass -File scripts/build-minikube.ps1",
+    "k8s:build:auth": "powershell -ExecutionPolicy Bypass -File scripts/build-minikube.ps1 -Service auth",
+    "k8s:build:video": "powershell -ExecutionPolicy Bypass -File scripts/build-minikube.ps1 -Service video",
+    "k8s:build:interaction": "powershell -ExecutionPolicy Bypass -File scripts/build-minikube.ps1 -Service interaction",
+    "k8s:build:notification": "powershell -ExecutionPolicy Bypass -File scripts/build-minikube.ps1 -Service notification",
+    "k8s:build:gateway": "powershell -ExecutionPolicy Bypass -File scripts/build-minikube.ps1 -Service gateway",
+    "k8s:dev": "powershell -ExecutionPolicy Bypass -File scripts/dev-workflow.ps1",
+    "k8s:dev:auth": "powershell -ExecutionPolicy Bypass -File scripts/dev-workflow.ps1 -Service auth",
+    "k8s:dev:video": "powershell -ExecutionPolicy Bypass -File scripts/dev-workflow.ps1 -Service video"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.12.0",
