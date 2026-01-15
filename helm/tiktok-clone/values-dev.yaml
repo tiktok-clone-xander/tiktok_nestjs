@@ -22,8 +22,6 @@ kafka:
       cpu: '250m'
 
 postgresql:
-  auth:
-    password: 'postgres-dev'
   resources:
     requests:
       memory: '64Mi'
@@ -129,3 +127,6 @@ services:
       enabled: false
       minReplicas: 1
       maxReplicas: 2
+# Migration disabled - services use TypeORM synchronize in dev mode
+migration:
+  enabled: false

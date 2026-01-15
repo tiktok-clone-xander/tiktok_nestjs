@@ -1,8 +1,8 @@
 {{- if .Values.migration.enabled }}
 # =============================================================================
 # Database Migration Job
-# This job runs database migrations before deploying services
-# It will check schema version and only migrate if needed
+# This job runs database migrations AFTER infrastructure is ready
+# Using post-install/post-upgrade ensures postgres is running and DNS is resolved
 # =============================================================================
 apiVersion: batch/v1
 kind: Job
@@ -13,9 +13,9 @@ metadata:
     app: db-migration
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
   annotations:
-    # Run before other resources during install/upgrade
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-5"
+    # Run AFTER all resources are deployed and ready
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": before-hook-creation
 spec:
   ttlSecondsAfterFinished: {{ .Values.migration.ttlSecondsAfterFinished | default 600 }}

@@ -1,17 +1,9 @@
 {{- if .Values.postgresql.enabled }}
 {{- /*
   PostgreSQL Resources
-  - When migration.enabled=true: Resources are created as pre-hooks (before migration job)
-  - When migration.enabled=false: Resources are created normally
+  - Resources are created as normal Helm resources
+  - Migration job runs as post-install/post-upgrade hook AFTER postgres is ready
 */ -}}
-
-{{- $hookAnnotations := dict }}
-{{- if .Values.migration.enabled }}
-{{- $hookAnnotations = dict
-    "helm.sh/hook" "pre-install,pre-upgrade"
-    "helm.sh/resource-policy" "keep"
--}}
-{{- end }}
 
 ---
 # PersistentVolume for PostgreSQL
@@ -20,12 +12,9 @@ kind: PersistentVolume
 metadata:
   name: postgres-pv
   namespace: {{ .Values.namespace }}
-  {{- if .Values.migration.enabled }}
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-15"
+    # Keep PV when uninstalling to preserve data
     "helm.sh/resource-policy": keep
-  {{- end }}
 spec:
   capacity:
     storage: {{ .Values.postgresql.persistence.size }}
@@ -42,12 +31,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
   namespace: {{ .Values.namespace }}
-  {{- if .Values.migration.enabled }}
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-14"
+    # Keep PVC when uninstalling to preserve data
     "helm.sh/resource-policy": keep
-  {{- end }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -64,12 +50,6 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     app: postgres
-  {{- if .Values.migration.enabled }}
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-12"
-    "helm.sh/resource-policy": keep
-  {{- end }}
 spec:
   selector:
     app: postgres
@@ -86,13 +66,6 @@ kind: StatefulSet
 metadata:
   name: postgres
   namespace: {{ .Values.namespace }}
-  {{- if .Values.migration.enabled }}
-  annotations:
-    # Weight -10: runs after PV, PVC, Secret, Service but before Migration Job (-5)
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-10"
-    "helm.sh/resource-policy": keep
-  {{- end }}
 spec:
   serviceName: postgres
   replicas: 1
