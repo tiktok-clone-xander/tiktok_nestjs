@@ -36,9 +36,9 @@ $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "🐳 TikTok Clone - Docker Image Builder" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
+Write-Host "TikTok Clone - Docker Image Builder" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Service definitions
@@ -79,10 +79,10 @@ function Build-Image {
     $dockerfile = Join-Path $ProjectRoot $Config.Dockerfile
 
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
-    Write-Host "📦 Building: $imageName" -ForegroundColor Yellow
+    Write-Host "-----------------------------------------------------------" -ForegroundColor Yellow
+    Write-Host "Building: $imageName" -ForegroundColor Yellow
     Write-Host "   Dockerfile: $($Config.Dockerfile)" -ForegroundColor Gray
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+    Write-Host "-----------------------------------------------------------" -ForegroundColor Yellow
 
     Push-Location $ProjectRoot
     try {
@@ -92,15 +92,15 @@ function Build-Image {
             throw "Docker build failed for $imageName"
         }
 
-        Write-Host "✅ Successfully built: $imageName" -ForegroundColor Green
+        Write-Host "Successfully built: $imageName" -ForegroundColor Green
 
         if ($Push) {
-            Write-Host "📤 Pushing: $imageName" -ForegroundColor Cyan
+            Write-Host "Pushing: $imageName" -ForegroundColor Cyan
             docker push $imageName
             if ($LASTEXITCODE -ne 0) {
                 throw "Docker push failed for $imageName"
             }
-            Write-Host "✅ Successfully pushed: $imageName" -ForegroundColor Green
+            Write-Host "Successfully pushed: $imageName" -ForegroundColor Green
         }
     }
     finally {
@@ -116,8 +116,8 @@ if ($Service -eq 'all') {
     $servicesToBuild = @($Service)
 }
 
-Write-Host "📋 Services to build: $($servicesToBuild -join ', ')" -ForegroundColor Cyan
-Write-Host "📋 Tag: $Tag" -ForegroundColor Cyan
+Write-Host "Services to build: $($servicesToBuild -join ', ')" -ForegroundColor Cyan
+Write-Host "Tag: $Tag" -ForegroundColor Cyan
 Write-Host ""
 
 # Build each service
@@ -128,31 +128,31 @@ foreach ($svc in $servicesToBuild) {
         $results += @{ Service = $svc; Success = $true }
     }
     catch {
-        Write-Host "❌ Failed to build $svc : $_" -ForegroundColor Red
+        Write-Host "Failed to build $svc : $_" -ForegroundColor Red
         $results += @{ Service = $svc; Success = $false }
     }
 }
 
 # Print summary
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "📊 Build Summary" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
+Write-Host "Build Summary" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 
 $hasFailure = $false
 foreach ($result in $results) {
     if ($result.Success) {
-        Write-Host "  ✅ $($result.Service)" -ForegroundColor Green
+        Write-Host "  [OK] $($result.Service)" -ForegroundColor Green
     } else {
-        Write-Host "  ❌ $($result.Service)" -ForegroundColor Red
+        Write-Host "  [FAIL] $($result.Service)" -ForegroundColor Red
         $hasFailure = $true
     }
 }
 
 Write-Host ""
 if ($hasFailure) {
-    Write-Host "⚠️  Some builds failed!" -ForegroundColor Yellow
+    Write-Host "WARNING: Some builds failed!" -ForegroundColor Yellow
     exit 1
 } else {
-    Write-Host "🎉 All builds completed successfully!" -ForegroundColor Green
+    Write-Host "All builds completed successfully!" -ForegroundColor Green
 }
