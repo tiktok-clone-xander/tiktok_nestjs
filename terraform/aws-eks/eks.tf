@@ -23,6 +23,10 @@ module "eks" {
   create_kms_key            = false
   cluster_encryption_config = {}
 
+  # Use existing CloudWatch Log Group if it exists
+  create_cloudwatch_log_group = false
+  cloudwatch_log_group_retention_in_days = 7
+
   # Cluster addons
   cluster_addons = {
     coredns = {
