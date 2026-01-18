@@ -1,0 +1,48 @@
+# Terraform state files
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Variable files - contain sensitive data
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+
+# Plan files
+*.tfplan
+tfplan
+tfplan.*
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# Provider plugins
+.terraform/
+.terraform.lock.hcl
+
+# Local .terraform directories
+**/.terraform/*
+
+# Ignore any .pem files
+*.pem
+
+# Mac/Linux
+.DS_Store
+*.swp
+*.swo
+
+# IDE
+.idea/
+*.iml
+.vscode/

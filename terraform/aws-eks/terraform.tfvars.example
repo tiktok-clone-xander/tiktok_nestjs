@@ -1,0 +1,62 @@
+# Example Terraform Variables
+# Copy this file to terraform.tfvars and fill in your values
+
+# AWS Configuration
+aws_region  = "ap-southeast-1"
+aws_profile = "default"
+
+# Project Configuration
+project_name = "tiktok-clone"
+environment  = "prod"
+
+# EKS Cluster
+cluster_name    = "tiktok-clone-eks"
+cluster_version = "1.29"
+
+# VPC Configuration
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["ap-southeast-1a", "ap-southeast-1b"]
+private_subnets    = ["10.0.1.0/24", "10.0.2.0/24"]
+public_subnets     = ["10.0.101.0/24", "10.0.102.0/24"]
+
+# Node Groups - SPOT instances for cost saving
+node_groups = {
+  spot_general = {
+    instance_types = ["t3.medium", "t3a.medium"]
+    capacity_type  = "SPOT"
+    desired_size   = 2
+    min_size       = 1
+    max_size       = 4
+    disk_size      = 30
+    labels = {
+      "node-type" = "spot"
+      "workload"  = "general"
+    }
+  }
+}
+
+# Database (in-cluster PostgreSQL to save cost)
+use_rds     = false
+db_name     = "tiktok_clone"
+db_username = "tiktok_admin"
+db_password = "YOUR_SECURE_DB_PASSWORD_HERE"
+
+# Redis (in-cluster Redis to save cost)
+use_elasticache = false
+redis_password  = "YOUR_SECURE_REDIS_PASSWORD_HERE"
+
+# Container Registry
+use_ghcr       = true
+ghcr_username  = "betuanminh22032003"
+ghcr_token     = "YOUR_GITHUB_PAT_HERE"  # Create at: https://github.com/settings/tokens
+
+# ECR (if not using GHCR)
+create_ecr = false
+
+# Logging
+enable_cloudwatch_logs = true
+log_retention_days     = 7
+
+# Domain (optional)
+domain_name         = ""
+create_route53_zone = false

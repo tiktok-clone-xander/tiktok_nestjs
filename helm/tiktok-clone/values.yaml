@@ -292,3 +292,34 @@ seeding:
   backoffLimit: 2
   # Max execution time
   activeDeadlineSeconds: 120
+
+# =============================================================================
+# Ingress Configuration
+# =============================================================================
+ingress:
+  # Enable/disable ingress
+  enabled: false
+
+  # Ingress class name (nginx, alb, traefik, etc.)
+  className: ''
+  ingressClassName: ''
+
+  # Host for the ingress
+  host: ''
+
+  # Additional annotations
+  annotations: {}
+
+  # AWS ALB specific configuration
+  aws:
+    enabled: false
+    scheme: internet-facing # internet-facing or internal
+    targetType: ip # ip or instance
+    healthcheckPath: /health
+    certificateArn: '' # ACM certificate ARN for HTTPS
+
+  # TLS configuration
+  tls: []
+  # - hosts:
+  #     - tiktok-clone.example.com
+  #   secretName: tiktok-tls-secret
