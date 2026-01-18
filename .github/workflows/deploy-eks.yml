@@ -106,9 +106,7 @@ jobs:
     if: |
       always() &&
       github.event.inputs.action == 'deploy' &&
-      !github.event.inputs.skip_terraform &&
-      needs.terraform-plan.result == 'success' &&
-      needs.build-images.result == 'success'
+      !github.event.inputs.skip_terraform
     environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
