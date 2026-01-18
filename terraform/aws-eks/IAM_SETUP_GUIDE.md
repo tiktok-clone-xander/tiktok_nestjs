@@ -94,7 +94,7 @@ Vào **GitHub repo** → **Settings** → **Secrets and variables** → **Action
 aws configure --profile terraform-eks
 # AWS Access Key ID: <paste>
 # AWS Secret Access Key: <paste>
-# Default region: ap-southeast-1
+# Default region: us-east-1
 # Default output format: json
 ```
 
@@ -112,10 +112,10 @@ Test xem user có đủ quyền không:
 
 ```bash
 # Test EKS permissions
-aws eks list-clusters --region ap-southeast-1
+aws eks list-clusters --region us-east-1
 
 # Test EC2 permissions
-aws ec2 describe-vpcs --region ap-southeast-1
+aws ec2 describe-vpcs --region us-east-1
 
 # Test IAM permissions
 aws iam list-roles --max-items 1

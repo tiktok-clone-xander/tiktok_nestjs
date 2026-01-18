@@ -5,7 +5,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "ap-southeast-1" # Singapore - closer to VN
+  default     = "us-east-1" # US East (N. Virginia) - default region
 }
 
 variable "aws_profile" {
@@ -43,7 +43,7 @@ variable "vpc_cidr" {
 variable "availability_zones" {
   description = "Availability zones"
   type        = list(string)
-  default     = ["ap-southeast-1a", "ap-southeast-1b"]
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "private_subnets" {

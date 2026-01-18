@@ -56,7 +56,7 @@ terraform apply
 
 ```powershell
 # Get kubeconfig
-aws eks update-kubeconfig --region ap-southeast-1 --name tiktok-clone-eks
+aws eks update-kubeconfig --region us-east-1 --name tiktok-clone-eks
 
 # Check pods
 kubectl get pods -n tiktok-clone-prod

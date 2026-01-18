@@ -9,7 +9,7 @@
    # Or set environment variables:
    export AWS_ACCESS_KEY_ID="your-key"
    export AWS_SECRET_ACCESS_KEY="your-secret"
-   export AWS_DEFAULT_REGION="ap-southeast-1"
+   export AWS_DEFAULT_REGION="us-east-1"
    ```
 
 2. **Terraform** >= 1.5.0
@@ -104,7 +104,7 @@ terraform apply tfplan
 terraform output configure_kubectl
 
 # Run it:
-aws eks update-kubeconfig --region ap-southeast-1 --name tiktok-clone-eks
+aws eks update-kubeconfig --region us-east-1 --name tiktok-clone-eks
 ```
 
 ### Step 6: Verify Deployment

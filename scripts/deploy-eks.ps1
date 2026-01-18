@@ -6,7 +6,7 @@ param(
     [string]$Action = "deploy",  # deploy, destroy, status, logs
 
     [Parameter(Mandatory=$false)]
-    [string]$Region = "ap-southeast-1",
+    [string]$Region = "us-east-1",
 
     [Parameter(Mandatory=$false)]
     [string]$ClusterName = "tiktok-clone-eks",
@@ -274,7 +274,7 @@ Actions:
   cost     - Show cost estimate
 
 Options:
-  -Region <region>      AWS region (default: ap-southeast-1)
+  -Region <region>      AWS region (default: us-east-1)
   -ClusterName <name>   EKS cluster name (default: tiktok-clone-eks)
   -SkipTerraform        Skip Terraform deployment
   -AutoApprove          Auto-approve Terraform changes

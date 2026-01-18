@@ -32,7 +32,7 @@ on:
         type: boolean
 
 env:
-  AWS_REGION: ap-southeast-1
+  AWS_REGION: us-east-1
   CLUSTER_NAME: tiktok-clone-eks
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ${{ github.repository }}
