@@ -66,9 +66,56 @@ jobs:
         with:
           terraform_version: 1.6.0
 
-      - name: Terraform Init
+      - name: Setup Backend Infrastructure
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init
+        run: |
+          echo "=========================================="
+          echo "  Ensuring S3 Backend Exists"
+          echo "=========================================="
+
+          # Check if S3 bucket exists
+          if ! aws s3 ls s3://tiktok-clone-terraform-state 2>/dev/null; then
+            echo "Backend bucket does not exist. Creating..."
+
+            # Temporarily init without backend to create it
+            cat > backend_override.tf << 'EOF'
+          terraform {
+            backend "local" {}
+          }
+          EOF
+
+            terraform init -reconfigure
+
+            # Create backend resources
+            terraform apply -target=aws_s3_bucket.terraform_state \
+                           -target=aws_s3_bucket_versioning.terraform_state \
+                           -target=aws_s3_bucket_server_side_encryption_configuration.terraform_state \
+                           -target=aws_s3_bucket_public_access_block.terraform_state \
+                           -target=aws_dynamodb_table.terraform_locks \
+                           -auto-approve
+
+            echo "✓ Backend infrastructure created"
+
+            # Remove override and migrate to S3
+            rm -f backend_override.tf
+            terraform init -migrate-state -force-copy
+
+            echo "✓ State migrated to S3"
+          else
+            echo "✓ Backend bucket already exists"
+          fi
+
+      - name: Terraform Init (Plan Phase)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform init -reconfigure
+
+          # Verify state backend
+          echo ""
+          echo "State backend configuration:"
+          terraform version
+          echo ""
+          echo "✓ Using remote state in S3"
 
       - name: Terraform Validate
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -129,9 +176,9 @@ jobs:
           name: terraform-plan
           path: ${{ env.TF_WORKING_DIR }}
 
-      - name: Terraform Init
+      - name: Terraform Init (Apply Phase)
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init
+        run: terraform init -reconfigure
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -351,9 +398,9 @@ jobs:
         with:
           terraform_version: 1.6.0
 
-      - name: Terraform Init
+      - name: Terraform Init (Destroy Phase)
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init
+        run: terraform init -reconfigure
 
       - name: Terraform Destroy
         working-directory: ${{ env.TF_WORKING_DIR }}

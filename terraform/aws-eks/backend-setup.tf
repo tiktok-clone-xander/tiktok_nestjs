@@ -1,20 +1,6 @@
 # Backend Infrastructure Setup
 # Run this FIRST to create S3 bucket and DynamoDB table for remote state
 
-terraform {
-  # Comment out during first run to create backend resources
-  # Uncomment after backend is created
-  /*
-  backend "s3" {
-    bucket         = "tiktok-clone-terraform-state"
-    key            = "eks/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "terraform-state-locks"
-  }
-  */
-}
-
 # S3 bucket for Terraform state
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "tiktok-clone-terraform-state"

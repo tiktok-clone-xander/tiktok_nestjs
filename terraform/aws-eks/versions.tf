@@ -26,15 +26,13 @@ terraform {
     }
   }
 
-  # Remote backend for production - prevents "cluster already exists" errors in CI/CD
-  # Uncomment after running backend-setup.tf to create S3 bucket and DynamoDB table
-  # See PRODUCTION_SETUP.md for step-by-step guide
-
-  # backend "s3" {
-  #   bucket         = "tiktok-clone-terraform-state"
-  #   key            = "eks/terraform.tfstate"
-  #   region         = "us-east-1"
-  #   encrypt        = true
-  #   dynamodb_table = "terraform-state-locks"
-  # }
+  # REQUIRED: Remote backend for state management
+  # This ensures state is never lost and prevents "resource already exists" errors
+  backend "s3" {
+    bucket         = "tiktok-clone-terraform-state"
+    key            = "eks/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-state-locks"
+  }
 }
