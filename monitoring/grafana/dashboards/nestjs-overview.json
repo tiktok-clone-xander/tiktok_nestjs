@@ -336,7 +336,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"dockerlogs\"} |= ``",
+          "expr": "{container=~\"tiktok_.+\"}",
+          "queryType": "range",
           "legendFormat": ""
         }
       ]
