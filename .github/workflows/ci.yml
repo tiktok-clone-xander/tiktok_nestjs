@@ -45,7 +45,7 @@ env:
   NODE_VERSION: '20.x'
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ${{ github.repository_owner }}/tiktok
-  GITOPS_REPO: ${{ github.repository_owner }}/tiktok-gitops
+  GITOPS_REPO: ${{ github.repository_owner }}/tiktok-gitops-repo-tiktok
 
 concurrency:
   group: ci-${{ github.ref }}
